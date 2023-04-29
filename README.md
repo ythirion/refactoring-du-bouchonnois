@@ -39,3 +39,12 @@ Work in progress pour créer 1 kata de refactoring du bouchonnois...
 	- Pour les failures -> PBT
 	- Améliorer la gestion des cas négatifs
 - Event Logs
+
+## Example Mapping
+Découvrir c'est quoi l'Example Mapping [ici](https://xtrem-tdd.netlify.app/Flavours/example-mapping).
+
+Ci-dessous, l'Example Mapping qui a servi d'alignement à notre équipe du Bouchonnois afin de développer ce système.
+
+![Refactoring du Bouchonnois](example-mapping/example-mapping.webp)
+
+Version PDF disponible [ici](example-mapping/example-mapping.pdf)
