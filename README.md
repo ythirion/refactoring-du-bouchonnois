@@ -14,12 +14,12 @@ Work in progress pour créer 1 kata de refactoring du bouchonnois...
 - Service "poubelle"
 
 ## A démontrer
-- Example Mapping du Bouchonnois
+✅Example Mapping du Bouchonnois
 - Tell Don't Ask
 - Test Data Builders
 - Approval Tests pour status
 - Mutation Testing
-- FluentAssertions
+✅ FluentAssertions
 - Avoid Primitives
 - Parse Don't Validate
 - Higher Order Function
@@ -37,10 +37,18 @@ Work in progress pour créer 1 kata de refactoring du bouchonnois...
 
 	
 ## To Do
+- Montrer l'état initial Sonar / Codescene
+- Treat all warnings as errors
+- Refactor tests hotspots
+  - Screaming architecture / tests
+- Test Data Builders
+- Utiliser Fuzzier -> nom par exemple
 - From Example Based Testing to PBT
 	- Pour les failures -> PBT
 	- Améliorer la gestion des cas négatifs
-- Event Logs
+- Approval Testing pour ScenarioTests
+- ...
+- Ensuite aller dans le code de prod
 
 ## Example Mapping
 Découvrir c'est quoi l'Example Mapping [ici](https://xtrem-tdd.netlify.app/Flavours/example-mapping).
