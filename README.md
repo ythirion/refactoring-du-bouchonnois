@@ -1,4 +1,6 @@
 # Refactoring du Bouchonnois
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ythirion_refactoring-du-bouchonnois&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ythirion_refactoring-du-bouchonnois) [![CodeScene Code Health](https://codescene.io/projects/39213/status-badges/code-health)](https://codescene.io/projects/39213) [![CodeScene System Mastery](https://codescene.io/projects/39213/status-badges/system-mastery)](https://codescene.io/projects/39213) [![CodeScene general](https://codescene.io/images/analyzed-by-codescene-badge.svg)](https://codescene.io/projects/39213)
+
 Work in progress pour créer 1 kata de refactoring du bouchonnois...
 
 ![Refactoring du Bouchonnois](img/refactoring-du-bouchonnois.webp)
