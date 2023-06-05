@@ -2,6 +2,7 @@ name: SonarCloud
 on:
   push:
     branches:
+      - main
       - steps/01-gather-metrics
 jobs:
   build:
