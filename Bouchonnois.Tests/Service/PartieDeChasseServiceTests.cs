@@ -1005,27 +1005,24 @@ namespace Bouchonnois.Tests.Service
                 var repository = new PartieDeChasseRepositoryForTests();
                 var service = new PartieDeChasseService(repository, () => DateTime.Now);
 
-                repository.Add(new PartieDeChasse
+                var terrain = new Terrain("Pitibon sur Sauldre")
                 {
-                    Id = id,
-                    Chasseurs = new List<Chasseur>
-                    {
-                        new() {Nom = "Dédé", BallesRestantes = 20},
-                        new() {Nom = "Bernard", BallesRestantes = 8},
-                        new() {Nom = "Robert", BallesRestantes = 12, NbGalinettes = 2},
-                    },
-                    Terrain = new Terrain
-                    {
-                        Nom = "Pitibon sur Sauldre",
-                        NbGalinettes = 3
-                    },
-                    Status = PartieStatus.EnCours,
-                    Events = new List<Event>
-                    {
-                        new(new DateTime(2024, 4, 25, 9, 0, 12),
-                            "La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)")
-                    }
-                });
+                    NbGalinettes = 3
+                };
+                var chasseurs = new List<Chasseur>
+                {
+                    new("Dédé") {BallesRestantes = 20},
+                    new("Bernard") {BallesRestantes = 8},
+                    new("Robert") {BallesRestantes = 12, NbGalinettes = 2},
+                };
+
+                var events = new List<Event>
+                {
+                    new(new DateTime(2024, 4, 25, 9, 0, 12),
+                        "La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)")
+                };
+
+                repository.Add(new PartieDeChasse(id, terrain, chasseurs, events));
 
                 var status = service.ConsulterStatus(id);
 

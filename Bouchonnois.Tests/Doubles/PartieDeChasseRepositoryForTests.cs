@@ -6,7 +6,7 @@ namespace Bouchonnois.Tests.Doubles
     public class PartieDeChasseRepositoryForTests : IPartieDeChasseRepository
     {
         private readonly IDictionary<Guid, PartieDeChasse> _partiesDeChasse = new Dictionary<Guid, PartieDeChasse>();
-        private PartieDeChasse _savedPartieDeChasse;
+        private PartieDeChasse? _savedPartieDeChasse;
 
         public void Save(PartieDeChasse partieDeChasse)
         {
