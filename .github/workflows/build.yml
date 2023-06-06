@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - steps/01-gather-metrics
+      - steps/02-treat-warnings-as-errors
 jobs:
   build:
     name: Build and analyze
