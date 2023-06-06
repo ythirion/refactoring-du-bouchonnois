@@ -20,6 +20,6 @@ namespace Bouchonnois.Tests.Doubles
                 : null)!;
 
         public void Add(PartieDeChasse partieDeChasse) => _partiesDeChasse[partieDeChasse.Id] = partieDeChasse;
-        public PartieDeChasse SavedPartieDeChasse() => _savedPartieDeChasse;
+        public PartieDeChasse? SavedPartieDeChasse() => _savedPartieDeChasse;
     }
 }

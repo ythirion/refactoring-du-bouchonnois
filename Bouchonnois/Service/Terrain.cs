@@ -7,7 +7,7 @@ namespace Bouchonnois.Service
             Nom = nom;
         }
 
-        public string Nom { get; init; }
+        public string Nom { get; }
         public int NbGalinettes { get; set; }
     }
 }

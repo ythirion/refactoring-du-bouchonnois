@@ -7,7 +7,7 @@ namespace Bouchonnois.Domain
             Nom = nom;
         }
 
-        public string Nom { get; init; }
+        public string Nom { get; }
         public int BallesRestantes { get; set; }
         public int NbGalinettes { get; set; }
     }
