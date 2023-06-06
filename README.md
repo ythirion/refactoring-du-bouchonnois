@@ -18,7 +18,7 @@ Work in progress pour créer 1 kata de refactoring du bouchonnois...
 - Tell Don't Ask
 - Test Data Builders
 - Approval Tests pour status
-- Mutation Testing
+- Mutation Testing  
 ✅ FluentAssertions
 - Avoid Primitives
 - Parse Don't Validate
