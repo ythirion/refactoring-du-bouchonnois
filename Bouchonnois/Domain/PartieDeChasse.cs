@@ -13,12 +13,25 @@ namespace Bouchonnois.Domain
             Events = new List<Event>();
         }
 
-        public PartieDeChasse(Guid id, Terrain terrain, List<Chasseur> chasseurs, List<Event> events)
+        public PartieDeChasse(Guid id, Terrain terrain, List<Chasseur> chasseurs)
             : this(id, terrain)
         {
             Chasseurs = chasseurs;
+        }
+
+
+        public PartieDeChasse(Guid id, Terrain terrain, List<Chasseur> chasseurs, List<Event> events)
+            : this(id, terrain, chasseurs)
+        {
             Events = events;
         }
+
+        public PartieDeChasse(Guid id, Terrain terrain, List<Chasseur> chasseurs, PartieStatus status)
+            : this(id, terrain, chasseurs)
+        {
+            Status = status;
+        }
+
 
         public Guid Id { get; init; }
         public List<Chasseur> Chasseurs { get; init; }

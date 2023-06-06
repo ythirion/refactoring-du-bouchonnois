@@ -78,7 +78,7 @@ public class ScenarioTests
         {
             service.Tirer(id, "Bernard");
         }
-        catch (TasPlusDeBallesMonVieuxChasseALaMain e)
+        catch (TasPlusDeBallesMonVieuxChasseALaMain)
         {
         }
 
