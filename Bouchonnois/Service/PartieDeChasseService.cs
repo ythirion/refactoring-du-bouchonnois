@@ -24,16 +24,13 @@ namespace Bouchonnois.Service
                 throw new ImpossibleDeDémarrerUnePartieSansGalinettes();
             }
 
-            var partieDeChasse = 
+            var partieDeChasse =
                 new PartieDeChasse(Guid.NewGuid(),
                     new Terrain(terrainDeChasse.nom)
                     {
                         NbGalinettes = terrainDeChasse.nbGalinettes
                     }
-                )
-            {
-                Events = new List<Event>()
-            };
+                );
 
             foreach (var chasseur in chasseurs)
             {
@@ -84,7 +81,7 @@ namespace Bouchonnois.Service
                     {
                         if (partieDeChasse.Chasseurs.Exists(c => c.Nom == chasseur))
                         {
-                            var chasseurQuiTire = partieDeChasse.Chasseurs.First(c => c.Nom == chasseur);
+                            var chasseurQuiTire = partieDeChasse.Chasseurs.Find(c => c.Nom == chasseur)!;
 
                             if (chasseurQuiTire.BallesRestantes == 0)
                             {
@@ -145,7 +142,7 @@ namespace Bouchonnois.Service
                 {
                     if (partieDeChasse.Chasseurs.Exists(c => c.Nom == chasseur))
                     {
-                        var chasseurQuiTire = partieDeChasse.Chasseurs.First(c => c.Nom == chasseur);
+                        var chasseurQuiTire = partieDeChasse.Chasseurs.Find(c => c.Nom == chasseur)!;
 
                         if (chasseurQuiTire.BallesRestantes == 0)
                         {
@@ -250,7 +247,7 @@ namespace Bouchonnois.Service
 
             partieDeChasse.Status = PartieStatus.Terminée;
 
-            var result = "";
+            string result;
 
             if (classement.All(group => group.Key == 0))
             {
@@ -261,10 +258,10 @@ namespace Bouchonnois.Service
             }
             else
             {
-                result = string.Join(", ", classement.First().Select(c => c.Nom));
+                result = string.Join(", ", classement.ElementAt(0).Select(c => c.Nom));
                 partieDeChasse.Events.Add(
                     new Event(_timeProvider(),
-                        $"La partie de chasse est terminée, vainqueur : {string.Join(", ", classement.First().Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}"
+                        $"La partie de chasse est terminée, vainqueur : {string.Join(", ", classement.ElementAt(0).Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}"
                     )
                 );
             }
