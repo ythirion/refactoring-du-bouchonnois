@@ -38,6 +38,8 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+      - name: Install jq
+        run: winget install jqlang.jq
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -45,7 +47,10 @@ jobs:
         shell: powershell
         run: |
           dotnet tool install --global dotnet-coverage
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"ythirion_refactoring-du-bouchonnois" /o:"ythirion" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
+          dotnet tool install --global dotnet-stryker
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"ythirion_refactoring-du-bouchonnois" /o:"ythirion" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml /d:sonar.externalIssuesReportPaths=mutation-sonar.json
           dotnet build
           dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
+          dotnet stryker -r "json" -O "stryker"
+          jq -f mutation-report-to-sonar.jq stryker/reports/mutation-report.json > mutation-sonar.json
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
