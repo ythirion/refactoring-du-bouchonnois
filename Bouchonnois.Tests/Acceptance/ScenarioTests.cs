@@ -2,7 +2,7 @@ using Bouchonnois.Service;
 using Bouchonnois.Service.Exceptions;
 using Bouchonnois.Tests.Doubles;
 
-namespace Bouchonnois.Tests.Service;
+namespace Bouchonnois.Tests.Acceptance;
 
 public class ScenarioTests
 {
