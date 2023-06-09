@@ -1,5 +1,6 @@
-namespace Bouchonnois.Service.Exceptions;
-
-public class LaPartieDeChasseNexistePas : Exception
+namespace Bouchonnois.Service.Exceptions
 {
+    public class LaPartieDeChasseNexistePas : Exception
+    {
+    }
 }

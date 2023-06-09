@@ -1,9 +1,10 @@
-namespace Bouchonnois.Domain;
-
-public record Event(DateTime Date, string Message)
+namespace Bouchonnois.Domain
 {
-    public override string ToString()
+    public record Event(DateTime Date, string Message)
     {
-        return string.Format("{0:HH:mm} - {1}", Date, Message);
+        public override string ToString()
+        {
+            return string.Format("{0:HH:mm} - {1}", Date, Message);
+        }
     }
 }
