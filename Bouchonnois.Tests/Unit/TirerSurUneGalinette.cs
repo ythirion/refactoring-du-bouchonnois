@@ -1,6 +1,4 @@
 using Bouchonnois.Service.Exceptions;
-using static Bouchonnois.Tests.Builders.ChasseurBuilder;
-using static Bouchonnois.Tests.Builders.PartieDeChasseBuilder;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -100,7 +98,7 @@ namespace Bouchonnois.Tests.Unit
                     UnePartieDeChasseDuBouchonnois()
                         .SurUnTerrainRicheEnGalinettes()
                         .Avec(Dédé(), Robert())
-                        .ALapéro()
+                        .Terminée()
                 );
 
                 ExecuteAndAssertThrow<OnTirePasQuandLaPartieEstTerminée>(

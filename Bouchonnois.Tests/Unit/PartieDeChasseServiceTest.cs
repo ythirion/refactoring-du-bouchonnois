@@ -1,5 +1,6 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Service;
+using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
 using FluentAssertions.Specialized;
 

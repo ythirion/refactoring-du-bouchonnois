@@ -9,6 +9,7 @@ namespace Bouchonnois.Tests.Builders
         private int _nbGalinettes;
         private ChasseurBuilder[] _chasseurs = Array.Empty<ChasseurBuilder>();
         private PartieStatus _status = EnCours;
+        private Event[] _events = Array.Empty<Event>();
 
         public static PartieDeChasseBuilder UnePartieDeChasseDuBouchonnois() => new();
         public static Guid UnePartieDeChasseInexistante() => Guid.NewGuid();
@@ -37,10 +38,23 @@ namespace Bouchonnois.Tests.Builders
             return this;
         }
 
+        public PartieDeChasseBuilder Terminée()
+        {
+            _status = PartieStatus.Terminée;
+            return this;
+        }
+
+        public PartieDeChasseBuilder Events(params Event[] events)
+        {
+            _events = events;
+            return this;
+        }
+
         public PartieDeChasse Build() => new(
             Guid.NewGuid(),
             new Terrain("Pitibon sur Sauldre") {NbGalinettes = _nbGalinettes},
             _chasseurs.Select(c => c.Build()).ToList(),
+            _events.ToList(),
             _status
         );
     }
