@@ -53,6 +53,21 @@ public class PartieDeChasseAssertions : ReferenceTypeAssertions<PartieDeChasse?,
                     $"Le nombre de balles restantes pour {nom} devrait être de {ballesRestantes} balle(s) et il devrait avoir capturé {galinettes} galinette(s), " +
                     $"il lui reste {Chasseur(nom).BallesRestantes} balle(s) et a capturé {Chasseur(nom).NbGalinettes} galinette(s)"));
 
+    public AndConstraint<PartieDeChasseAssertions> ChasseurATiré(
+        string nom,
+        int ballesRestantes)
+        => Call(() =>
+            Execute.Assertion
+                .ForCondition(Subject!.Chasseurs.Any(c => c.Nom == nom))
+                .FailWith("Chasseur non présent dans la partie de chasse")
+                .Then
+                .Given(() => Subject!.Chasseurs.First(c => c.Nom == nom))
+                .ForCondition(
+                    chasseur => chasseur.BallesRestantes == ballesRestantes)
+                .FailWith(
+                    $"Le nombre de balles restantes pour {nom} devrait être de {ballesRestantes} balle(s)"));
+
+
     private Chasseur Chasseur(string nom) => Subject!.Chasseurs.First(c => c.Nom == nom);
 
     public AndConstraint<PartieDeChasseAssertions> GalinettesSurLeTerrain(int nbGalinettes)
