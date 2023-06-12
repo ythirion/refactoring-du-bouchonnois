@@ -1,5 +1,6 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Service.Exceptions;
+using static Bouchonnois.Tests.Builders.CommandBuilder;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -8,16 +9,13 @@ namespace Bouchonnois.Tests.Unit
         [Fact]
         public void AvecPlusieursChasseurs()
         {
-            var chasseurs = new List<(string, int)>
-            {
-                ("Dédé", 20),
-                ("Bernard", 8),
-                ("Robert", 12)
-            };
-            var terrainDeChasse = ("Pitibon sur Sauldre", 3);
+            var command = DémarrerUnePartieDeChasse()
+                .Avec(("Dédé", 20), ("Bernard", 8), ("Robert", 12))
+                .SurUnTerrainRicheEnGalinettes();
+
             var id = PartieDeChasseService.Demarrer(
-                terrainDeChasse,
-                chasseurs
+                command.Terrain,
+                command.Chasseurs
             );
 
             var savedPartieDeChasse = Repository.SavedPartieDeChasse();
@@ -36,32 +34,26 @@ namespace Bouchonnois.Tests.Unit
             savedPartieDeChasse.Chasseurs[2].BallesRestantes.Should().Be(12);
             savedPartieDeChasse.Chasseurs[2].NbGalinettes.Should().Be(0);
 
-            AssertLastEvent(savedPartieDeChasse,
-                "La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)");
+            savedPartieDeChasse.Should()
+                .HaveEmittedEvent(Now,
+                    "La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)");
         }
 
         public class Echoue : PartieDeChasseServiceTest
         {
             [Fact]
             public void SansChasseurs()
-            {
-                var chasseurs = new List<(string, int)>();
-                var terrainDeChasse = ("Pitibon sur Sauldre", 3);
-
-                Action demarrerPartieSansChasseurs = () => PartieDeChasseService.Demarrer(terrainDeChasse, chasseurs);
-
-                demarrerPartieSansChasseurs.Should()
-                    .Throw<ImpossibleDeDémarrerUnePartieSansChasseur>();
-                Repository.SavedPartieDeChasse().Should().BeNull();
-            }
+                => ExecuteAndAssertThrow<ImpossibleDeDémarrerUnePartieSansChasseur>(
+                    s => s.Demarrer(("Pitibon sur Sauldre", 3), new List<(string, int)>()),
+                    p => p.Should().BeNull()
+                );
 
             [Fact]
             public void AvecUnTerrainSansGalinettes()
+                //    => ExecuteAndAssertThrow<ImpossibleDeDémarrerUnePartieSansGalinettes>(
             {
-                var chasseurs = new List<(string, int)>();
-                var terrainDeChasse = ("Pitibon sur Sauldre", 0);
-
-                Action demarrerPartieSansChasseurs = () => PartieDeChasseService.Demarrer(terrainDeChasse, chasseurs);
+                Action demarrerPartieSansChasseurs = () =>
+                    PartieDeChasseService.Demarrer(("Pitibon sur Sauldre", 0), new List<(string, int)>());
 
                 demarrerPartieSansChasseurs.Should()
                     .Throw<ImpossibleDeDémarrerUnePartieSansGalinettes>();
@@ -70,20 +62,13 @@ namespace Bouchonnois.Tests.Unit
             [Fact]
             public void SiChasseurSansBalle()
             {
-                var chasseurs = new List<(string, int)>
-                {
-                    ("Dédé", 20),
-                    ("Bernard", 0),
-                };
-                var terrainDeChasse = ("Pitibon sur Sauldre", 3);
+                var command = DémarrerUnePartieDeChasse()
+                    .Avec(("Dédé", 20), ("Bernard", 0))
+                    .SurUnTerrainRicheEnGalinettes();
 
-                Action demarrerPartieAvecChasseurSansBalle =
-                    () => PartieDeChasseService.Demarrer(terrainDeChasse, chasseurs);
-
-                demarrerPartieAvecChasseurSansBalle.Should()
-                    .Throw<ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle>();
-
-                Repository.SavedPartieDeChasse().Should().BeNull();
+                ExecuteAndAssertThrow<ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle>(
+                    s => s.Demarrer(command.Terrain, command.Chasseurs),
+                    p => p.Should().BeNull());
             }
         }
     }
