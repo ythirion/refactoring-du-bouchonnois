@@ -69,4 +69,11 @@ public class PartieDeChasseAssertions : ReferenceTypeAssertions<PartieDeChasse?,
                 .Given(() => Subject!)
                 .ForCondition(partieDeChasse => partieDeChasse.Status == Apéro)
                 .FailWith("Les chasseurs devraient être à l'apéro"));
+
+    public AndConstraint<PartieDeChasseAssertions> BeEnCours()
+        => Call(() =>
+            Execute.Assertion
+                .Given(() => Subject!)
+                .ForCondition(partieDeChasse => partieDeChasse.Status == EnCours)
+                .FailWith("Les chasseurs devraient être en cours de chasse"));
 }

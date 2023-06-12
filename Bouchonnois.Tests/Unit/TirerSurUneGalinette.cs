@@ -10,7 +10,6 @@ namespace Bouchonnois.Tests.Unit
             var partieDeChasse = UnePartieDeChasseExistante(
                 UnePartieDeChasseDuBouchonnois()
                     .SurUnTerrainRicheEnGalinettes()
-                    .Avec(Dédé(), Bernard(), Robert())
             );
 
             PartieDeChasseService.TirerSurUneGalinette(partieDeChasse.Id, "Bernard");
