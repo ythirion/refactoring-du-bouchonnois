@@ -28,13 +28,6 @@ namespace Bouchonnois.Tests.Unit
             return partieDeChasse;
         }
 
-        protected static void AssertLastEvent(PartieDeChasse partieDeChasse,
-            string expectedMessage)
-            => partieDeChasse.Events.Should()
-                .HaveCount(1)
-                .And
-                .EndWith(new Event(Now, expectedMessage));
-
         protected PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
 
         protected ExceptionAssertions<TException> ExecuteAndAssertThrow<TException>(Action<PartieDeChasseService> act,
