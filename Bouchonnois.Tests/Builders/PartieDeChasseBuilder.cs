@@ -7,7 +7,7 @@ namespace Bouchonnois.Tests.Builders
     public class PartieDeChasseBuilder
     {
         private int _nbGalinettes;
-        private ChasseurBuilder[] _chasseurs = Array.Empty<ChasseurBuilder>();
+        private ChasseurBuilder[] _chasseurs = {Dédé(), Bernard(), Robert()};
         private PartieStatus _status = EnCours;
         private Event[] _events = Array.Empty<Event>();
 

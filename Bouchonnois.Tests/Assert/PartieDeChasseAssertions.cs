@@ -1,6 +1,7 @@
 using Bouchonnois.Domain;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
+using static Bouchonnois.Domain.PartieStatus;
 
 namespace Bouchonnois.Tests.Assert;
 
@@ -61,4 +62,11 @@ public class PartieDeChasseAssertions : ReferenceTypeAssertions<PartieDeChasse?,
                 .ForCondition(terrain => terrain.NbGalinettes == nbGalinettes)
                 .FailWith(
                     $"Le terrain devrait contenir {nbGalinettes} mais en contient {Subject!.Terrain.NbGalinettes}"));
+
+    public AndConstraint<PartieDeChasseAssertions> BeInApéro()
+        => Call(() =>
+            Execute.Assertion
+                .Given(() => Subject!)
+                .ForCondition(partieDeChasse => partieDeChasse.Status == Apéro)
+                .FailWith("Les chasseurs devraient être à l'apéro"));
 }
