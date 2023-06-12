@@ -1,13 +1,12 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Service;
-using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
 
 namespace Bouchonnois.Tests.Unit
 {
     public abstract class PartieDeChasseServiceTest
     {
-        private static readonly DateTime Now = new(2024, 6, 6, 14, 50, 45);
+        protected static readonly DateTime Now = new(2024, 6, 6, 14, 50, 45);
         protected static readonly Func<DateTime> TimeProvider = () => Now;
 
         protected readonly PartieDeChasseRepositoryForTests Repository;
@@ -33,5 +32,7 @@ namespace Bouchonnois.Tests.Unit
                 .HaveCount(1)
                 .And
                 .EndWith(new Event(Now, expectedMessage));
+
+        protected PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
     }
 }
