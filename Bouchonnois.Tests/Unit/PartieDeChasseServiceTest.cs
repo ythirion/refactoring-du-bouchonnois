@@ -1,5 +1,6 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Service;
+using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
 
 namespace Bouchonnois.Tests.Unit
@@ -16,6 +17,14 @@ namespace Bouchonnois.Tests.Unit
         {
             Repository = new PartieDeChasseRepositoryForTests();
             PartieDeChasseService = new PartieDeChasseService(Repository, TimeProvider);
+        }
+
+        protected PartieDeChasse AvecUnePartieDeChasseExistante(PartieDeChasseBuilder partieDeChasseBuilder)
+        {
+            var partieDeChasse = partieDeChasseBuilder.Build();
+            Repository.Add(partieDeChasse);
+
+            return partieDeChasse;
         }
 
         protected static void AssertLastEvent(PartieDeChasse partieDeChasse,

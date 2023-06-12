@@ -2,6 +2,8 @@ using Bouchonnois.Domain;
 using Bouchonnois.Service;
 using Bouchonnois.Service.Exceptions;
 using Bouchonnois.Tests.Doubles;
+using static Bouchonnois.Tests.Builders.ChasseurBuilder;
+using static Bouchonnois.Tests.Builders.PartieDeChasseBuilder;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -10,19 +12,19 @@ namespace Bouchonnois.Tests.Unit
         [Fact]
         public void AvecUnChasseurAyantDesBallesEtAssezDeGalinettesSurLeTerrain()
         {
-            var id = Guid.NewGuid();
-            Repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
-                new List<Chasseur>
-                {
-                    new("Dédé") {BallesRestantes = 20},
-                    new("Bernard") {BallesRestantes = 8},
-                    new("Robert") {BallesRestantes = 12},
-                }));
+            // Arrange
+            var partieDeChasse = AvecUnePartieDeChasseExistante(
+                UnePartieDeChasseDuBouchonnois()
+                    .SurUnTerrainRicheEnGalinettes()
+                    .Avec(Dédé(), Bernard(), Robert())
+            );
 
-            PartieDeChasseService.TirerSurUneGalinette(id, "Bernard");
+            // Act
+            PartieDeChasseService.TirerSurUneGalinette(partieDeChasse.Id, "Bernard");
 
+            // Assert
             var savedPartieDeChasse = Repository.SavedPartieDeChasse();
-            savedPartieDeChasse!.Id.Should().Be(id);
+            savedPartieDeChasse!.Id.Should().Be(partieDeChasse.Id);
             savedPartieDeChasse.Status.Should().Be(PartieStatus.EnCours);
             savedPartieDeChasse.Terrain.Nom.Should().Be("Pitibon sur Sauldre");
             savedPartieDeChasse.Terrain.NbGalinettes.Should().Be(2);
