@@ -11,9 +11,7 @@ namespace Bouchonnois.Tests.Unit
         public void AvecUnChasseurAyantDesBalles()
         {
             var id = Guid.NewGuid();
-            var repository = new PartieDeChasseRepositoryForTests();
-
-            repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
+            Repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
                 new List<Chasseur>
                 {
                     new("Dédé") {BallesRestantes = 20},
@@ -21,11 +19,9 @@ namespace Bouchonnois.Tests.Unit
                     new("Robert") {BallesRestantes = 12},
                 }));
 
-            var service = new PartieDeChasseService(repository, TimeProvider);
+            PartieDeChasseService.Tirer(id, "Bernard");
 
-            service.Tirer(id, "Bernard");
-
-            var savedPartieDeChasse = repository.SavedPartieDeChasse();
+            var savedPartieDeChasse = Repository.SavedPartieDeChasse();
             savedPartieDeChasse!.Id.Should().Be(id);
             savedPartieDeChasse.Status.Should().Be(PartieStatus.EnCours);
             savedPartieDeChasse.Terrain.Nom.Should().Be("Pitibon sur Sauldre");
@@ -41,117 +37,106 @@ namespace Bouchonnois.Tests.Unit
             savedPartieDeChasse.Chasseurs[2].BallesRestantes.Should().Be(12);
             savedPartieDeChasse.Chasseurs[2].NbGalinettes.Should().Be(0);
 
-            AssertLastEvent(repository.SavedPartieDeChasse()!, "Bernard tire");
+            AssertLastEvent(Repository.SavedPartieDeChasse()!, "Bernard tire");
         }
 
-        [Fact]
-        public void EchoueCarPartieNexistePas()
+        public class Echoue : PartieDeChasseServiceTest
         {
-            var id = Guid.NewGuid();
-            var repository = new PartieDeChasseRepositoryForTests();
-            var service = new PartieDeChasseService(repository, TimeProvider);
-            var tirerQuandPartieExistePas = () => service.Tirer(id, "Bernard");
+            [Fact]
+            public void CarPartieNexistePas()
+            {
+                var id = Guid.NewGuid();
+                var tirerQuandPartieExistePas = () => PartieDeChasseService.Tirer(id, "Bernard");
 
-            tirerQuandPartieExistePas.Should()
-                .Throw<LaPartieDeChasseNexistePas>();
-            repository.SavedPartieDeChasse().Should().BeNull();
-        }
+                tirerQuandPartieExistePas.Should()
+                    .Throw<LaPartieDeChasseNexistePas>();
+                Repository.SavedPartieDeChasse().Should().BeNull();
+            }
 
-        [Fact]
-        public void EchoueAvecUnChasseurNayantPlusDeBalles()
-        {
-            var id = Guid.NewGuid();
-            var repository = new PartieDeChasseRepositoryForTests();
+            [Fact]
+            public void AvecUnChasseurNayantPlusDeBalles()
+            {
+                var id = Guid.NewGuid();
+                Repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
+                    new List<Chasseur>
+                    {
+                        new("Dédé") {BallesRestantes = 20},
+                        new("Bernard") {BallesRestantes = 0},
+                        new("Robert") {BallesRestantes = 12},
+                    }));
 
-            repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
-                new List<Chasseur>
-                {
-                    new("Dédé") {BallesRestantes = 20},
-                    new("Bernard") {BallesRestantes = 0},
-                    new("Robert") {BallesRestantes = 12},
-                }));
+                var tirerSansBalle = () => PartieDeChasseService.Tirer(id, "Bernard");
 
-            var service = new PartieDeChasseService(repository, TimeProvider);
-            var tirerSansBalle = () => service.Tirer(id, "Bernard");
+                tirerSansBalle.Should()
+                    .Throw<TasPlusDeBallesMonVieuxChasseALaMain>();
 
-            tirerSansBalle.Should()
-                .Throw<TasPlusDeBallesMonVieuxChasseALaMain>();
+                AssertLastEvent(Repository.SavedPartieDeChasse()!,
+                    "Bernard tire -> T'as plus de balles mon vieux, chasse à la main");
+            }
 
-            AssertLastEvent(repository.SavedPartieDeChasse()!,
-                "Bernard tire -> T'as plus de balles mon vieux, chasse à la main");
-        }
+            [Fact]
+            public void CarLeChasseurNestPasDansLaPartie()
+            {
+                var id = Guid.NewGuid();
+                Repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
+                    new List<Chasseur>
+                    {
+                        new("Dédé") {BallesRestantes = 20},
+                        new("Bernard") {BallesRestantes = 8},
+                        new("Robert") {BallesRestantes = 12},
+                    }));
 
-        [Fact]
-        public void EchoueCarLeChasseurNestPasDansLaPartie()
-        {
-            var id = Guid.NewGuid();
-            var repository = new PartieDeChasseRepositoryForTests();
+                var chasseurInconnuVeutTirer = () => PartieDeChasseService.Tirer(id, "Chasseur inconnu");
 
-            repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
-                new List<Chasseur>
-                {
-                    new("Dédé") {BallesRestantes = 20},
-                    new("Bernard") {BallesRestantes = 8},
-                    new("Robert") {BallesRestantes = 12},
-                }));
+                chasseurInconnuVeutTirer
+                    .Should()
+                    .Throw<ChasseurInconnu>()
+                    .WithMessage("Chasseur inconnu Chasseur inconnu");
 
-            var service = new PartieDeChasseService(repository, TimeProvider);
-            var chasseurInconnuVeutTirer = () => service.Tirer(id, "Chasseur inconnu");
+                Repository.SavedPartieDeChasse().Should().BeNull();
+            }
 
-            chasseurInconnuVeutTirer
-                .Should()
-                .Throw<ChasseurInconnu>()
-                .WithMessage("Chasseur inconnu Chasseur inconnu");
+            [Fact]
+            public void SiLesChasseursSontEnApero()
+            {
+                var id = Guid.NewGuid();
+                Repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
+                    new List<Chasseur>
+                    {
+                        new("Dédé") {BallesRestantes = 20},
+                        new("Bernard") {BallesRestantes = 8},
+                        new("Robert") {BallesRestantes = 12},
+                    }, PartieStatus.Apéro));
 
-            repository.SavedPartieDeChasse().Should().BeNull();
-        }
+                var tirerEnPleinApéro = () => PartieDeChasseService.Tirer(id, "Chasseur inconnu");
 
-        [Fact]
-        public void EchoueSiLesChasseursSontEnApero()
-        {
-            var id = Guid.NewGuid();
-            var repository = new PartieDeChasseRepositoryForTests();
+                tirerEnPleinApéro.Should()
+                    .Throw<OnTirePasPendantLapéroCestSacré>();
 
-            repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
-                new List<Chasseur>
-                {
-                    new("Dédé") {BallesRestantes = 20},
-                    new("Bernard") {BallesRestantes = 8},
-                    new("Robert") {BallesRestantes = 12},
-                }, PartieStatus.Apéro));
+                AssertLastEvent(Repository.SavedPartieDeChasse()!,
+                    "Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!");
+            }
 
-            var service = new PartieDeChasseService(repository, TimeProvider);
-            var tirerEnPleinApéro = () => service.Tirer(id, "Chasseur inconnu");
+            [Fact]
+            public void SiLaPartieDeChasseEstTerminée()
+            {
+                var id = Guid.NewGuid();
+                Repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
+                    new List<Chasseur>
+                    {
+                        new("Dédé") {BallesRestantes = 20},
+                        new("Bernard") {BallesRestantes = 8},
+                        new("Robert") {BallesRestantes = 12},
+                    }, PartieStatus.Terminée));
 
-            tirerEnPleinApéro.Should()
-                .Throw<OnTirePasPendantLapéroCestSacré>();
+                var tirerQuandTerminée = () => PartieDeChasseService.Tirer(id, "Chasseur inconnu");
 
-            AssertLastEvent(repository.SavedPartieDeChasse()!,
-                "Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!");
-        }
+                tirerQuandTerminée.Should()
+                    .Throw<OnTirePasQuandLaPartieEstTerminée>();
 
-        [Fact]
-        public void EchoueSiLaPartieDeChasseEstTerminée()
-        {
-            var id = Guid.NewGuid();
-            var repository = new PartieDeChasseRepositoryForTests();
-
-            repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
-                new List<Chasseur>
-                {
-                    new("Dédé") {BallesRestantes = 20},
-                    new("Bernard") {BallesRestantes = 8},
-                    new("Robert") {BallesRestantes = 12},
-                }, PartieStatus.Terminée));
-
-            var service = new PartieDeChasseService(repository, TimeProvider);
-            var tirerQuandTerminée = () => service.Tirer(id, "Chasseur inconnu");
-
-            tirerQuandTerminée.Should()
-                .Throw<OnTirePasQuandLaPartieEstTerminée>();
-
-            AssertLastEvent(repository.SavedPartieDeChasse()!,
-                "Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée");
+                AssertLastEvent(Repository.SavedPartieDeChasse()!,
+                    "Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée");
+            }
         }
     }
 }

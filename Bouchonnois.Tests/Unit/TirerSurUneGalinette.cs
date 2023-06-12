@@ -11,9 +11,7 @@ namespace Bouchonnois.Tests.Unit
         public void AvecUnChasseurAyantDesBallesEtAssezDeGalinettesSurLeTerrain()
         {
             var id = Guid.NewGuid();
-            var repository = new PartieDeChasseRepositoryForTests();
-
-            repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
+            Repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
                 new List<Chasseur>
                 {
                     new("Dédé") {BallesRestantes = 20},
@@ -21,11 +19,9 @@ namespace Bouchonnois.Tests.Unit
                     new("Robert") {BallesRestantes = 12},
                 }));
 
-            var service = new PartieDeChasseService(repository, TimeProvider);
+            PartieDeChasseService.TirerSurUneGalinette(id, "Bernard");
 
-            service.TirerSurUneGalinette(id, "Bernard");
-
-            var savedPartieDeChasse = repository.SavedPartieDeChasse();
+            var savedPartieDeChasse = Repository.SavedPartieDeChasse();
             savedPartieDeChasse!.Id.Should().Be(id);
             savedPartieDeChasse.Status.Should().Be(PartieStatus.EnCours);
             savedPartieDeChasse.Terrain.Nom.Should().Be("Pitibon sur Sauldre");

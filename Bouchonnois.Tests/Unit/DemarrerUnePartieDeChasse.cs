@@ -1,7 +1,5 @@
 using Bouchonnois.Domain;
-using Bouchonnois.Service;
 using Bouchonnois.Service.Exceptions;
-using Bouchonnois.Tests.Doubles;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -10,8 +8,6 @@ namespace Bouchonnois.Tests.Unit
         [Fact]
         public void AvecPlusieursChasseurs()
         {
-            var repository = new PartieDeChasseRepositoryForTests();
-            var service = new PartieDeChasseService(repository, TimeProvider);
             var chasseurs = new List<(string, int)>
             {
                 ("Dédé", 20),
@@ -19,12 +15,12 @@ namespace Bouchonnois.Tests.Unit
                 ("Robert", 12)
             };
             var terrainDeChasse = ("Pitibon sur Sauldre", 3);
-            var id = service.Demarrer(
+            var id = PartieDeChasseService.Demarrer(
                 terrainDeChasse,
                 chasseurs
             );
 
-            var savedPartieDeChasse = repository.SavedPartieDeChasse();
+            var savedPartieDeChasse = Repository.SavedPartieDeChasse();
             savedPartieDeChasse!.Id.Should().Be(id);
             savedPartieDeChasse.Status.Should().Be(PartieStatus.EnCours);
             savedPartieDeChasse.Terrain.Nom.Should().Be("Pitibon sur Sauldre");
@@ -44,32 +40,28 @@ namespace Bouchonnois.Tests.Unit
                 "La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)");
         }
 
-        public class Echoue
+        public class Echoue : PartieDeChasseServiceTest
         {
             [Fact]
             public void SansChasseurs()
             {
-                var repository = new PartieDeChasseRepositoryForTests();
-                var service = new PartieDeChasseService(repository, TimeProvider);
                 var chasseurs = new List<(string, int)>();
                 var terrainDeChasse = ("Pitibon sur Sauldre", 3);
 
-                Action demarrerPartieSansChasseurs = () => service.Demarrer(terrainDeChasse, chasseurs);
+                Action demarrerPartieSansChasseurs = () => PartieDeChasseService.Demarrer(terrainDeChasse, chasseurs);
 
                 demarrerPartieSansChasseurs.Should()
                     .Throw<ImpossibleDeDémarrerUnePartieSansChasseur>();
-                repository.SavedPartieDeChasse().Should().BeNull();
+                Repository.SavedPartieDeChasse().Should().BeNull();
             }
 
             [Fact]
             public void AvecUnTerrainSansGalinettes()
             {
-                var repository = new PartieDeChasseRepositoryForTests();
-                var service = new PartieDeChasseService(repository, TimeProvider);
                 var chasseurs = new List<(string, int)>();
                 var terrainDeChasse = ("Pitibon sur Sauldre", 0);
 
-                Action demarrerPartieSansChasseurs = () => service.Demarrer(terrainDeChasse, chasseurs);
+                Action demarrerPartieSansChasseurs = () => PartieDeChasseService.Demarrer(terrainDeChasse, chasseurs);
 
                 demarrerPartieSansChasseurs.Should()
                     .Throw<ImpossibleDeDémarrerUnePartieSansGalinettes>();
@@ -78,8 +70,6 @@ namespace Bouchonnois.Tests.Unit
             [Fact]
             public void SiChasseurSansBalle()
             {
-                var repository = new PartieDeChasseRepositoryForTests();
-                var service = new PartieDeChasseService(repository, TimeProvider);
                 var chasseurs = new List<(string, int)>
                 {
                     ("Dédé", 20),
@@ -87,12 +77,13 @@ namespace Bouchonnois.Tests.Unit
                 };
                 var terrainDeChasse = ("Pitibon sur Sauldre", 3);
 
-                Action demarrerPartieAvecChasseurSansBalle = () => service.Demarrer(terrainDeChasse, chasseurs);
+                Action demarrerPartieAvecChasseurSansBalle =
+                    () => PartieDeChasseService.Demarrer(terrainDeChasse, chasseurs);
 
                 demarrerPartieAvecChasseurSansBalle.Should()
                     .Throw<ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle>();
 
-                repository.SavedPartieDeChasse().Should().BeNull();
+                Repository.SavedPartieDeChasse().Should().BeNull();
             }
         }
     }

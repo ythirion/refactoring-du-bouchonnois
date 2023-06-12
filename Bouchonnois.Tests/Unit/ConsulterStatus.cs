@@ -11,10 +11,7 @@ namespace Bouchonnois.Tests.Unit
         public void QuandLaPartieVientDeDémarrer()
         {
             var id = Guid.NewGuid();
-            var repository = new PartieDeChasseRepositoryForTests();
-            var service = new PartieDeChasseService(repository, TimeProvider);
-
-            repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre")
+            Repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre")
             {
                 NbGalinettes = 3
             }, new List<Chasseur>
@@ -28,7 +25,7 @@ namespace Bouchonnois.Tests.Unit
                     "La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)")
             }));
 
-            var status = service.ConsulterStatus(id);
+            var status = PartieDeChasseService.ConsulterStatus(id);
 
             status.Should()
                 .Be(
@@ -40,10 +37,7 @@ namespace Bouchonnois.Tests.Unit
         public void QuandLaPartieEstTerminée()
         {
             var id = Guid.NewGuid();
-            var repository = new PartieDeChasseRepositoryForTests();
-            var service = new PartieDeChasseService(repository, TimeProvider);
-
-            repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
+            Repository.Add(new PartieDeChasse(id, new Terrain("Pitibon sur Sauldre") {NbGalinettes = 3},
                 new List<Chasseur>
                 {
                     new("Dédé") {BallesRestantes = 20},
@@ -77,9 +71,9 @@ namespace Bouchonnois.Tests.Unit
                         "La partie de chasse est terminée, vainqueur :  Robert - 3 galinettes"),
                 }));
 
-            var status = service.ConsulterStatus(id);
-
-            status.Should()
+            PartieDeChasseService
+                .ConsulterStatus(id)
+                .Should()
                 .BeEquivalentTo(
                     @"15:30 - La partie de chasse est terminée, vainqueur :  Robert - 3 galinettes
 15:00 - Robert tire sur une galinette
