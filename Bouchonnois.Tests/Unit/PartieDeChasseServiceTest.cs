@@ -1,6 +1,7 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Service;
 using Bouchonnois.Tests.Doubles;
+using FluentAssertions.Specialized;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -18,7 +19,7 @@ namespace Bouchonnois.Tests.Unit
             PartieDeChasseService = new PartieDeChasseService(Repository, TimeProvider);
         }
 
-        protected PartieDeChasse AvecUnePartieDeChasseExistante(PartieDeChasseBuilder partieDeChasseBuilder)
+        protected PartieDeChasse UnePartieDeChasseExistante(PartieDeChasseBuilder partieDeChasseBuilder)
         {
             var partieDeChasse = partieDeChasseBuilder.Build();
             Repository.Add(partieDeChasse);
@@ -34,5 +35,15 @@ namespace Bouchonnois.Tests.Unit
                 .EndWith(new Event(Now, expectedMessage));
 
         protected PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
+
+        protected ExceptionAssertions<TException> ExecuteAndAssertThrow<TException>(Action<PartieDeChasseService> act,
+            Action<PartieDeChasse?> assert)
+            where TException : Exception
+        {
+            var ex = ((Action) (() => act(PartieDeChasseService))).Should().Throw<TException>();
+            assert(SavedPartieDeChasse());
+
+            return ex;
+        }
     }
 }
