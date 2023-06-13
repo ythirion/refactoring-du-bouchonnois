@@ -9,7 +9,7 @@ namespace Bouchonnois.Tests.Unit
         {
             PartieDeChasseService.PrendreLapéro(
                 UnePartieDeChasseExistante(
-                    UnePartieDeChasseDuBouchonnois()
+                    SurUnTerrainRicheEnGalinettes()
                 ).Id);
 
             SavedPartieDeChasse()
@@ -32,7 +32,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<OnEstDéjàEnTrainDePrendreLapéro>(
                     s => s.PrendreLapéro(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
+                            SurUnTerrainRicheEnGalinettes()
                                 .ALapéro()
                         ).Id),
                     p => p.Should().BeNull());
@@ -42,7 +42,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<OnPrendPasLapéroQuandLaPartieEstTerminée>(
                     s => s.PrendreLapéro(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
+                            SurUnTerrainRicheEnGalinettes()
                                 .Terminée()
                         ).Id),
                     p => p.Should().BeNull());

@@ -10,7 +10,7 @@ namespace Bouchonnois.Tests.Unit
             PartieDeChasseService
                 .TerminerLaPartie(
                     UnePartieDeChasseExistante(
-                        UnePartieDeChasseDuBouchonnois()
+                        SurUnTerrainRicheEnGalinettes()
                             .Avec(Dédé(), Bernard(), Robert().AyantTué(2))
                     ).Id)
                 .Should()
@@ -27,7 +27,7 @@ namespace Bouchonnois.Tests.Unit
             PartieDeChasseService
                 .TerminerLaPartie(
                     UnePartieDeChasseExistante(
-                        UnePartieDeChasseDuBouchonnois()
+                        SurUnTerrainRicheEnGalinettes()
                             .Avec(Robert().AyantTué(2))
                     ).Id)
                 .Should()
@@ -44,7 +44,7 @@ namespace Bouchonnois.Tests.Unit
             PartieDeChasseService
                 .TerminerLaPartie(
                     UnePartieDeChasseExistante(
-                        UnePartieDeChasseDuBouchonnois()
+                        SurUnTerrainRicheEnGalinettes()
                             .Avec(Dédé().AyantTué(2), Bernard().AyantTué(2), Robert())
                     ).Id)
                 .Should()
@@ -61,7 +61,7 @@ namespace Bouchonnois.Tests.Unit
         {
             PartieDeChasseService
                 .TerminerLaPartie(
-                    UnePartieDeChasseExistante(UnePartieDeChasseDuBouchonnois()).Id)
+                    UnePartieDeChasseExistante(SurUnTerrainRicheEnGalinettes()).Id)
                 .Should()
                 .Be("Brocouille");
 
@@ -77,7 +77,7 @@ namespace Bouchonnois.Tests.Unit
             PartieDeChasseService
                 .TerminerLaPartie(
                     UnePartieDeChasseExistante(
-                        UnePartieDeChasseDuBouchonnois()
+                        SurUnTerrainRicheEnGalinettes()
                             .Avec(Dédé().AyantTué(3), Bernard().AyantTué(3), Robert().AyantTué(3))
                             .ALapéro()
                     ).Id)
@@ -98,7 +98,7 @@ namespace Bouchonnois.Tests.Unit
                 ExecuteAndAssertThrow<QuandCestFiniCestFini>(
                     s => s.TerminerLaPartie(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
+                            SurUnTerrainRicheEnGalinettes()
                                 .Terminée()
                         ).Id),
                     p => p.Should().BeNull());

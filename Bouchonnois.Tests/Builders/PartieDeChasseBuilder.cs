@@ -11,20 +11,15 @@ namespace Bouchonnois.Tests.Builders
         private PartieStatus _status = EnCours;
         private Event[] _events = Array.Empty<Event>();
 
-        public static PartieDeChasseBuilder UnePartieDeChasseDuBouchonnois() => new();
-        public static Guid UnePartieDeChasseInexistante() => Guid.NewGuid();
-
-        public PartieDeChasseBuilder SurUnTerrainRicheEnGalinettes(int nbGalinettes = 3)
+        private PartieDeChasseBuilder(int nbGalinettes)
         {
             _nbGalinettes = nbGalinettes;
-            return this;
         }
 
-        public PartieDeChasseBuilder SurUnTerrainSansGalinettes()
-        {
-            _nbGalinettes = 0;
-            return this;
-        }
+        public static PartieDeChasseBuilder SurUnTerrainRicheEnGalinettes() => new(3);
+        public static PartieDeChasseBuilder SurUnTerrainSansGalinettes() => new(0);
+        
+        public static Guid UnePartieDeChasseInexistante() => Guid.NewGuid();
 
         public PartieDeChasseBuilder Avec(params ChasseurBuilder[] chasseurs)
         {

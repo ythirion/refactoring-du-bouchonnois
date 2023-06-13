@@ -9,8 +9,7 @@ namespace Bouchonnois.Tests.Unit
         {
             PartieDeChasseService.Tirer(
                 UnePartieDeChasseExistante(
-                    UnePartieDeChasseDuBouchonnois()
-                        .SurUnTerrainRicheEnGalinettes()
+                    SurUnTerrainRicheEnGalinettes()
                         .Avec(Bernard())
                 ).Id, "Bernard");
 
@@ -34,8 +33,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<TasPlusDeBallesMonVieuxChasseALaMain>(
                     s => s.Tirer(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
-                                .SurUnTerrainSansGalinettes()
+                            SurUnTerrainSansGalinettes()
                                 .Avec(Dédé(), Bernard().SansBalles(), Robert())
                         ).Id, "Bernard"),
                     p => p
@@ -47,7 +45,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<ChasseurInconnu>(
                         s => s.Tirer(
                             UnePartieDeChasseExistante(
-                                UnePartieDeChasseDuBouchonnois()
+                                SurUnTerrainRicheEnGalinettes()
                             ).Id, "Chasseur inconnu"),
                         p => p.Should().BeNull())
                     .WithMessage("Chasseur inconnu Chasseur inconnu");
@@ -57,7 +55,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<OnTirePasPendantLapéroCestSacré>(
                     s => s.Tirer(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
+                            SurUnTerrainRicheEnGalinettes()
                                 .ALapéro()
                         ).Id, "Chasseur inconnu"),
                     p => p
@@ -70,7 +68,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<OnTirePasQuandLaPartieEstTerminée>(
                     s => s.Tirer(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
+                            SurUnTerrainRicheEnGalinettes()
                                 .Terminée()
                         ).Id, "Chasseur inconnu"),
                     p => p

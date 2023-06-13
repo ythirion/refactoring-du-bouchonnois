@@ -9,7 +9,7 @@ namespace Bouchonnois.Tests.Unit
         {
             PartieDeChasseService.ReprendreLaPartie(
                 UnePartieDeChasseExistante(
-                    UnePartieDeChasseDuBouchonnois()
+                    SurUnTerrainRicheEnGalinettes()
                         .ALapéro()
                 ).Id);
 
@@ -33,7 +33,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<LaChasseEstDéjàEnCours>(
                     s => s.ReprendreLaPartie(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
+                            SurUnTerrainRicheEnGalinettes()
                         ).Id),
                     p => p.Should().BeNull());
 
@@ -42,7 +42,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<QuandCestFiniCestFini>(
                     s => s.ReprendreLaPartie(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
+                            SurUnTerrainRicheEnGalinettes()
                                 .Terminée()
                         ).Id),
                     p => p.Should().BeNull());

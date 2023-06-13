@@ -9,8 +9,7 @@ namespace Bouchonnois.Tests.Unit
         {
             PartieDeChasseService.TirerSurUneGalinette(
                 UnePartieDeChasseExistante(
-                    UnePartieDeChasseDuBouchonnois()
-                        .SurUnTerrainRicheEnGalinettes()
+                    SurUnTerrainRicheEnGalinettes()
                 ).Id, "Bernard");
 
             SavedPartieDeChasse()
@@ -33,8 +32,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<TasPlusDeBallesMonVieuxChasseALaMain>(
                     s => s.TirerSurUneGalinette(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
-                                .SurUnTerrainRicheEnGalinettes()
+                            SurUnTerrainRicheEnGalinettes()
                                 .Avec(Dédé(), Bernard().SansBalles(), Robert())
                         ).Id, "Bernard"),
                     p => p.Should().HaveEmittedEvent(Now,
@@ -46,8 +44,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<TasTropPicoléMonVieuxTasRienTouché>(
                     s => s.TirerSurUneGalinette(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
-                                .SurUnTerrainSansGalinettes()
+                            SurUnTerrainSansGalinettes()
                                 .Avec(Dédé(), Robert())
                         ).Id, "Bernard"),
                     p => p.Should().BeNull());
@@ -57,8 +54,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<ChasseurInconnu>(
                         s => s.TirerSurUneGalinette(
                             UnePartieDeChasseExistante(
-                                UnePartieDeChasseDuBouchonnois()
-                                    .SurUnTerrainRicheEnGalinettes()
+                                SurUnTerrainRicheEnGalinettes()
                                     .Avec(Dédé(), Robert())
                             ).Id, "Chasseur inconnu"),
                         s => s.Should().BeNull())
@@ -69,8 +65,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<OnTirePasPendantLapéroCestSacré>(
                     s => s.TirerSurUneGalinette(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
-                                .SurUnTerrainRicheEnGalinettes()
+                            SurUnTerrainRicheEnGalinettes()
                                 .Avec(Dédé(), Robert())
                                 .ALapéro()
                         ).Id, "Chasseur inconnu"),
@@ -82,8 +77,7 @@ namespace Bouchonnois.Tests.Unit
                 => ExecuteAndAssertThrow<OnTirePasQuandLaPartieEstTerminée>(
                     s => s.TirerSurUneGalinette(
                         UnePartieDeChasseExistante(
-                            UnePartieDeChasseDuBouchonnois()
-                                .SurUnTerrainRicheEnGalinettes()
+                            SurUnTerrainRicheEnGalinettes()
                                 .Avec(Dédé(), Robert())
                                 .Terminée()
                         ).Id, "Chasseur inconnu"),
