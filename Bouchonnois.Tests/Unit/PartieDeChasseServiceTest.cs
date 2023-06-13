@@ -33,7 +33,7 @@ namespace Bouchonnois.Tests.Unit
             return partieDeChasse;
         }
 
-        protected PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
+        private PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
 
         protected ExceptionAssertions<TException> ExecuteAndAssertThrow<TException>(Action<PartieDeChasseService> act,
             Action<PartieDeChasse?> assert)
@@ -58,6 +58,12 @@ namespace Bouchonnois.Tests.Unit
         {
             _act!(_partieDeChasseId);
             assert(SavedPartieDeChasse());
+            assertResult?.Invoke();
+        }
+
+        protected void Then(Action? assertResult = null)
+        {
+            _act!(_partieDeChasseId);
             assertResult?.Invoke();
         }
 
