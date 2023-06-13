@@ -8,6 +8,11 @@ namespace Bouchonnois.Tests.Unit
 {
     public abstract class PartieDeChasseServiceTest
     {
+        protected string Bernard = "Bernard";
+        protected string Robert = "Robert";
+        protected string Dédé = "Dédé";
+        protected const string ChasseurInconnu = "Chasseur inconnu";
+
         protected static readonly DateTime Now = new(2024, 6, 6, 14, 50, 45);
         protected static readonly Func<DateTime> TimeProvider = () => Now;
 
@@ -39,5 +44,32 @@ namespace Bouchonnois.Tests.Unit
 
             return ex;
         }
+
+        #region Given / When / Then DSL
+
+        private Guid _partieDeChasseId;
+        private Action<Guid>? _act;
+
+        protected void Given(Guid partieDeChasseId) => _partieDeChasseId = partieDeChasseId;
+        protected void Given(PartieDeChasse unePartieDeChasseExistante) => Given(unePartieDeChasseExistante.Id);
+        protected void When(Action<Guid> act) => _act = act;
+
+        protected void Then(Action<PartieDeChasse?> assert, Action? assertResult = null)
+        {
+            _act!(_partieDeChasseId);
+            assert(SavedPartieDeChasse());
+            assertResult?.Invoke();
+        }
+
+        protected void ThenThrow<TException>(Action<PartieDeChasse?> assert, string? expectedMessage = null)
+            where TException : Exception
+        {
+            var ex = ((Action) (() => _act!(_partieDeChasseId))).Should().Throw<TException>();
+            if (expectedMessage is not null) ex.WithMessage(expectedMessage);
+
+            assert(SavedPartieDeChasse());
+        }
+
+        #endregion
     }
 }

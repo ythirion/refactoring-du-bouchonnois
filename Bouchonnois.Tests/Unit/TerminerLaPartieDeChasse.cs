@@ -7,87 +7,96 @@ namespace Bouchonnois.Tests.Unit
         [Fact]
         public void QuandLaPartieEstEnCoursEt1SeulChasseurGagne()
         {
-            PartieDeChasseService
-                .TerminerLaPartie(
-                    UnePartieDeChasseExistante(
-                        SurUnTerrainRicheEnGalinettes()
-                            .Avec(Dédé(), Bernard(), Robert().AyantTué(2))
-                    ).Id)
-                .Should()
-                .Be("Robert");
+            Given(
+                UnePartieDeChasseExistante(
+                    SurUnTerrainRicheEnGalinettes()
+                        .Avec(Dédé(), Bernard(), Robert().AyantTué(2))
+                ));
 
-            SavedPartieDeChasse()
-                .Should()
-                .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes");
+            string? winner = null;
+            When(id => winner = PartieDeChasseService.TerminerLaPartie(id));
+
+            Then(savedPartieDeChasse =>
+                    savedPartieDeChasse.Should()
+                        .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes"),
+                () => winner.Should().Be(Robert));
         }
 
         [Fact]
         public void QuandLaPartieEstEnCoursEt1SeulChasseurDansLaPartie()
         {
-            PartieDeChasseService
-                .TerminerLaPartie(
-                    UnePartieDeChasseExistante(
-                        SurUnTerrainRicheEnGalinettes()
-                            .Avec(Robert().AyantTué(2))
-                    ).Id)
-                .Should()
-                .Be("Robert");
+            Given(
+                UnePartieDeChasseExistante(
+                    SurUnTerrainRicheEnGalinettes()
+                        .Avec(Robert().AyantTué(2))
+                )
+            );
 
-            SavedPartieDeChasse()
-                .Should()
-                .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes");
+            string? winner = null;
+            When(id => winner = PartieDeChasseService.TerminerLaPartie(id));
+
+            Then(savedPartieDeChasse =>
+                    savedPartieDeChasse.Should()
+                        .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes"),
+                () => winner.Should().Be(Robert));
         }
 
         [Fact]
         public void QuandLaPartieEstEnCoursEt2ChasseursExAequo()
         {
-            PartieDeChasseService
-                .TerminerLaPartie(
-                    UnePartieDeChasseExistante(
-                        SurUnTerrainRicheEnGalinettes()
-                            .Avec(Dédé().AyantTué(2), Bernard().AyantTué(2), Robert())
-                    ).Id)
-                .Should()
-                .Be("Dédé, Bernard");
+            Given(
+                UnePartieDeChasseExistante(
+                    SurUnTerrainRicheEnGalinettes()
+                        .Avec(Dédé().AyantTué(2), Bernard().AyantTué(2), Robert())
+                )
+            );
 
-            SavedPartieDeChasse()
-                .Should()
-                .HaveEmittedEvent(Now,
-                    "La partie de chasse est terminée, vainqueur : Dédé - 2 galinettes, Bernard - 2 galinettes");
+            string? winner = null;
+            When(id => winner = PartieDeChasseService.TerminerLaPartie(id));
+
+            Then(savedPartieDeChasse =>
+                    savedPartieDeChasse.Should()
+                        .HaveEmittedEvent(Now,
+                            "La partie de chasse est terminée, vainqueur : Dédé - 2 galinettes, Bernard - 2 galinettes"),
+                () => winner.Should().Be("Dédé, Bernard"));
         }
 
         [Fact]
         public void QuandLaPartieEstEnCoursEtToutLeMondeBrocouille()
         {
-            PartieDeChasseService
-                .TerminerLaPartie(
-                    UnePartieDeChasseExistante(SurUnTerrainRicheEnGalinettes()).Id)
-                .Should()
-                .Be("Brocouille");
+            Given(
+                UnePartieDeChasseExistante(
+                    SurUnTerrainRicheEnGalinettes()
+                )
+            );
 
-            SavedPartieDeChasse()
-                .Should()
-                .HaveEmittedEvent(Now,
-                    "La partie de chasse est terminée, vainqueur : Brocouille");
+            string? winner = null;
+            When(id => winner = PartieDeChasseService.TerminerLaPartie(id));
+
+            Then(savedPartieDeChasse =>
+                    savedPartieDeChasse.Should()
+                        .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Brocouille"),
+                () => winner.Should().Be("Brocouille"));
         }
 
         [Fact]
         public void QuandLesChasseursSontALaperoEtTousExAequo()
         {
-            PartieDeChasseService
-                .TerminerLaPartie(
-                    UnePartieDeChasseExistante(
-                        SurUnTerrainRicheEnGalinettes()
-                            .Avec(Dédé().AyantTué(3), Bernard().AyantTué(3), Robert().AyantTué(3))
-                            .ALapéro()
-                    ).Id)
-                .Should()
-                .Be("Dédé, Bernard, Robert");
+            Given(
+                UnePartieDeChasseExistante(
+                    SurUnTerrainRicheEnGalinettes()
+                        .Avec(Dédé().AyantTué(3), Bernard().AyantTué(3), Robert().AyantTué(3))
+                        .ALapéro()
+                )
+            );
 
-            SavedPartieDeChasse()
-                .Should()
-                .HaveEmittedEvent(Now,
-                    "La partie de chasse est terminée, vainqueur : Dédé - 3 galinettes, Bernard - 3 galinettes, Robert - 3 galinettes");
+            string? winner = null;
+            When(id => winner = PartieDeChasseService.TerminerLaPartie(id));
+
+            Then(savedPartieDeChasse =>
+                    savedPartieDeChasse.Should()
+                        .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Dédé - 3 galinettes, Bernard - 3 galinettes, Robert - 3 galinettes"),
+                () => winner.Should().Be("Dédé, Bernard, Robert"));
         }
 
         public class Echoue : PartieDeChasseServiceTest
@@ -95,13 +104,15 @@ namespace Bouchonnois.Tests.Unit
             [Fact]
             public void SiLaPartieDeChasseEstDéjàTerminée()
             {
-                ExecuteAndAssertThrow<QuandCestFiniCestFini>(
-                    s => s.TerminerLaPartie(
-                        UnePartieDeChasseExistante(
-                            SurUnTerrainRicheEnGalinettes()
-                                .Terminée()
-                        ).Id),
-                    p => p.Should().BeNull());
+                Given(
+                    UnePartieDeChasseExistante(
+                        SurUnTerrainRicheEnGalinettes()
+                            .Terminée())
+                    );
+                
+                When(id => PartieDeChasseService.TerminerLaPartie(id));
+
+                ThenThrow<QuandCestFiniCestFini>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
         }
     }

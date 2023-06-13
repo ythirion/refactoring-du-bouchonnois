@@ -7,45 +7,62 @@ namespace Bouchonnois.Tests.Unit
         [Fact]
         public void QuandLaPartieEstEnCours()
         {
-            PartieDeChasseService.PrendreLapéro(
+            Given(
                 UnePartieDeChasseExistante(
                     SurUnTerrainRicheEnGalinettes()
-                ).Id);
+                )
+            );
 
-            SavedPartieDeChasse()
-                .Should()
-                .HaveEmittedEvent(Now, "Petit apéro")
-                .And
-                .BeInApéro();
+            When(id => PartieDeChasseService.PrendreLapéro(id));
+
+            Then(savedPartieDeChasse =>
+                savedPartieDeChasse.Should()
+                    .HaveEmittedEvent(Now, "Petit apéro")
+                    .And
+                    .BeInApéro());
         }
 
         public class Echoue : PartieDeChasseServiceTest
         {
             [Fact]
             public void CarPartieNexistePas()
-                => ExecuteAndAssertThrow<LaPartieDeChasseNexistePas>(
-                    s => s.PrendreLapéro(UnePartieDeChasseInexistante()),
-                    p => p.Should().BeNull());
+            {
+                Given(UnePartieDeChasseInexistante());
+
+                When(id => PartieDeChasseService.PrendreLapéro(id));
+
+                ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+            }
 
             [Fact]
             public void SiLesChasseursSontDéjaEnApero()
-                => ExecuteAndAssertThrow<OnEstDéjàEnTrainDePrendreLapéro>(
-                    s => s.PrendreLapéro(
-                        UnePartieDeChasseExistante(
-                            SurUnTerrainRicheEnGalinettes()
-                                .ALapéro()
-                        ).Id),
-                    p => p.Should().BeNull());
+            {
+                Given(
+                    UnePartieDeChasseExistante(
+                        SurUnTerrainRicheEnGalinettes()
+                            .ALapéro())
+                );
+
+                When(id => PartieDeChasseService.PrendreLapéro(id));
+
+                ThenThrow<OnEstDéjàEnTrainDePrendreLapéro>(savedPartieDeChasse =>
+                    savedPartieDeChasse.Should().BeNull());
+            }
 
             [Fact]
             public void SiLaPartieDeChasseEstTerminée()
-                => ExecuteAndAssertThrow<OnPrendPasLapéroQuandLaPartieEstTerminée>(
-                    s => s.PrendreLapéro(
-                        UnePartieDeChasseExistante(
-                            SurUnTerrainRicheEnGalinettes()
-                                .Terminée()
-                        ).Id),
-                    p => p.Should().BeNull());
+            {
+                Given(
+                    UnePartieDeChasseExistante(
+                        SurUnTerrainRicheEnGalinettes()
+                            .Terminée())
+                );
+
+                When(id => PartieDeChasseService.PrendreLapéro(id));
+
+                ThenThrow<OnPrendPasLapéroQuandLaPartieEstTerminée>(savedPartieDeChasse =>
+                    savedPartieDeChasse.Should().BeNull());
+            }
         }
     }
 }

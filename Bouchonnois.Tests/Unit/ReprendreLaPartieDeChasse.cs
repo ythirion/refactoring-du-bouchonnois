@@ -7,45 +7,56 @@ namespace Bouchonnois.Tests.Unit
         [Fact]
         public void QuandLapéroEstEnCours()
         {
-            PartieDeChasseService.ReprendreLaPartie(
+            Given(
                 UnePartieDeChasseExistante(
                     SurUnTerrainRicheEnGalinettes()
                         .ALapéro()
-                ).Id);
+                ));
 
-            SavedPartieDeChasse()
-                .Should()
+            When(id => PartieDeChasseService.ReprendreLaPartie(id));
+
+            Then(savedPartieDeChasse => savedPartieDeChasse.Should()
                 .HaveEmittedEvent(Now, "Reprise de la chasse")
                 .And
-                .BeEnCours();
+                .BeEnCours());
         }
 
         public class Echoue : PartieDeChasseServiceTest
         {
             [Fact]
             public void CarPartieNexistePas()
-                => ExecuteAndAssertThrow<LaPartieDeChasseNexistePas>(
-                    s => s.ReprendreLaPartie(UnePartieDeChasseInexistante()),
-                    p => p.Should().BeNull());
+            {
+                Given(UnePartieDeChasseInexistante());
+
+                When(id => PartieDeChasseService.ReprendreLaPartie(id));
+
+                ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+            }
 
             [Fact]
             public void SiLaChasseEstEnCours()
-                => ExecuteAndAssertThrow<LaChasseEstDéjàEnCours>(
-                    s => s.ReprendreLaPartie(
-                        UnePartieDeChasseExistante(
-                            SurUnTerrainRicheEnGalinettes()
-                        ).Id),
-                    p => p.Should().BeNull());
+            {
+                Given(UnePartieDeChasseExistante(
+                    SurUnTerrainRicheEnGalinettes()
+                ));
+
+                When(id => PartieDeChasseService.ReprendreLaPartie(id));
+
+                ThenThrow<LaChasseEstDéjàEnCours>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+            }
 
             [Fact]
             public void SiLaPartieDeChasseEstTerminée()
-                => ExecuteAndAssertThrow<QuandCestFiniCestFini>(
-                    s => s.ReprendreLaPartie(
-                        UnePartieDeChasseExistante(
-                            SurUnTerrainRicheEnGalinettes()
-                                .Terminée()
-                        ).Id),
-                    p => p.Should().BeNull());
+            {
+                Given(UnePartieDeChasseExistante(
+                    SurUnTerrainRicheEnGalinettes()
+                        .Terminée()
+                ));
+
+                When(id => PartieDeChasseService.ReprendreLaPartie(id));
+
+                ThenThrow<QuandCestFiniCestFini>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+            }
         }
     }
 }
