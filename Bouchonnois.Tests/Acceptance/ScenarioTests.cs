@@ -4,10 +4,11 @@ using Bouchonnois.Tests.Doubles;
 
 namespace Bouchonnois.Tests.Acceptance
 {
+    [UsesVerify]
     public class ScenarioTests
     {
         [Fact]
-        public void DéroulerUnePartie()
+        public Task DéroulerUnePartie()
         {
             var time = new DateTime(2024, 4, 25, 9, 0, 0);
             var repository = new PartieDeChasseRepositoryForTests();
@@ -88,30 +89,7 @@ namespace Bouchonnois.Tests.Acceptance
             time = time.Add(TimeSpan.FromMinutes(30));
             service.TerminerLaPartie(id);
 
-            service.ConsulterStatus(id)
-                .Should()
-                .BeEquivalentTo(
-                    @"15:30 - La partie de chasse est terminée, vainqueur : Robert - 3 galinettes
-15:00 - Robert tire sur une galinette
-14:41 - Bernard tire -> T'as plus de balles mon vieux, chasse à la main
-14:41 - Bernard tire
-14:41 - Bernard tire
-14:41 - Bernard tire
-14:41 - Bernard tire
-14:41 - Bernard tire
-14:41 - Bernard tire
-14:30 - Reprise de la chasse
-11:40 - Petit apéro
-11:30 - Robert tire sur une galinette
-11:04 - Dédé tire sur une galinette
-11:03 - Bernard tire
-11:02 - Bernard tire
-11:00 - Reprise de la chasse
-10:00 - Petit apéro
-09:40 - Robert tire sur une galinette
-09:10 - Dédé tire
-09:00 - La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)"
-                );
+            return Verify(service.ConsulterStatus(id));
         }
     }
 }

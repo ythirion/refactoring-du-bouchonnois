@@ -353,3 +353,6 @@ target/
 
 # Mac
 .DS_Store
+
+# Verify
+*.received.txt
