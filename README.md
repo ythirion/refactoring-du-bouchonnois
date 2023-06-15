@@ -18,3 +18,4 @@ Différentes étapes ainsi qu'une proposition de solution accompagne ce reposito
 - [2. Treat Warnings as Errors](facilitation/02.treat-warnings-as-errors.md)
 - [3. Let's kill some mutants](facilitation/03.kill-mutants.md)
 - [4. Améliorer la lisibilité des tests](facilitation/04.improve-tests-readability.md)
+- [5. "Approve" everything](facilitation/05.approve-everything.md)
