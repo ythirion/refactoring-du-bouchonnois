@@ -8,11 +8,6 @@ namespace Bouchonnois.Tests.Unit
 {
     public abstract class PartieDeChasseServiceTest
     {
-        protected string Bernard = "Bernard";
-        protected string Robert = "Robert";
-        protected string Dédé = "Dédé";
-        protected const string ChasseurInconnu = "Chasseur inconnu";
-
         protected static readonly DateTime Now = new(2024, 6, 6, 14, 50, 45);
         protected static readonly Func<DateTime> TimeProvider = () => Now;
 

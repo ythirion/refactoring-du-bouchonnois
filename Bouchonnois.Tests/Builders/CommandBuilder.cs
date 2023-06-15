@@ -13,9 +13,9 @@ public class CommandBuilder
         return this;
     }
 
-    public CommandBuilder SurUnTerrainRicheEnGalinettes()
+    public CommandBuilder SurUnTerrainRicheEnGalinettes(int nbGalinettes = 3)
     {
-        _nbGalinettes = 3;
+        _nbGalinettes = nbGalinettes;
         return this;
     }
 

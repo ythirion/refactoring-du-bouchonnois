@@ -29,9 +29,9 @@ namespace Bouchonnois.Tests.Builders
         }
 
         public static ChasseurBuilder LeChasseur(string nom) => new(nom);
-        public static ChasseurBuilder Dédé() => new ChasseurBuilder("Dédé", 20);
-        public static ChasseurBuilder Bernard() => new ChasseurBuilder("Bernard", 8);
-        public static ChasseurBuilder Robert() => new ChasseurBuilder("Robert", 12);
+        public static ChasseurBuilder Dédé() => new(Data.Dédé, 20);
+        public static ChasseurBuilder Bernard() => new(Data.Bernard, 8);
+        public static ChasseurBuilder Robert() => new(Data.Robert, 12);
 
         public Chasseur Build() => new(_nom!) {BallesRestantes = _ballesRestantes, NbGalinettes = _nbGalinettes};
     }

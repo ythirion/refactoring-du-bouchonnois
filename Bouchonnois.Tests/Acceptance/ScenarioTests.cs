@@ -1,95 +1,102 @@
 using Bouchonnois.Service;
 using Bouchonnois.Service.Exceptions;
+using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
+using static Bouchonnois.Tests.Builders.CommandBuilder;
 
 namespace Bouchonnois.Tests.Acceptance
 {
     [UsesVerify]
     public class ScenarioTests
     {
+        private DateTime _time = new(2024, 4, 25, 9, 0, 0);
+        private readonly PartieDeChasseService _service;
+
+        public ScenarioTests()
+        {
+            _service = new PartieDeChasseService(
+                new PartieDeChasseRepositoryForTests(),
+                () => _time
+            );
+        }
+
         [Fact]
         public Task DéroulerUnePartie()
         {
-            var time = new DateTime(2024, 4, 25, 9, 0, 0);
-            var repository = new PartieDeChasseRepositoryForTests();
-            var service = new PartieDeChasseService(repository, () => time);
-            var chasseurs = new List<(string, int)>
-            {
-                ("Dédé", 20),
-                ("Bernard", 8),
-                ("Robert", 12)
-            };
-            var terrainDeChasse = ("Pitibon sur Sauldre", 4);
-            var id = service.Demarrer(
-                terrainDeChasse,
-                chasseurs
+            var command = DémarrerUnePartieDeChasse()
+                .Avec((Data.Dédé, 20), (Data.Bernard, 8), (Data.Robert, 12))
+                .SurUnTerrainRicheEnGalinettes(4);
+
+            var id = _service.Demarrer(
+                command.Terrain,
+                command.Chasseurs
             );
 
-            time = time.Add(TimeSpan.FromMinutes(10));
-            service.Tirer(id, "Dédé");
+            _time = _time.Add(TimeSpan.FromMinutes(10));
+            _service.Tirer(id, Data.Dédé);
 
-            time = time.Add(TimeSpan.FromMinutes(30));
-            service.TirerSurUneGalinette(id, "Robert");
+            _time = _time.Add(TimeSpan.FromMinutes(30));
+            _service.TirerSurUneGalinette(id, Data.Robert);
 
-            time = time.Add(TimeSpan.FromMinutes(20));
-            service.PrendreLapéro(id);
+            _time = _time.Add(TimeSpan.FromMinutes(20));
+            _service.PrendreLapéro(id);
 
-            time = time.Add(TimeSpan.FromHours(1));
-            service.ReprendreLaPartie(id);
+            _time = _time.Add(TimeSpan.FromHours(1));
+            _service.ReprendreLaPartie(id);
 
-            time = time.Add(TimeSpan.FromMinutes(2));
-            service.Tirer(id, "Bernard");
+            _time = _time.Add(TimeSpan.FromMinutes(2));
+            _service.Tirer(id, Data.Bernard);
 
-            time = time.Add(TimeSpan.FromMinutes(1));
-            service.Tirer(id, "Bernard");
+            _time = _time.Add(TimeSpan.FromMinutes(1));
+            _service.Tirer(id, Data.Bernard);
 
-            time = time.Add(TimeSpan.FromMinutes(1));
-            service.TirerSurUneGalinette(id, "Dédé");
+            _time = _time.Add(TimeSpan.FromMinutes(1));
+            _service.TirerSurUneGalinette(id, Data.Dédé);
 
-            time = time.Add(TimeSpan.FromMinutes(26));
-            service.TirerSurUneGalinette(id, "Robert");
+            _time = _time.Add(TimeSpan.FromMinutes(26));
+            _service.TirerSurUneGalinette(id, Data.Robert);
 
-            time = time.Add(TimeSpan.FromMinutes(10));
-            service.PrendreLapéro(id);
+            _time = _time.Add(TimeSpan.FromMinutes(10));
+            _service.PrendreLapéro(id);
 
-            time = time.Add(TimeSpan.FromMinutes(170));
-            service.ReprendreLaPartie(id);
+            _time = _time.Add(TimeSpan.FromMinutes(170));
+            _service.ReprendreLaPartie(id);
 
-            time = time.Add(TimeSpan.FromMinutes(11));
-            service.Tirer(id, "Bernard");
+            _time = _time.Add(TimeSpan.FromMinutes(11));
+            _service.Tirer(id, Data.Bernard);
 
-            time = time.Add(TimeSpan.FromSeconds(1));
-            service.Tirer(id, "Bernard");
+            _time = _time.Add(TimeSpan.FromSeconds(1));
+            _service.Tirer(id, Data.Bernard);
 
-            time = time.Add(TimeSpan.FromSeconds(1));
-            service.Tirer(id, "Bernard");
+            _time = _time.Add(TimeSpan.FromSeconds(1));
+            _service.Tirer(id, Data.Bernard);
 
-            time = time.Add(TimeSpan.FromSeconds(1));
-            service.Tirer(id, "Bernard");
+            _time = _time.Add(TimeSpan.FromSeconds(1));
+            _service.Tirer(id, Data.Bernard);
 
-            time = time.Add(TimeSpan.FromSeconds(1));
-            service.Tirer(id, "Bernard");
+            _time = _time.Add(TimeSpan.FromSeconds(1));
+            _service.Tirer(id, Data.Bernard);
 
-            time = time.Add(TimeSpan.FromSeconds(1));
-            service.Tirer(id, "Bernard");
+            _time = _time.Add(TimeSpan.FromSeconds(1));
+            _service.Tirer(id, Data.Bernard);
 
-            time = time.Add(TimeSpan.FromSeconds(1));
+            _time = _time.Add(TimeSpan.FromSeconds(1));
 
             try
             {
-                service.Tirer(id, "Bernard");
+                _service.Tirer(id, Data.Bernard);
             }
             catch (TasPlusDeBallesMonVieuxChasseALaMain)
             {
             }
 
-            time = time.Add(TimeSpan.FromMinutes(19));
-            service.TirerSurUneGalinette(id, "Robert");
+            _time = _time.Add(TimeSpan.FromMinutes(19));
+            _service.TirerSurUneGalinette(id, Data.Robert);
 
-            time = time.Add(TimeSpan.FromMinutes(30));
-            service.TerminerLaPartie(id);
+            _time = _time.Add(TimeSpan.FromMinutes(30));
+            _service.TerminerLaPartie(id);
 
-            return Verify(service.ConsulterStatus(id));
+            return Verify(_service.ConsulterStatus(id));
         }
     }
 }

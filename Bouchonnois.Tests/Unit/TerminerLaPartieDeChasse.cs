@@ -1,4 +1,5 @@
 using Bouchonnois.Service.Exceptions;
+using Bouchonnois.Tests.Builders;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -19,7 +20,7 @@ namespace Bouchonnois.Tests.Unit
             Then(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
                         .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes"),
-                () => winner.Should().Be(Robert));
+                () => winner.Should().Be(Data.Robert));
         }
 
         [Fact]
@@ -38,7 +39,7 @@ namespace Bouchonnois.Tests.Unit
             Then(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
                         .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes"),
-                () => winner.Should().Be(Robert));
+                () => winner.Should().Be(Data.Robert));
         }
 
         [Fact]
@@ -95,7 +96,8 @@ namespace Bouchonnois.Tests.Unit
 
             Then(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
-                        .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Dédé - 3 galinettes, Bernard - 3 galinettes, Robert - 3 galinettes"),
+                        .HaveEmittedEvent(Now,
+                            "La partie de chasse est terminée, vainqueur : Dédé - 3 galinettes, Bernard - 3 galinettes, Robert - 3 galinettes"),
                 () => winner.Should().Be("Dédé, Bernard, Robert"));
         }
 
@@ -108,8 +110,8 @@ namespace Bouchonnois.Tests.Unit
                     UnePartieDeChasseExistante(
                         SurUnTerrainRicheEnGalinettes()
                             .Terminée())
-                    );
-                
+                );
+
                 When(id => PartieDeChasseService.TerminerLaPartie(id));
 
                 ThenThrow<QuandCestFiniCestFini>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());

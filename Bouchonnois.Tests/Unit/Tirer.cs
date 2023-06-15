@@ -1,4 +1,5 @@
 using Bouchonnois.Service.Exceptions;
+using Bouchonnois.Tests.Builders;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -13,13 +14,13 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Bernard())
                 ));
 
-            When(id => PartieDeChasseService.Tirer(id, Bernard));
+            When(id => PartieDeChasseService.Tirer(id, Data.Bernard));
 
             Then(savedPartieDeChasse =>
                 savedPartieDeChasse
                     .Should()
                     .HaveEmittedEvent(Now, "Bernard tire").And
-                    .ChasseurATiré(Bernard, ballesRestantes: 7).And
+                    .ChasseurATiré(Data.Bernard, ballesRestantes: 7).And
                     .GalinettesSurLeTerrain(3)
             );
         }
@@ -31,7 +32,7 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => PartieDeChasseService.Tirer(id, Bernard));
+                When(id => PartieDeChasseService.Tirer(id, Data.Bernard));
 
                 ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
@@ -45,7 +46,7 @@ namespace Bouchonnois.Tests.Unit
                             .Avec(Dédé(), Bernard().SansBalles(), Robert())
                     ));
 
-                When(id => PartieDeChasseService.Tirer(id, Bernard));
+                When(id => PartieDeChasseService.Tirer(id, Data.Bernard));
 
                 ThenThrow<TasPlusDeBallesMonVieuxChasseALaMain>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -60,7 +61,7 @@ namespace Bouchonnois.Tests.Unit
                         SurUnTerrainRicheEnGalinettes()
                     ));
 
-                When(id => PartieDeChasseService.Tirer(id, ChasseurInconnu));
+                When(id => PartieDeChasseService.Tirer(id, Data.ChasseurInconnu));
 
                 ThenThrow<ChasseurInconnu>(
                     savedPartieDeChasse => savedPartieDeChasse.Should().BeNull(),
@@ -76,7 +77,7 @@ namespace Bouchonnois.Tests.Unit
                             .ALapéro()
                     ));
 
-                When(id => PartieDeChasseService.Tirer(id, ChasseurInconnu));
+                When(id => PartieDeChasseService.Tirer(id, Data.ChasseurInconnu));
 
                 ThenThrow<OnTirePasPendantLapéroCestSacré>(
                     savedPartieDeChasse =>
@@ -95,7 +96,7 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée()
                     ));
 
-                When(id => PartieDeChasseService.Tirer(id, ChasseurInconnu));
+                When(id => PartieDeChasseService.Tirer(id, Data.ChasseurInconnu));
 
                 ThenThrow<OnTirePasQuandLaPartieEstTerminée>(
                     savedPartieDeChasse =>
