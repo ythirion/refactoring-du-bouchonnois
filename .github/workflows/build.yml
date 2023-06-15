@@ -7,6 +7,7 @@ on:
       - steps/02-treat-warnings-as-errors
       - steps/03-kill-mutants
       - steps/04-improve-tests-readability 
+      - steps/05-approve-everything
 jobs:
   build:
     name: Build and analyze
