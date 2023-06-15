@@ -1,7 +1,7 @@
 using Bouchonnois.Service;
-using Bouchonnois.Service.Exceptions;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
+using FluentAssertions.Extensions;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
 
 namespace Bouchonnois.Tests.Acceptance
@@ -32,71 +32,40 @@ namespace Bouchonnois.Tests.Acceptance
                 command.Chasseurs
             );
 
-            _time = _time.Add(TimeSpan.FromMinutes(10));
-            _service.Tirer(id, Data.Dédé);
-
-            _time = _time.Add(TimeSpan.FromMinutes(30));
-            _service.TirerSurUneGalinette(id, Data.Robert);
-
-            _time = _time.Add(TimeSpan.FromMinutes(20));
-            _service.PrendreLapéro(id);
-
-            _time = _time.Add(TimeSpan.FromHours(1));
-            _service.ReprendreLaPartie(id);
-
-            _time = _time.Add(TimeSpan.FromMinutes(2));
-            _service.Tirer(id, Data.Bernard);
-
-            _time = _time.Add(TimeSpan.FromMinutes(1));
-            _service.Tirer(id, Data.Bernard);
-
-            _time = _time.Add(TimeSpan.FromMinutes(1));
-            _service.TirerSurUneGalinette(id, Data.Dédé);
-
-            _time = _time.Add(TimeSpan.FromMinutes(26));
-            _service.TirerSurUneGalinette(id, Data.Robert);
-
-            _time = _time.Add(TimeSpan.FromMinutes(10));
-            _service.PrendreLapéro(id);
-
-            _time = _time.Add(TimeSpan.FromMinutes(170));
-            _service.ReprendreLaPartie(id);
-
-            _time = _time.Add(TimeSpan.FromMinutes(11));
-            _service.Tirer(id, Data.Bernard);
-
-            _time = _time.Add(TimeSpan.FromSeconds(1));
-            _service.Tirer(id, Data.Bernard);
-
-            _time = _time.Add(TimeSpan.FromSeconds(1));
-            _service.Tirer(id, Data.Bernard);
-
-            _time = _time.Add(TimeSpan.FromSeconds(1));
-            _service.Tirer(id, Data.Bernard);
-
-            _time = _time.Add(TimeSpan.FromSeconds(1));
-            _service.Tirer(id, Data.Bernard);
-
-            _time = _time.Add(TimeSpan.FromSeconds(1));
-            _service.Tirer(id, Data.Bernard);
-
-            _time = _time.Add(TimeSpan.FromSeconds(1));
-
-            try
-            {
-                _service.Tirer(id, Data.Bernard);
-            }
-            catch (TasPlusDeBallesMonVieuxChasseALaMain)
-            {
-            }
-
-            _time = _time.Add(TimeSpan.FromMinutes(19));
-            _service.TirerSurUneGalinette(id, Data.Robert);
-
-            _time = _time.Add(TimeSpan.FromMinutes(30));
-            _service.TerminerLaPartie(id);
+            After(10.Minutes(), () => _service.Tirer(id, Data.Dédé));
+            After(30.Minutes(), () => _service.TirerSurUneGalinette(id, Data.Robert));
+            After(20.Minutes(), () => _service.PrendreLapéro(id));
+            After(1.Hours(), () => _service.ReprendreLaPartie(id));
+            After(2.Minutes(), () => _service.Tirer(id, Data.Bernard));
+            After(1.Minutes(), () => _service.Tirer(id, Data.Bernard));
+            After(1.Minutes(), () => _service.TirerSurUneGalinette(id, Data.Dédé));
+            After(26.Minutes(), () => _service.TirerSurUneGalinette(id, Data.Robert));
+            After(10.Minutes(), () => _service.PrendreLapéro(id));
+            After(170.Minutes(), () => _service.ReprendreLaPartie(id));
+            After(11.Minutes(), () => _service.Tirer(id, Data.Bernard));
+            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
+            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
+            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
+            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
+            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
+            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
+            After(19.Minutes(), () => _service.TirerSurUneGalinette(id, Data.Robert));
+            After(30.Minutes(), () => _service.TerminerLaPartie(id));
 
             return Verify(_service.ConsulterStatus(id));
+        }
+
+        private void After(TimeSpan time, Action act)
+        {
+            _time = _time.Add(time);
+            try
+            {
+                act();
+            }
+            catch
+            {
+                // ignored
+            }
         }
     }
 }
