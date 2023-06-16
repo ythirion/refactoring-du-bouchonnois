@@ -26,24 +26,24 @@ namespace Bouchonnois.Tests.Unit
                 .DontScrubDateTimes();
         }
 
-        private static Arbitrary<(string nom, int nbGalinettes)> terrainGenerator()
+        private static Arbitrary<(string nom, int nbGalinettes)> terrainRicheEnGalinettesGenerator()
             => (from nom in Arb.Generate<string>()
                 from nbGalinette in Gen.Choose(1, int.MaxValue)
                 select (nom, nbGalinette)).ToArbitrary();
 
-        private static Arbitrary<(string nom, int nbBalles)> chasseurGenerator()
+        private static Arbitrary<(string nom, int nbBalles)> chasseurAvecDesBallesGenerator()
             => (from nom in Arb.Generate<string>()
                 from nbBalles in Gen.Choose(1, int.MaxValue)
                 select (nom, nbBalles)).ToArbitrary();
 
         private static Arbitrary<FSharpList<(string nom, int nbBalles)>> groupeDeChasseursGenerator()
             => (from nbChasseurs in Gen.Choose(1, 1_000)
-                select chasseurGenerator().Generator.Sample(1, nbChasseurs)).ToArbitrary();
+                select chasseurAvecDesBallesGenerator().Generator.Sample(1, nbChasseurs)).ToArbitrary();
 
         [Property]
         public Property Sur1TerrainAvecGalinettesEtAuMoins1ChasseurAvecTousDesBalles() =>
             Prop.ForAll(
-                terrainGenerator(),
+                terrainRicheEnGalinettesGenerator(),
                 groupeDeChasseursGenerator(),
                 (terrain, chasseurs) => DémarreLaPartieAvecSuccès(terrain, chasseurs));
 
@@ -55,12 +55,25 @@ namespace Bouchonnois.Tests.Unit
 
         public class Echoue : PartieDeChasseServiceTest
         {
-            [Fact]
-            public void SansChasseurs()
-                => ExecuteAndAssertThrow<ImpossibleDeDémarrerUnePartieSansChasseur>(
-                    s => s.Demarrer(("Pitibon sur Sauldre", 3), new List<(string, int)>()),
-                    p => p.Should().BeNull()
-                );
+            [Property]
+            public Property SansChasseursSurNimporteQuelTerrainRicheEnGalinette()
+                => Prop.ForAll(
+                    terrainRicheEnGalinettesGenerator(),
+                    terrain =>
+                    {
+                        try
+                        {
+                            PartieDeChasseService.Demarrer(
+                                terrain,
+                                new List<(string, int)>());
+
+                            return false;
+                        }
+                        catch (ImpossibleDeDémarrerUnePartieSansChasseur)
+                        {
+                            return Repository.SavedPartieDeChasse() == null;
+                        }
+                    });
 
             [Fact]
             public void AvecUnTerrainSansGalinettes()
