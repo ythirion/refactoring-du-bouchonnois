@@ -11,6 +11,8 @@ namespace Bouchonnois.Tests.Unit
         protected static readonly DateTime Now = new(2024, 6, 6, 14, 50, 45);
         protected static readonly Func<DateTime> TimeProvider = () => Now;
 
+        protected static List<(string, int)> PasDeChasseurs => new();
+
         protected readonly PartieDeChasseRepositoryForTests Repository;
         protected readonly PartieDeChasseService PartieDeChasseService;
 
@@ -38,6 +40,20 @@ namespace Bouchonnois.Tests.Unit
             assert(SavedPartieDeChasse());
 
             return ex;
+        }
+
+        protected bool MustFailWith<TException>(Action action, Func<PartieDeChasse?, bool>? assert = null)
+            where TException : Exception
+        {
+            try
+            {
+                action();
+                return false;
+            }
+            catch (TException)
+            {
+                return assert?.Invoke(SavedPartieDeChasse()) ?? true;
+            }
         }
 
         #region Given / When / Then DSL

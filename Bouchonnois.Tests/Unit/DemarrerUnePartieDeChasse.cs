@@ -60,20 +60,12 @@ namespace Bouchonnois.Tests.Unit
                 => Prop.ForAll(
                     terrainRicheEnGalinettesGenerator(),
                     terrain =>
-                    {
-                        try
-                        {
-                            PartieDeChasseService.Demarrer(
+                        MustFailWith<ImpossibleDeDémarrerUnePartieSansChasseur>
+                        (() => PartieDeChasseService.Demarrer(
                                 terrain,
-                                new List<(string, int)>());
-
-                            return false;
-                        }
-                        catch (ImpossibleDeDémarrerUnePartieSansChasseur)
-                        {
-                            return Repository.SavedPartieDeChasse() == null;
-                        }
-                    });
+                                PasDeChasseurs),
+                            savedPartieDeChasse => savedPartieDeChasse == null)
+                );
 
             [Fact]
             public void AvecUnTerrainSansGalinettes()
