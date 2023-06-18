@@ -8,6 +8,7 @@ on:
       - steps/03-kill-mutants
       - steps/04-improve-tests-readability 
       - steps/05-approve-everything
+      - steps/06-properties
 jobs:
   build:
     name: Build and analyze
