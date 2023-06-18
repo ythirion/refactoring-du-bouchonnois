@@ -2,7 +2,8 @@ using Bouchonnois.Domain;
 using Bouchonnois.Service;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
-using FluentAssertions.Specialized;
+using FsCheck;
+using Microsoft.FSharp.Collections;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -30,17 +31,7 @@ namespace Bouchonnois.Tests.Unit
             return partieDeChasse;
         }
 
-        private PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
-
-        protected ExceptionAssertions<TException> ExecuteAndAssertThrow<TException>(Action<PartieDeChasseService> act,
-            Action<PartieDeChasse?> assert)
-            where TException : Exception
-        {
-            var ex = ((Action) (() => act(PartieDeChasseService))).Should().Throw<TException>();
-            assert(SavedPartieDeChasse());
-
-            return ex;
-        }
+        protected PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
 
         protected bool MustFailWith<TException>(Action action, Func<PartieDeChasse?, bool>? assert = null)
             where TException : Exception
@@ -60,7 +51,7 @@ namespace Bouchonnois.Tests.Unit
 
         private Guid _partieDeChasseId;
         private Action<Guid>? _act;
-
+        
         protected void Given(Guid partieDeChasseId) => _partieDeChasseId = partieDeChasseId;
         protected void Given(PartieDeChasse unePartieDeChasseExistante) => Given(unePartieDeChasseExistante.Id);
         protected void When(Action<Guid> act) => _act = act;
@@ -86,6 +77,37 @@ namespace Bouchonnois.Tests.Unit
 
             assert(SavedPartieDeChasse());
         }
+
+        #endregion
+
+        #region Generators for properties
+
+        private static Arbitrary<(string nom, int nbGalinettes)> terrainGenerator(int minGalinettes, int maxGalinettes)
+            => (from nom in Arb.Generate<string>()
+                from nbGalinette in Gen.Choose(minGalinettes, maxGalinettes)
+                select (nom, nbGalinette)).ToArbitrary();
+
+        protected static Arbitrary<(string nom, int nbGalinettes)> terrainRicheEnGalinettesGenerator()
+            => terrainGenerator(1, int.MaxValue);
+
+        protected static Arbitrary<(string nom, int nbGalinettes)> terrainSansGalinettesGenerator()
+            => terrainGenerator(-int.MaxValue, 0);
+
+        private static Arbitrary<(string nom, int nbBalles)> chasseursGenerator(int minBalles, int maxBalles)
+            => (from nom in Arb.Generate<string>()
+                from nbBalles in Gen.Choose(minBalles, maxBalles)
+                select (nom, nbBalles)).ToArbitrary();
+
+        private static Arbitrary<FSharpList<(string nom, int nbBalles)>> groupeDeChasseursGenerator(int minBalles,
+            int maxBalles)
+            => (from nbChasseurs in Gen.Choose(1, 1_000)
+                select chasseursGenerator(minBalles, maxBalles).Generator.Sample(1, nbChasseurs)).ToArbitrary();
+
+        protected static Arbitrary<FSharpList<(string nom, int nbBalles)>> chasseursAvecBallesGenerator()
+            => groupeDeChasseursGenerator(1, int.MaxValue);
+
+        protected static Arbitrary<FSharpList<(string nom, int nbBalles)>> chasseursSansBallesGenerator()
+            => groupeDeChasseursGenerator(0, 0);
 
         #endregion
     }

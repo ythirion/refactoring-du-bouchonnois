@@ -1,4 +1,6 @@
 using Bouchonnois.Service.Exceptions;
+using FsCheck;
+using FsCheck.Xunit;
 
 namespace Bouchonnois.Tests.Unit
 {

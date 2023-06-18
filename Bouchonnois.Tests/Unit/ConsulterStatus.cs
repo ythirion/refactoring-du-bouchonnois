@@ -1,5 +1,9 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Service.Exceptions;
+using FsCheck;
+using FsCheck.Xunit;
+using static FsCheck.Arb;
+using static FsCheck.Prop;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -59,13 +63,17 @@ namespace Bouchonnois.Tests.Unit
 
         public class Echoue : PartieDeChasseServiceTest
         {
-            [Fact]
-            public void CarPartieNexistePas()
-            {
-                Given(UnePartieDeChasseInexistante());
-                When(id => PartieDeChasseService.ConsulterStatus(id));
-                ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
-            }
+            private readonly Arbitrary<Guid> _nonExistingPartiesDeChasse = Generate<Guid>().ToArbitrary();
+
+            [Property]
+            public Property CarPartieNexistePas()
+                => ForAll(
+                    _nonExistingPartiesDeChasse,
+                    id => MustFailWith<LaPartieDeChasseNexistePas>(
+                        () => PartieDeChasseService.ConsulterStatus(id),
+                        savedPartieDeChasse => savedPartieDeChasse == null
+                    )
+                );
         }
     }
 }
