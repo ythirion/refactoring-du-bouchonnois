@@ -1,4 +1,4 @@
-namespace Bouchonnois.Service
+namespace Bouchonnois.Domain
 {
     public class Terrain
     {
