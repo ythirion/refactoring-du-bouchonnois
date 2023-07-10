@@ -9,6 +9,7 @@ on:
       - steps/04-improve-tests-readability 
       - steps/05-approve-everything
       - steps/06-properties
+      - steps/07-architecture-tests
 jobs:
   build:
     name: Build and analyze
