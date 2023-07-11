@@ -12,6 +12,7 @@ namespace Bouchonnois.Service
         private readonly TirerSurUneGalinette _tirerSurUneGalinette;
         private readonly Tirer _tirer;
         private readonly PrendreLapéro _prendreLapéro;
+        private readonly ReprendreLaPartie _reprendreLaPartie;
 
         public PartieDeChasseService(
             IPartieDeChasseRepository repository,
@@ -19,6 +20,8 @@ namespace Bouchonnois.Service
         {
             _repository = repository;
             _timeProvider = timeProvider;
+
+            _reprendreLaPartie = new ReprendreLaPartie(repository, timeProvider);
             _prendreLapéro = new PrendreLapéro(repository, timeProvider);
             _tirer = new Tirer(repository, timeProvider);
             _tirerSurUneGalinette = new TirerSurUneGalinette(repository, timeProvider);
@@ -35,29 +38,7 @@ namespace Bouchonnois.Service
 
         public void PrendreLapéro(Guid id) => _prendreLapéro.Handle(id);
 
-        public void ReprendreLaPartie(Guid id)
-        {
-            var partieDeChasse = _repository.GetById(id);
-
-            if (partieDeChasse == null)
-            {
-                throw new LaPartieDeChasseNexistePas();
-            }
-
-            if (partieDeChasse.Status == PartieStatus.EnCours)
-            {
-                throw new LaChasseEstDéjàEnCours();
-            }
-
-            if (partieDeChasse.Status == PartieStatus.Terminée)
-            {
-                throw new QuandCestFiniCestFini();
-            }
-
-            partieDeChasse.Status = PartieStatus.EnCours;
-            partieDeChasse.Events.Add(new Event(_timeProvider(), "Reprise de la chasse"));
-            _repository.Save(partieDeChasse);
-        }
+        public void ReprendreLaPartie(Guid id) => _reprendreLaPartie.Handle(id);
 
         public string TerminerLaPartie(Guid id)
         {

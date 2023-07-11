@@ -1,9 +1,14 @@
 using Bouchonnois.Service.Exceptions;
+using Bouchonnois.UseCases;
 
 namespace Bouchonnois.Tests.Unit
 {
     public class ReprendreLaPartieDeChasse : PartieDeChasseServiceTest
     {
+        private readonly ReprendreLaPartie _useCase;
+
+        public ReprendreLaPartieDeChasse() => _useCase = new ReprendreLaPartie(Repository, TimeProvider);
+
         [Fact]
         public void QuandLapéroEstEnCours()
         {
@@ -13,7 +18,7 @@ namespace Bouchonnois.Tests.Unit
                         .ALapéro()
                 ));
 
-            When(id => PartieDeChasseService.ReprendreLaPartie(id));
+            When(id => _useCase.Handle(id));
 
             Then(savedPartieDeChasse => savedPartieDeChasse.Should()
                 .HaveEmittedEvent(Now, "Reprise de la chasse")
@@ -21,14 +26,14 @@ namespace Bouchonnois.Tests.Unit
                 .BeEnCours());
         }
 
-        public class Echoue : PartieDeChasseServiceTest
+        public class Echoue : ReprendreLaPartieDeChasse
         {
             [Fact]
             public void CarPartieNexistePas()
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => PartieDeChasseService.ReprendreLaPartie(id));
+                When(id => _useCase.Handle(id));
 
                 ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
@@ -40,7 +45,7 @@ namespace Bouchonnois.Tests.Unit
                     SurUnTerrainRicheEnGalinettes()
                 ));
 
-                When(id => PartieDeChasseService.ReprendreLaPartie(id));
+                When(id => _useCase.Handle(id));
 
                 ThenThrow<LaChasseEstDéjàEnCours>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
@@ -53,7 +58,7 @@ namespace Bouchonnois.Tests.Unit
                         .Terminée()
                 ));
 
-                When(id => PartieDeChasseService.ReprendreLaPartie(id));
+                When(id => _useCase.Handle(id));
 
                 ThenThrow<QuandCestFiniCestFini>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
