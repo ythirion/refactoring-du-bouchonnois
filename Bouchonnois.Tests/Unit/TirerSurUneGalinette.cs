@@ -5,6 +5,9 @@ namespace Bouchonnois.Tests.Unit
 {
     public class TirerSurUneGalinette : PartieDeChasseServiceTest
     {
+        private readonly UseCases.TirerSurUneGalinette _useCase;
+        public TirerSurUneGalinette() => _useCase = new UseCases.TirerSurUneGalinette(Repository, TimeProvider);
+
         [Fact]
         public void AvecUnChasseurAyantDesBallesEtAssezDeGalinettesSurLeTerrain()
         {
@@ -13,7 +16,7 @@ namespace Bouchonnois.Tests.Unit
                     SurUnTerrainRicheEnGalinettes()
                 ));
 
-            When(id => PartieDeChasseService.TirerSurUneGalinette(id, Data.Bernard));
+            When(id => _useCase.Handle(id, Data.Bernard));
 
             Then(savedPartieDeChasse =>
                 savedPartieDeChasse
@@ -24,14 +27,14 @@ namespace Bouchonnois.Tests.Unit
             );
         }
 
-        public class Echoue : PartieDeChasseServiceTest
+        public class Echoue : TirerSurUneGalinette
         {
             [Fact]
             public void CarPartieNexistePas()
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => PartieDeChasseService.TirerSurUneGalinette(id, Data.Bernard));
+                When(id => _useCase.Handle(id, Data.Bernard));
 
                 ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
@@ -44,7 +47,7 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Dédé(), Bernard().SansBalles(), Robert())
                 ));
 
-                When(id => PartieDeChasseService.TirerSurUneGalinette(id, Data.Bernard));
+                When(id => _useCase.Handle(id, Data.Bernard));
 
                 ThenThrow<TasPlusDeBallesMonVieuxChasseALaMain>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -61,7 +64,7 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Dédé(), Robert())
                 ));
 
-                When(id => PartieDeChasseService.TirerSurUneGalinette(id, Data.Bernard));
+                When(id => _useCase.Handle(id, Data.Bernard));
 
                 ThenThrow<TasTropPicoléMonVieuxTasRienTouché>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should().BeNull()
@@ -76,7 +79,7 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Dédé(), Robert())
                 ));
 
-                When(id => PartieDeChasseService.TirerSurUneGalinette(id, Data.ChasseurInconnu));
+                When(id => _useCase.Handle(id, Data.ChasseurInconnu));
 
                 ThenThrow<ChasseurInconnu>(savedPartieDeChasse =>
                         savedPartieDeChasse.Should().BeNull(),
@@ -93,7 +96,7 @@ namespace Bouchonnois.Tests.Unit
                         .ALapéro()
                 ));
 
-                When(id => PartieDeChasseService.TirerSurUneGalinette(id, Data.ChasseurInconnu));
+                When(id => _useCase.Handle(id, Data.ChasseurInconnu));
 
                 ThenThrow<OnTirePasPendantLapéroCestSacré>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -111,7 +114,7 @@ namespace Bouchonnois.Tests.Unit
                         .Terminée()
                 ));
 
-                When(id => PartieDeChasseService.TirerSurUneGalinette(id, Data.ChasseurInconnu));
+                When(id => _useCase.Handle(id, Data.ChasseurInconnu));
 
                 ThenThrow<OnTirePasQuandLaPartieEstTerminée>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should().HaveEmittedEvent(Now,
