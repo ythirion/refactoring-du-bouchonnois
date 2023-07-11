@@ -3,7 +3,7 @@ using Bouchonnois.UseCases.Exceptions;
 
 namespace Bouchonnois.UseCases
 {
-    public class ConsulterStatus
+    public sealed class ConsulterStatus
     {
         private readonly IPartieDeChasseRepository _repository;
 

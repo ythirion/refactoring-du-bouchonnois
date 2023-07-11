@@ -3,7 +3,7 @@ using Bouchonnois.UseCases.Exceptions;
 
 namespace Bouchonnois.UseCases
 {
-    public class PrendreLapéro
+    public sealed class PrendreLapéro
     {
         private readonly IPartieDeChasseRepository _repository;
         private readonly Func<DateTime> _timeProvider;

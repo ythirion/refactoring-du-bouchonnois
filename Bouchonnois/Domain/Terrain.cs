@@ -1,6 +1,6 @@
 namespace Bouchonnois.Domain
 {
-    public class Terrain
+    public sealed class Terrain
     {
         public Terrain(string nom)
         {

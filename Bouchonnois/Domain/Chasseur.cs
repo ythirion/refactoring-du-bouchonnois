@@ -1,6 +1,6 @@
 namespace Bouchonnois.Domain
 {
-    public class Chasseur
+    public sealed class Chasseur
     {
         public Chasseur(string nom)
         {

@@ -1,6 +1,6 @@
 ﻿namespace Bouchonnois.Domain
 {
-    public class PartieDeChasse
+    public sealed class PartieDeChasse
     {
         public PartieDeChasse(Guid id, Terrain terrain)
         {
