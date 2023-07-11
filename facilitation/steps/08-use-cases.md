@@ -180,7 +180,53 @@ namespace Bouchonnois.Tests.Unit
 }
 ```
 
-## Répliquer celà pour tous les Use Cases
+> Répliquer celà pour tous les Use Cases
+
+A la fin, le `PartieDeChasseService` ressemble à celà :
+```csharp
+public class PartieDeChasseService
+{
+    private readonly IPartieDeChasseRepository _repository;
+    private readonly DemarrerPartieDeChasse _demarrerPartieDeChasse;
+    private readonly TirerSurUneGalinette _tirerSurUneGalinette;
+    private readonly Tirer _tirer;
+    private readonly PrendreLapéro _prendreLapéro;
+    private readonly ReprendreLaPartie _reprendreLaPartie;
+    private readonly TerminerLaPartie _terminerLaPartie;
+    private readonly ConsulterStatus _consulterStatus;
+
+    public PartieDeChasseService(
+        IPartieDeChasseRepository repository,
+        Func<DateTime> timeProvider)
+    {
+        _repository = repository;
+
+        _consulterStatus = new ConsulterStatus(repository);
+        _terminerLaPartie = new TerminerLaPartie(repository, timeProvider);
+        _reprendreLaPartie = new ReprendreLaPartie(repository, timeProvider);
+        _prendreLapéro = new PrendreLapéro(repository, timeProvider);
+        _tirer = new Tirer(repository, timeProvider);
+        _tirerSurUneGalinette = new TirerSurUneGalinette(repository, timeProvider);
+        _demarrerPartieDeChasse = new DemarrerPartieDeChasse(repository, timeProvider);
+    }
+
+    public Guid Demarrer((string nom, int nbGalinettes) terrainDeChasse, List<(string nom, int nbBalles)> chasseurs)
+        => _demarrerPartieDeChasse.Handle(terrainDeChasse, chasseurs);
+
+    public void TirerSurUneGalinette(Guid id, string chasseur)
+        => _tirerSurUneGalinette.Handle(id, chasseur);
+
+    public void Tirer(Guid id, string chasseur) => _tirer.Handle(id, chasseur);
+
+    public void PrendreLapéro(Guid id) => _prendreLapéro.Handle(id);
+
+    public void ReprendreLaPartie(Guid id) => _reprendreLaPartie.Handle(id);
+
+    public string TerminerLaPartie(Guid id) => _terminerLaPartie.Handle(id);
+
+    public string ConsulterStatus(Guid id) => _consulterStatus.Handle(id);
+}
+```
 
 ## Reflect
 - Quel est l'impact sur le design ? les tests ?

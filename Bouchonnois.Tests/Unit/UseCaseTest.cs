@@ -1,8 +1,6 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
-using FsCheck;
-using Microsoft.FSharp.Collections;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -78,37 +76,6 @@ namespace Bouchonnois.Tests.Unit
 
             assert(SavedPartieDeChasse());
         }
-
-        #endregion
-
-        #region Generators for properties
-
-        private static Arbitrary<(string nom, int nbGalinettes)> terrainGenerator(int minGalinettes, int maxGalinettes)
-            => (from nom in Arb.Generate<string>()
-                from nbGalinette in Gen.Choose(minGalinettes, maxGalinettes)
-                select (nom, nbGalinette)).ToArbitrary();
-
-        protected static Arbitrary<(string nom, int nbGalinettes)> terrainRicheEnGalinettesGenerator()
-            => terrainGenerator(1, int.MaxValue);
-
-        protected static Arbitrary<(string nom, int nbGalinettes)> terrainSansGalinettesGenerator()
-            => terrainGenerator(-int.MaxValue, 0);
-
-        private static Arbitrary<(string nom, int nbBalles)> chasseursGenerator(int minBalles, int maxBalles)
-            => (from nom in Arb.Generate<string>()
-                from nbBalles in Gen.Choose(minBalles, maxBalles)
-                select (nom, nbBalles)).ToArbitrary();
-
-        private static Arbitrary<FSharpList<(string nom, int nbBalles)>> groupeDeChasseursGenerator(int minBalles,
-            int maxBalles)
-            => (from nbChasseurs in Gen.Choose(1, 1_000)
-                select chasseursGenerator(minBalles, maxBalles).Generator.Sample(1, nbChasseurs)).ToArbitrary();
-
-        protected static Arbitrary<FSharpList<(string nom, int nbBalles)>> chasseursAvecBallesGenerator()
-            => groupeDeChasseursGenerator(1, int.MaxValue);
-
-        protected static Arbitrary<FSharpList<(string nom, int nbBalles)>> chasseursSansBallesGenerator()
-            => groupeDeChasseursGenerator(0, 0);
 
         #endregion
     }

@@ -5,6 +5,7 @@ using Bouchonnois.UseCases;
 using FsCheck;
 using FsCheck.Xunit;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
+using static Bouchonnois.Tests.Unit.Generators;
 using static FsCheck.Prop;
 
 namespace Bouchonnois.Tests.Unit
@@ -34,9 +35,8 @@ namespace Bouchonnois.Tests.Unit
 
         [Property]
         public Property Sur1TerrainAvecGalinettesEtChasseursAvecTousDesBalles() =>
-            ForAll(
-                terrainRicheEnGalinettesGenerator(),
-                chasseursAvecBallesGenerator(),
+            ForAll(TerrainRicheEnGalinettesGenerator(),
+                ChasseursAvecBallesGenerator(),
                 (terrain, chasseurs) => DémarreLaPartieAvecSuccès(terrain, chasseurs));
 
         private bool DémarreLaPartieAvecSuccès((string nom, int nbGalinettes) terrain,
@@ -54,7 +54,7 @@ namespace Bouchonnois.Tests.Unit
             [Property]
             public Property SansChasseursSurNimporteQuelTerrainRicheEnGalinette()
                 => ForAll(
-                    terrainRicheEnGalinettesGenerator(),
+                    TerrainRicheEnGalinettesGenerator(),
                     terrain =>
                         EchoueAvec<ImpossibleDeDémarrerUnePartieSansChasseur>(
                             terrain,
@@ -65,8 +65,8 @@ namespace Bouchonnois.Tests.Unit
             [Property]
             public Property AvecUnTerrainSansGalinettes()
                 => ForAll(
-                    terrainSansGalinettesGenerator(),
-                    chasseursAvecBallesGenerator(),
+                    TerrainSansGalinettesGenerator(),
+                    ChasseursAvecBallesGenerator(),
                     (terrain, chasseurs) =>
                         EchoueAvec<ImpossibleDeDémarrerUnePartieSansGalinettes>(
                             terrain,
@@ -77,8 +77,8 @@ namespace Bouchonnois.Tests.Unit
             [Property]
             public Property SiAuMoins1ChasseurSansBalle() =>
                 ForAll(
-                    terrainRicheEnGalinettesGenerator(),
-                    chasseursSansBallesGenerator(),
+                    TerrainRicheEnGalinettesGenerator(),
+                    ChasseursSansBallesGenerator(),
                     (terrain, chasseurs) =>
                         EchoueAvec<ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle>(
                             terrain,
