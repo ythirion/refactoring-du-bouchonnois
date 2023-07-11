@@ -3,18 +3,18 @@ using Bouchonnois.Service.Exceptions;
 
 namespace Bouchonnois.UseCases
 {
-    public class DemarrerPartieDeChasseUseCase
+    public class DemarrerPartieDeChasse
     {
         private readonly IPartieDeChasseRepository _repository;
         private readonly Func<DateTime> _timeProvider;
 
-        public DemarrerPartieDeChasseUseCase(IPartieDeChasseRepository repository, Func<DateTime> timeProvider)
+        public DemarrerPartieDeChasse(IPartieDeChasseRepository repository, Func<DateTime> timeProvider)
         {
             _repository = repository;
             _timeProvider = timeProvider;
         }
 
-        public Guid Demarrer((string nom, int nbGalinettes) terrainDeChasse, List<(string nom, int nbBalles)> chasseurs)
+        public Guid Handle((string nom, int nbGalinettes) terrainDeChasse, List<(string nom, int nbBalles)> chasseurs)
         {
             if (terrainDeChasse.nbGalinettes <= 0)
             {

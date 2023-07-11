@@ -38,14 +38,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Unit\DemarrerUnePartieDeChasse.AvecPlusieursChasseurs.verified.txt">
-        <DependentUpon>DemarrerUnePartieDeChasse.cs</DependentUpon>
-      </None>
       <None Update="Unit\ConsulterStatus.QuandLaPartieVientDeDémarrer.verified.txt">
         <DependentUpon>ConsulterStatus.cs</DependentUpon>
       </None>
       <None Update="Unit\ConsulterStatus.QuandLaPartieEstTerminée.verified.txt">
         <DependentUpon>ConsulterStatus.cs</DependentUpon>
+      </None>
+      <None Update="Unit\DemarrerUnePartieDeChasse.Echoue.AvecPlusieursChasseurs.verified.txt">
+        <DependentUpon>DemarrerUnePartieDeChasse.cs</DependentUpon>
       </None>
     </ItemGroup>
 

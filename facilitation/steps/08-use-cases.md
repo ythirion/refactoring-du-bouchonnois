@@ -88,6 +88,98 @@ public Guid Demarrer((string nom, int nbGalinettes) terrainDeChasse, List<(strin
         => _demarrerPartieDeChasseUseCase.Demarrer(terrainDeChasse, chasseurs);
 ```
 
+- On adapte les tests de ce `Use Case`
+
+```csharp
+namespace Bouchonnois.Tests.Unit
+{
+    [UsesVerify]
+    public class DemarrerUnePartieDeChasse : PartieDeChasseServiceTest
+    {
+        // On appelle le Use Case et non plus le Service 
+        private readonly DemarrerPartieDeChasse _useCase;
+
+        public DemarrerUnePartieDeChasse()
+        {
+            _useCase = new DemarrerPartieDeChasse(Repository, TimeProvider);
+        }
+
+        [Fact]
+        public Task AvecPlusieursChasseurs()
+        {
+            var command = DémarrerUnePartieDeChasse()
+                .Avec((Data.Dédé, 20), (Data.Bernard, 8), (Data.Robert, 12))
+                .SurUnTerrainRicheEnGalinettes();
+
+            _useCase.Handle(
+                command.Terrain,
+                command.Chasseurs
+            );
+
+            return Verify(Repository.SavedPartieDeChasse())
+                .DontScrubDateTimes();
+        }
+
+        [Property]
+        public Property Sur1TerrainAvecGalinettesEtChasseursAvecTousDesBalles() =>
+            ForAll(
+                terrainRicheEnGalinettesGenerator(),
+                chasseursAvecBallesGenerator(),
+                (terrain, chasseurs) => DémarreLaPartieAvecSuccès(terrain, chasseurs));
+
+        private bool DémarreLaPartieAvecSuccès((string nom, int nbGalinettes) terrain,
+            IEnumerable<(string nom, int nbBalles)> chasseurs)
+            => _useCase.Handle(
+                terrain,
+                chasseurs.ToList()) == Repository.SavedPartieDeChasse()!.Id;
+
+        public class Echoue : DemarrerUnePartieDeChasse
+        {
+            [Property]
+            public Property SansChasseursSurNimporteQuelTerrainRicheEnGalinette()
+                => ForAll(
+                    terrainRicheEnGalinettesGenerator(),
+                    terrain =>
+                        EchoueAvec<ImpossibleDeDémarrerUnePartieSansChasseur>(
+                            terrain,
+                            PasDeChasseurs,
+                            savedPartieDeChasse => savedPartieDeChasse == null)
+                );
+
+            [Property]
+            public Property AvecUnTerrainSansGalinettes()
+                => ForAll(
+                    terrainSansGalinettesGenerator(),
+                    chasseursAvecBallesGenerator(),
+                    (terrain, chasseurs) =>
+                        EchoueAvec<ImpossibleDeDémarrerUnePartieSansGalinettes>(
+                            terrain,
+                            chasseurs.ToList(),
+                            savedPartieDeChasse => savedPartieDeChasse == null)
+                );
+
+            [Property]
+            public Property SiAuMoins1ChasseurSansBalle() =>
+                ForAll(
+                    terrainRicheEnGalinettesGenerator(),
+                    chasseursSansBallesGenerator(),
+                    (terrain, chasseurs) =>
+                        EchoueAvec<ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle>(
+                            terrain,
+                            chasseurs.ToList(),
+                            savedPartieDeChasse => savedPartieDeChasse == null)
+                );
+
+            private bool EchoueAvec<TException>(
+                (string nom, int nbGalinettes) terrain,
+                IEnumerable<(string nom, int nbBalles)> chasseurs,
+                Func<PartieDeChasse?, bool>? assert = null) where TException : Exception
+                => MustFailWith<TException>(() => _useCase.Handle(terrain, chasseurs.ToList()), assert);
+        }
+    }
+}
+```
+
 ## Répliquer celà pour tous les Use Cases
 
 ## Reflect

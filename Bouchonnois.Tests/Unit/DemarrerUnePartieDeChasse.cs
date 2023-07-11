@@ -1,6 +1,7 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Service.Exceptions;
 using Bouchonnois.Tests.Builders;
+using Bouchonnois.UseCases;
 using FsCheck;
 using FsCheck.Xunit;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
@@ -11,6 +12,10 @@ namespace Bouchonnois.Tests.Unit
     [UsesVerify]
     public class DemarrerUnePartieDeChasse : PartieDeChasseServiceTest
     {
+        private readonly DemarrerPartieDeChasse _useCase;
+
+        public DemarrerUnePartieDeChasse() => _useCase = new DemarrerPartieDeChasse(Repository, TimeProvider);
+
         [Fact]
         public Task AvecPlusieursChasseurs()
         {
@@ -18,7 +23,7 @@ namespace Bouchonnois.Tests.Unit
                 .Avec((Data.Dédé, 20), (Data.Bernard, 8), (Data.Robert, 12))
                 .SurUnTerrainRicheEnGalinettes();
 
-            PartieDeChasseService.Demarrer(
+            _useCase.Handle(
                 command.Terrain,
                 command.Chasseurs
             );
@@ -36,11 +41,11 @@ namespace Bouchonnois.Tests.Unit
 
         private bool DémarreLaPartieAvecSuccès((string nom, int nbGalinettes) terrain,
             IEnumerable<(string nom, int nbBalles)> chasseurs)
-            => PartieDeChasseService.Demarrer(
+            => _useCase.Handle(
                 terrain,
                 chasseurs.ToList()) == Repository.SavedPartieDeChasse()!.Id;
 
-        public class Echoue : PartieDeChasseServiceTest
+        public class Echoue : DemarrerUnePartieDeChasse
         {
             [Property]
             public Property SansChasseursSurNimporteQuelTerrainRicheEnGalinette()
@@ -76,12 +81,12 @@ namespace Bouchonnois.Tests.Unit
                             chasseurs.ToList(),
                             savedPartieDeChasse => savedPartieDeChasse == null)
                 );
-            
+
             private bool EchoueAvec<TException>(
                 (string nom, int nbGalinettes) terrain,
                 IEnumerable<(string nom, int nbBalles)> chasseurs,
                 Func<PartieDeChasse?, bool>? assert = null) where TException : Exception
-                => MustFailWith<TException>(() => PartieDeChasseService.Demarrer(terrain, chasseurs.ToList()), assert);
+                => MustFailWith<TException>(() => _useCase.Handle(terrain, chasseurs.ToList()), assert);
         }
     }
 }
