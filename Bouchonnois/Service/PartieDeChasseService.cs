@@ -1,5 +1,4 @@
 using Bouchonnois.Domain;
-using Bouchonnois.Service.Exceptions;
 using Bouchonnois.UseCases;
 
 namespace Bouchonnois.Service
@@ -13,12 +12,15 @@ namespace Bouchonnois.Service
         private readonly PrendreLapéro _prendreLapéro;
         private readonly ReprendreLaPartie _reprendreLaPartie;
         private readonly TerminerLaPartie _terminerLaPartie;
+        private readonly ConsulterStatus _consulterStatus;
 
         public PartieDeChasseService(
             IPartieDeChasseRepository repository,
             Func<DateTime> timeProvider)
         {
             _repository = repository;
+
+            _consulterStatus = new ConsulterStatus(repository);
             _terminerLaPartie = new TerminerLaPartie(repository, timeProvider);
             _reprendreLaPartie = new ReprendreLaPartie(repository, timeProvider);
             _prendreLapéro = new PrendreLapéro(repository, timeProvider);
@@ -41,21 +43,6 @@ namespace Bouchonnois.Service
 
         public string TerminerLaPartie(Guid id) => _terminerLaPartie.Handle(id);
 
-        public string ConsulterStatus(Guid id)
-        {
-            var partieDeChasse = _repository.GetById(id);
-
-            if (partieDeChasse == null)
-            {
-                throw new LaPartieDeChasseNexistePas();
-            }
-
-            return string.Join(
-                Environment.NewLine,
-                partieDeChasse.Events
-                    .OrderByDescending(@event => @event.Date)
-                    .Select(@event => @event.ToString())
-            );
-        }
+        public string ConsulterStatus(Guid id) => _consulterStatus.Handle(id);
     }
 }

@@ -10,6 +10,10 @@ namespace Bouchonnois.Tests.Unit
     [UsesVerify]
     public class ConsulterStatus : PartieDeChasseServiceTest
     {
+        private UseCases.ConsulterStatus _useCase;
+
+        public ConsulterStatus() => _useCase = new UseCases.ConsulterStatus(Repository);
+
         [Fact]
         public Task QuandLaPartieVientDeDémarrer()
         {
@@ -20,7 +24,7 @@ namespace Bouchonnois.Tests.Unit
                         "La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)"))
             ).Id;
 
-            return Verify(PartieDeChasseService.ConsulterStatus(id))
+            return Verify(_useCase.Handle(id))
                 .DontScrubDateTimes();
         }
 
@@ -57,11 +61,11 @@ namespace Bouchonnois.Tests.Unit
                             "La partie de chasse est terminée, vainqueur :  Robert - 3 galinettes")
                     )).Id;
 
-            return Verify(PartieDeChasseService.ConsulterStatus(id))
+            return Verify(_useCase.Handle(id))
                 .DontScrubDateTimes();
         }
 
-        public class Echoue : PartieDeChasseServiceTest
+        public class Echoue : ConsulterStatus
         {
             private readonly Arbitrary<Guid> _nonExistingPartiesDeChasse = Generate<Guid>().ToArbitrary();
 
@@ -70,7 +74,7 @@ namespace Bouchonnois.Tests.Unit
                 => ForAll(
                     _nonExistingPartiesDeChasse,
                     id => MustFailWith<LaPartieDeChasseNexistePas>(
-                        () => PartieDeChasseService.ConsulterStatus(id),
+                        () => _useCase.Handle(id),
                         savedPartieDeChasse => savedPartieDeChasse == null
                     )
                 );
