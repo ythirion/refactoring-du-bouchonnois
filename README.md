@@ -22,3 +22,4 @@ Différentes étapes ainsi qu'une proposition de solution accompagne ce reposito
 - [5. "Approve" everything](facilitation/05.approve-everything.md)
 - [6. "Properties" everywhere](facilitation/06.properties.md)
 - [7. Tests d'architecture](facilitation/07.architecture-tests.md)
+- [8. Use Cases](facilitation/08.use-cases.md)
