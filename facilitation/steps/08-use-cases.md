@@ -230,6 +230,7 @@ public class PartieDeChasseService
 
 ### Supprimer le service
 - L'arborescence de notre projet ressemble désormais à celà :
+
 ![Properties](img/08-use-cases/arborescence.webp)
 
 - Il ne reste plus qu'un seul appelant du srvice `PartieDeChasseService` -> `ScenarioTests` 
@@ -304,7 +305,12 @@ namespace Bouchonnois.Tests.Acceptance
 ```
 
 - On peut maintenant supprimer la classe `PartieDeChasseService` de manière totalement `safe`
+
 ![Remove Service](img/08-use-cases/remove-class.webp)
+
+- On place l'ensemble des `Exceptions` au plus proche de leur utilisation (dans le namespace `UseCases`)
+
+![Properties](img/08-use-cases/exceptions.webp)
 
 > Notre architecture ressemble maintenant à ça
 
@@ -334,6 +340,10 @@ public class ArchitectureRules
 ```
 
 ## Impact sur l'analyse comportementale
+Après avoir extrait les `Use Cases`, nous avons "tué" le hotspot identifié par `codescene` :
+![Hotspots après le split](img/08-use-cases/hotspots.webp)
+
+Nous avons simplement divisé cette grosse classe "fourre-tout" en plus petites unités, avec des dépendances clairement identifiées qu'on va pouvoir tranquillement refactorer.
 
 Nouveau rapport `SonarCloud` disponible [ici](https://sonarcloud.io/summary/overall?id=ythirion_refactoring-du-bouchonnois&branch=steps%2F08-use-cases).
 
