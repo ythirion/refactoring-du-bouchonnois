@@ -1,24 +1,25 @@
-namespace Bouchonnois.Tests.Builders;
-
-public class CommandBuilder
+namespace Bouchonnois.Tests.Builders
 {
-    private (string, int)[] _chasseurs = Array.Empty<(string, int)>();
-    private int _nbGalinettes;
-
-    public static CommandBuilder DémarrerUnePartieDeChasse() => new();
-
-    public CommandBuilder Avec(params (string, int)[] chasseurs)
+    public class CommandBuilder
     {
-        _chasseurs = chasseurs;
-        return this;
-    }
+        private (string, int)[] _chasseurs = Array.Empty<(string, int)>();
+        private int _nbGalinettes;
 
-    public CommandBuilder SurUnTerrainRicheEnGalinettes(int nbGalinettes = 3)
-    {
-        _nbGalinettes = nbGalinettes;
-        return this;
-    }
+        public static CommandBuilder DémarrerUnePartieDeChasse() => new();
 
-    public List<(string nom, int nbBalles)> Chasseurs => _chasseurs.ToList();
-    public (string nom, int nbGalinettes) Terrain => ("Pitibon sur Sauldre", _nbGalinettes);
+        public CommandBuilder Avec(params (string, int)[] chasseurs)
+        {
+            _chasseurs = chasseurs;
+            return this;
+        }
+
+        public CommandBuilder SurUnTerrainRicheEnGalinettes(int nbGalinettes = 3)
+        {
+            _nbGalinettes = nbGalinettes;
+            return this;
+        }
+
+        public List<(string nom, int nbBalles)> Chasseurs => _chasseurs.ToList();
+        public (string nom, int nbGalinettes) Terrain => ("Pitibon sur Sauldre", _nbGalinettes);
+    }
 }
