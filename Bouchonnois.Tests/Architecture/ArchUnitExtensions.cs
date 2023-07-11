@@ -2,7 +2,7 @@ using ArchUnitNET.Fluent;
 using ArchUnitNET.Fluent.Syntax.Elements.Types;
 using ArchUnitNET.Loader;
 using ArchUnitNET.xUnit;
-using Bouchonnois.Service;
+using Bouchonnois.Domain;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace Bouchonnois.Tests.Architecture
@@ -11,7 +11,7 @@ namespace Bouchonnois.Tests.Architecture
     {
         private static readonly ArchUnitNET.Domain.Architecture Architecture =
             new ArchLoader()
-                .LoadAssemblies(typeof(PartieDeChasseService).Assembly)
+                .LoadAssemblies(typeof(Chasseur).Assembly)
                 .Build();
 
         public static GivenTypesConjunction TypesInAssembly() =>

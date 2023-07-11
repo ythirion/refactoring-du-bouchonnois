@@ -1,5 +1,5 @@
 using Bouchonnois.Domain;
-using Bouchonnois.Service.Exceptions;
+using Bouchonnois.UseCases.Exceptions;
 using FsCheck;
 using FsCheck.Xunit;
 using static FsCheck.Arb;

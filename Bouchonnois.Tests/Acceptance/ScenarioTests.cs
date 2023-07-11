@@ -1,6 +1,6 @@
-using Bouchonnois.Service;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
+using Bouchonnois.UseCases;
 using FluentAssertions.Extensions;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
 
@@ -10,14 +10,26 @@ namespace Bouchonnois.Tests.Acceptance
     public class ScenarioTests
     {
         private DateTime _time = new(2024, 4, 25, 9, 0, 0);
-        private readonly PartieDeChasseService _service;
+
+        private readonly DemarrerPartieDeChasse _demarrerPartieDeChasse;
+        private readonly Tirer _tirer;
+        private readonly TirerSurUneGalinette _tirerSurUneGalinette;
+        private readonly PrendreLapéro _prendreLapéro;
+        private readonly ReprendreLaPartie _reprendreLaPartie;
+        private readonly TerminerLaPartie _terminerLaPartie;
+        private readonly ConsulterStatus _consulterStatus;
 
         public ScenarioTests()
         {
-            _service = new PartieDeChasseService(
-                new PartieDeChasseRepositoryForTests(),
-                () => _time
-            );
+            var repository = new PartieDeChasseRepositoryForTests();
+
+            _demarrerPartieDeChasse = new DemarrerPartieDeChasse(repository, () => _time);
+            _tirer = new Tirer(repository, () => _time);
+            _tirerSurUneGalinette = new TirerSurUneGalinette(repository, () => _time);
+            _prendreLapéro = new PrendreLapéro(repository, () => _time);
+            _reprendreLaPartie = new ReprendreLaPartie(repository, () => _time);
+            _terminerLaPartie = new TerminerLaPartie(repository, () => _time);
+            _consulterStatus = new ConsulterStatus(repository);
         }
 
         [Fact]
@@ -27,32 +39,32 @@ namespace Bouchonnois.Tests.Acceptance
                 .Avec((Data.Dédé, 20), (Data.Bernard, 8), (Data.Robert, 12))
                 .SurUnTerrainRicheEnGalinettes(4);
 
-            var id = _service.Demarrer(
+            var id = _demarrerPartieDeChasse.Handle(
                 command.Terrain,
                 command.Chasseurs
             );
 
-            After(10.Minutes(), () => _service.Tirer(id, Data.Dédé));
-            After(30.Minutes(), () => _service.TirerSurUneGalinette(id, Data.Robert));
-            After(20.Minutes(), () => _service.PrendreLapéro(id));
-            After(1.Hours(), () => _service.ReprendreLaPartie(id));
-            After(2.Minutes(), () => _service.Tirer(id, Data.Bernard));
-            After(1.Minutes(), () => _service.Tirer(id, Data.Bernard));
-            After(1.Minutes(), () => _service.TirerSurUneGalinette(id, Data.Dédé));
-            After(26.Minutes(), () => _service.TirerSurUneGalinette(id, Data.Robert));
-            After(10.Minutes(), () => _service.PrendreLapéro(id));
-            After(170.Minutes(), () => _service.ReprendreLaPartie(id));
-            After(11.Minutes(), () => _service.Tirer(id, Data.Bernard));
-            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
-            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
-            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
-            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
-            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
-            After(1.Seconds(), () => _service.Tirer(id, Data.Bernard));
-            After(19.Minutes(), () => _service.TirerSurUneGalinette(id, Data.Robert));
-            After(30.Minutes(), () => _service.TerminerLaPartie(id));
+            After(10.Minutes(), () => _tirer.Handle(id, Data.Dédé));
+            After(30.Minutes(), () => _tirerSurUneGalinette.Handle(id, Data.Robert));
+            After(20.Minutes(), () => _prendreLapéro.Handle(id));
+            After(1.Hours(), () => _reprendreLaPartie.Handle(id));
+            After(2.Minutes(), () => _tirer.Handle(id, Data.Bernard));
+            After(1.Minutes(), () => _tirer.Handle(id, Data.Bernard));
+            After(1.Minutes(), () => _tirerSurUneGalinette.Handle(id, Data.Dédé));
+            After(26.Minutes(), () => _tirerSurUneGalinette.Handle(id, Data.Robert));
+            After(10.Minutes(), () => _prendreLapéro.Handle(id));
+            After(170.Minutes(), () => _reprendreLaPartie.Handle(id));
+            After(11.Minutes(), () => _tirer.Handle(id, Data.Bernard));
+            After(1.Seconds(), () => _tirer.Handle(id, Data.Bernard));
+            After(1.Seconds(), () => _tirer.Handle(id, Data.Bernard));
+            After(1.Seconds(), () => _tirer.Handle(id, Data.Bernard));
+            After(1.Seconds(), () => _tirer.Handle(id, Data.Bernard));
+            After(1.Seconds(), () => _tirer.Handle(id, Data.Bernard));
+            After(1.Seconds(), () => _tirer.Handle(id, Data.Bernard));
+            After(19.Minutes(), () => _tirerSurUneGalinette.Handle(id, Data.Robert));
+            After(30.Minutes(), () => _terminerLaPartie.Handle(id));
 
-            return Verify(_service.ConsulterStatus(id));
+            return Verify(_consulterStatus.Handle(id));
         }
 
         private void After(TimeSpan time, Action act)

@@ -1,5 +1,4 @@
 using Bouchonnois.Domain;
-using Bouchonnois.Service;
 using static Bouchonnois.Domain.PartieStatus;
 
 namespace Bouchonnois.Tests.Builders

@@ -1,5 +1,5 @@
-using Bouchonnois.Service.Exceptions;
 using Bouchonnois.UseCases;
+using Bouchonnois.UseCases.Exceptions;
 
 namespace Bouchonnois.Tests.Unit
 {

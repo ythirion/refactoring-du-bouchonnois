@@ -1,6 +1,4 @@
-﻿using Bouchonnois.Service;
-
-namespace Bouchonnois.Domain
+﻿namespace Bouchonnois.Domain
 {
     public class PartieDeChasse
     {

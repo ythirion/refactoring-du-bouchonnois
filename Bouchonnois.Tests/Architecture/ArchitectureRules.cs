@@ -23,7 +23,7 @@ namespace Bouchonnois.Tests.Architecture
 
         [Fact]
         public void ApplicationServicesRules() =>
-            Infrastructure().Should()
+            ApplicationServices().Should()
                 .NotDependOnAny(Infrastructure())
                 .Check();
 
