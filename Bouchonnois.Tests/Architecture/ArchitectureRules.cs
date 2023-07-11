@@ -6,10 +6,10 @@ namespace Bouchonnois.Tests.Architecture
 {
     public class ArchitectureRules
     {
-        private static GivenTypesConjunctionWithDescription ApplicationServices() =>
+        private static GivenTypesConjunctionWithDescription UseCases() =>
             TypesInAssembly().And()
-                .ResideInNamespace("Service", true)
-                .As("Application Services");
+                .ResideInNamespace("UseCases", true)
+                .As("Use Cases");
 
         private static GivenTypesConjunctionWithDescription DomainModel() =>
             TypesInAssembly().And()
@@ -22,8 +22,8 @@ namespace Bouchonnois.Tests.Architecture
                 .As("Infrastructure");
 
         [Fact]
-        public void ApplicationServicesRules() =>
-            ApplicationServices().Should()
+        public void UseCasesRules() =>
+            UseCases().Should()
                 .NotDependOnAny(Infrastructure())
                 .Check();
 
@@ -36,7 +36,7 @@ namespace Bouchonnois.Tests.Architecture
         [Fact]
         public void DomainModelRules() =>
             DomainModel().Should()
-                .NotDependOnAny(ApplicationServices()).AndShould()
+                .NotDependOnAny(UseCases()).AndShould()
                 .NotDependOnAny(Infrastructure())
                 .Check();
     }

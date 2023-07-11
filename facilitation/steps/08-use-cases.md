@@ -304,7 +304,38 @@ namespace Bouchonnois.Tests.Acceptance
 ```
 
 - On peut maintenant supprimer la classe `PartieDeChasseService` de manière totalement `safe`
+![Remove Service](img/08-use-cases/remove-class.webp)
 
+> Notre architecture ressemble maintenant à ça
+
+![Archi](img/08-use-cases/architecture.webp)
+
+## Mise à jour des règles ArchUnit
+```csharp
+public class ArchitectureRules
+{
+    private static GivenTypesConjunctionWithDescription UseCases() =>
+        TypesInAssembly().And()
+            .ResideInNamespace("UseCases", true)
+            .As("Use Cases");
+
+    private static GivenTypesConjunctionWithDescription Infrastructure() =>
+        TypesInAssembly().And()
+            .ResideInNamespace("Repository", true)
+            .As("Infrastructure");
+
+    [Fact]
+    public void UseCasesRules() =>
+        UseCases().Should()
+            .NotDependOnAny(Infrastructure())
+            .Check();
+      
+    ...
+```
+
+## Impact sur l'analyse comportementale
+
+Nouveau rapport `SonarCloud` disponible [ici](https://sonarcloud.io/summary/overall?id=ythirion_refactoring-du-bouchonnois&branch=steps%2F08-use-cases).
 
 ## Reflect
 - Quel est l'impact sur le design ? les tests ?
