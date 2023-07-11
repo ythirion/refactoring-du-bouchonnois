@@ -1,10 +1,14 @@
 using Bouchonnois.Service.Exceptions;
 using Bouchonnois.Tests.Builders;
+using Bouchonnois.UseCases;
 
 namespace Bouchonnois.Tests.Unit
 {
     public class TerminerLaPartieDeChasse : PartieDeChasseServiceTest
     {
+        private readonly TerminerLaPartie _useCase;
+        public TerminerLaPartieDeChasse() => _useCase = new TerminerLaPartie(Repository, TimeProvider);
+
         [Fact]
         public void QuandLaPartieEstEnCoursEt1SeulChasseurGagne()
         {
@@ -15,7 +19,7 @@ namespace Bouchonnois.Tests.Unit
                 ));
 
             string? winner = null;
-            When(id => winner = PartieDeChasseService.TerminerLaPartie(id));
+            When(id => winner = _useCase.Handle(id));
 
             Then(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -34,7 +38,7 @@ namespace Bouchonnois.Tests.Unit
             );
 
             string? winner = null;
-            When(id => winner = PartieDeChasseService.TerminerLaPartie(id));
+            When(id => winner = _useCase.Handle(id));
 
             Then(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -53,7 +57,7 @@ namespace Bouchonnois.Tests.Unit
             );
 
             string? winner = null;
-            When(id => winner = PartieDeChasseService.TerminerLaPartie(id));
+            When(id => winner = _useCase.Handle(id));
 
             Then(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -72,7 +76,7 @@ namespace Bouchonnois.Tests.Unit
             );
 
             string? winner = null;
-            When(id => winner = PartieDeChasseService.TerminerLaPartie(id));
+            When(id => winner = _useCase.Handle(id));
 
             Then(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -92,7 +96,7 @@ namespace Bouchonnois.Tests.Unit
             );
 
             string? winner = null;
-            When(id => winner = PartieDeChasseService.TerminerLaPartie(id));
+            When(id => winner = _useCase.Handle(id));
 
             Then(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -101,7 +105,7 @@ namespace Bouchonnois.Tests.Unit
                 () => winner.Should().Be("Dédé, Bernard, Robert"));
         }
 
-        public class Echoue : PartieDeChasseServiceTest
+        public class Echoue : TerminerLaPartieDeChasse
         {
             [Fact]
             public void SiLaPartieDeChasseEstDéjàTerminée()
@@ -112,7 +116,7 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée())
                 );
 
-                When(id => PartieDeChasseService.TerminerLaPartie(id));
+                When(id => _useCase.Handle(id));
 
                 ThenThrow<QuandCestFiniCestFini>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
