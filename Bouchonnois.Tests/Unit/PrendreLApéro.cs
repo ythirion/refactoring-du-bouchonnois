@@ -1,11 +1,14 @@
 using Bouchonnois.Service.Exceptions;
-using FsCheck;
-using FsCheck.Xunit;
+using Bouchonnois.UseCases;
 
 namespace Bouchonnois.Tests.Unit
 {
     public class PrendreLApéro : PartieDeChasseServiceTest
     {
+        private readonly PrendreLapéro _useCase;
+
+        public PrendreLApéro() => _useCase = new PrendreLapéro(Repository, TimeProvider);
+
         [Fact]
         public void QuandLaPartieEstEnCours()
         {
@@ -15,7 +18,7 @@ namespace Bouchonnois.Tests.Unit
                 )
             );
 
-            When(id => PartieDeChasseService.PrendreLapéro(id));
+            When(id => _useCase.Handle(id));
 
             Then(savedPartieDeChasse =>
                 savedPartieDeChasse.Should()
@@ -24,14 +27,14 @@ namespace Bouchonnois.Tests.Unit
                     .BeInApéro());
         }
 
-        public class Echoue : PartieDeChasseServiceTest
+        public class Echoue : PrendreLApéro
         {
             [Fact]
             public void CarPartieNexistePas()
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => PartieDeChasseService.PrendreLapéro(id));
+                When(id => _useCase.Handle(id));
 
                 ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
@@ -45,7 +48,7 @@ namespace Bouchonnois.Tests.Unit
                             .ALapéro())
                 );
 
-                When(id => PartieDeChasseService.PrendreLapéro(id));
+                When(id => _useCase.Handle(id));
 
                 ThenThrow<OnEstDéjàEnTrainDePrendreLapéro>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should().BeNull());
@@ -60,7 +63,7 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée())
                 );
 
-                When(id => PartieDeChasseService.PrendreLapéro(id));
+                When(id => _useCase.Handle(id));
 
                 ThenThrow<OnPrendPasLapéroQuandLaPartieEstTerminée>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should().BeNull());
