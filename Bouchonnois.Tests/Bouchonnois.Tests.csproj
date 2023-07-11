@@ -38,8 +38,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Unit\DemarrerUnePartieDeChasse.Echoue.AvecPlusieursChasseurs.verified.txt">
-        <DependentUpon>DemarrerUnePartieDeChasse.cs</DependentUpon>
+      <None Update="Unit\ConsulterStatus.QuandLaPartieEstTerminée.verified.txt">
+        <DependentUpon>ConsulterStatus.cs</DependentUpon>
       </None>
     </ItemGroup>
 

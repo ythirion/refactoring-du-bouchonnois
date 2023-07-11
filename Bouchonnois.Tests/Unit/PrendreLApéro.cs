@@ -3,11 +3,11 @@ using Bouchonnois.UseCases;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public class PrendreLApéro : PartieDeChasseServiceTest
+    public class PrendreLApéro : UseCaseTest<PrendreLapéro>
     {
-        private readonly PrendreLapéro _useCase;
-
-        public PrendreLApéro() => _useCase = new PrendreLapéro(Repository, TimeProvider);
+        public PrendreLApéro() : base((r, p) => new PrendreLapéro(r, p))
+        {
+        }
 
         [Fact]
         public void QuandLaPartieEstEnCours()
@@ -27,8 +27,12 @@ namespace Bouchonnois.Tests.Unit
                     .BeInApéro());
         }
 
-        public class Echoue : PrendreLApéro
+        public class Echoue : UseCaseTest<PrendreLapéro>
         {
+            public Echoue() : base((r, p) => new PrendreLapéro(r, p))
+            {
+            }
+
             [Fact]
             public void CarPartieNexistePas()
             {

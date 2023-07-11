@@ -10,11 +10,11 @@ using static FsCheck.Prop;
 namespace Bouchonnois.Tests.Unit
 {
     [UsesVerify]
-    public class DemarrerUnePartieDeChasse : PartieDeChasseServiceTest
+    public class DemarrerUnePartieDeChasse : UseCaseTest<DemarrerPartieDeChasse>
     {
-        private readonly DemarrerPartieDeChasse _useCase;
-
-        public DemarrerUnePartieDeChasse() => _useCase = new DemarrerPartieDeChasse(Repository, TimeProvider);
+        public DemarrerUnePartieDeChasse() : base((r, p) => new DemarrerPartieDeChasse(r, p))
+        {
+        }
 
         [Fact]
         public Task AvecPlusieursChasseurs()
@@ -45,8 +45,12 @@ namespace Bouchonnois.Tests.Unit
                 terrain,
                 chasseurs.ToList()) == Repository.SavedPartieDeChasse()!.Id;
 
-        public class Echoue : DemarrerUnePartieDeChasse
+        public class Echoue : UseCaseTest<DemarrerPartieDeChasse>
         {
+            public Echoue() : base((r, p) => new DemarrerPartieDeChasse(r, p))
+            {
+            }
+
             [Property]
             public Property SansChasseursSurNimporteQuelTerrainRicheEnGalinette()
                 => ForAll(

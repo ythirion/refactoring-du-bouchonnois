@@ -1,5 +1,4 @@
 using Bouchonnois.Domain;
-using Bouchonnois.Service;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
 using FsCheck;
@@ -7,20 +6,22 @@ using Microsoft.FSharp.Collections;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public abstract class PartieDeChasseServiceTest
+    public abstract class UseCaseTestBase
     {
         protected static readonly DateTime Now = new(2024, 6, 6, 14, 50, 45);
         protected static readonly Func<DateTime> TimeProvider = () => Now;
-
         protected static List<(string, int)> PasDeChasseurs => new();
+    }
 
+    public abstract class UseCaseTest<TUseCase> : UseCaseTestBase
+    {
         protected readonly PartieDeChasseRepositoryForTests Repository;
-        protected readonly PartieDeChasseService PartieDeChasseService;
+        protected readonly TUseCase _useCase;
 
-        protected PartieDeChasseServiceTest()
+        protected UseCaseTest(Func<IPartieDeChasseRepository, Func<DateTime>, TUseCase> useCaseFactory)
         {
             Repository = new PartieDeChasseRepositoryForTests();
-            PartieDeChasseService = new PartieDeChasseService(Repository, TimeProvider);
+            _useCase = useCaseFactory(Repository, TimeProvider);
         }
 
         protected PartieDeChasse UnePartieDeChasseExistante(PartieDeChasseBuilder partieDeChasseBuilder)
@@ -51,7 +52,7 @@ namespace Bouchonnois.Tests.Unit
 
         private Guid _partieDeChasseId;
         private Action<Guid>? _act;
-        
+
         protected void Given(Guid partieDeChasseId) => _partieDeChasseId = partieDeChasseId;
         protected void Given(PartieDeChasse unePartieDeChasseExistante) => Given(unePartieDeChasseExistante.Id);
         protected void When(Action<Guid> act) => _act = act;

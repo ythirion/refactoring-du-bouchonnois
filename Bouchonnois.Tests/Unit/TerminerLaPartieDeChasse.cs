@@ -4,10 +4,11 @@ using Bouchonnois.UseCases;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public class TerminerLaPartieDeChasse : PartieDeChasseServiceTest
+    public class TerminerLaPartieDeChasse : UseCaseTest<TerminerLaPartie>
     {
-        private readonly TerminerLaPartie _useCase;
-        public TerminerLaPartieDeChasse() => _useCase = new TerminerLaPartie(Repository, TimeProvider);
+        public TerminerLaPartieDeChasse() : base((r, p) => new TerminerLaPartie(r, p))
+        {
+        }
 
         [Fact]
         public void QuandLaPartieEstEnCoursEt1SeulChasseurGagne()
@@ -105,8 +106,12 @@ namespace Bouchonnois.Tests.Unit
                 () => winner.Should().Be("Dédé, Bernard, Robert"));
         }
 
-        public class Echoue : TerminerLaPartieDeChasse
+        public class Echoue : UseCaseTest<TerminerLaPartie>
         {
+            public Echoue() : base((r, p) => new TerminerLaPartie(r, p))
+            {
+            }
+
             [Fact]
             public void SiLaPartieDeChasseEstDéjàTerminée()
             {

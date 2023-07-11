@@ -3,11 +3,11 @@ using Bouchonnois.Tests.Builders;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public class Tirer : PartieDeChasseServiceTest
+    public class Tirer : UseCaseTest<UseCases.Tirer>
     {
-        private readonly UseCases.Tirer _useCase;
-
-        public Tirer() => _useCase = new UseCases.Tirer(Repository, TimeProvider);
+        public Tirer() : base((r, p) => new UseCases.Tirer(r, p))
+        {
+        }
 
         [Fact]
         public void AvecUnChasseurAyantDesBalles()
@@ -29,8 +29,12 @@ namespace Bouchonnois.Tests.Unit
             );
         }
 
-        public class Echoue : Tirer
+        public class Echoue : UseCaseTest<UseCases.Tirer>
         {
+            public Echoue() : base((r, p) => new UseCases.Tirer(r, p))
+            {
+            }
+
             [Fact]
             public void CarPartieNexistePas()
             {

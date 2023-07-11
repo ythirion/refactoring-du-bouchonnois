@@ -8,11 +8,11 @@ using static FsCheck.Prop;
 namespace Bouchonnois.Tests.Unit
 {
     [UsesVerify]
-    public class ConsulterStatus : PartieDeChasseServiceTest
+    public class ConsulterStatus : UseCaseTest<UseCases.ConsulterStatus>
     {
-        private UseCases.ConsulterStatus _useCase;
-
-        public ConsulterStatus() => _useCase = new UseCases.ConsulterStatus(Repository);
+        public ConsulterStatus() : base((r, t) => new UseCases.ConsulterStatus(r))
+        {
+        }
 
         [Fact]
         public Task QuandLaPartieVientDeDémarrer()
@@ -65,9 +65,14 @@ namespace Bouchonnois.Tests.Unit
                 .DontScrubDateTimes();
         }
 
-        public class Echoue : ConsulterStatus
+        public class Echoue : UseCaseTest<UseCases.ConsulterStatus>
         {
             private readonly Arbitrary<Guid> _nonExistingPartiesDeChasse = Generate<Guid>().ToArbitrary();
+
+            public Echoue() : base((r, t) => new UseCases.ConsulterStatus(r))
+
+            {
+            }
 
             [Property]
             public Property CarPartieNexistePas()
