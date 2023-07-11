@@ -10,6 +10,7 @@ on:
       - steps/05-approve-everything
       - steps/06-properties
       - steps/07-architecture-tests
+      - steps/08-use-cases
 jobs:
   build:
     name: Build and analyze
