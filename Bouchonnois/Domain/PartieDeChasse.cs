@@ -1,4 +1,5 @@
 ﻿using Bouchonnois.Domain.Exceptions;
+using static System.String;
 using static Bouchonnois.Domain.PartieStatus;
 
 namespace Bouchonnois.Domain
@@ -55,5 +56,13 @@ namespace Bouchonnois.Domain
             Status = EnCours;
             Events.Add(new Event(timeProvider(), "Reprise de la chasse"));
         }
+
+        public string Consulter() =>
+            Join(
+                Environment.NewLine,
+                Events
+                    .OrderByDescending(@event => @event.Date)
+                    .Select(@event => @event.ToString())
+            );
     }
 }
