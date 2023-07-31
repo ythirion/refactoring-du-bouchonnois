@@ -55,24 +55,43 @@ namespace Bouchonnois.Tests.Builders
                     .ToList()
             );
 
-            partieDeChasse.Chasseurs
-                .ForEach(c =>
-                {
-                    var built = builtChasseurs.First(x => x.Nom == c.Nom);
-                    var repeat = built.NbGalinettes;
-                    while (repeat > 0)
-                    {
-                        partieDeChasse.TirerSurUneGalinette(built.Nom, timeProvider, repository);
-                        repeat--;
-                    }
-                });
-
-            chasseursSansBalles.ForEach(c => partieDeChasse.Tirer(c, timeProvider, repository));
+            TirerSurLesGalinettes(partieDeChasse, timeProvider, repository, builtChasseurs);
+            TirerDansLeVide(partieDeChasse, timeProvider, repository, chasseursSansBalles);
 
             partieDeChasse.Status = _status;
             partieDeChasse.Events = _events.ToList();
-            
+
             return partieDeChasse;
+        }
+
+        private static void TirerDansLeVide(
+            PartieDeChasse partieDeChasse,
+            Func<DateTime> timeProvider,
+            IPartieDeChasseRepository repository,
+            IEnumerable<string> chasseursSansBalles) =>
+            chasseursSansBalles.ForEach(c => partieDeChasse.Tirer(c, timeProvider, repository));
+
+        private static void TirerSurLesGalinettes(
+            PartieDeChasse partieDeChasse,
+            Func<DateTime> timeProvider,
+            IPartieDeChasseRepository repository,
+            IEnumerable<Chasseur> builtChasseurs) =>
+            partieDeChasse
+                .Chasseurs
+                .ForEach(c =>
+                {
+                    var built = builtChasseurs.First(x => x.Nom == c.Nom);
+                    Repeat(built.NbGalinettes,
+                        () => partieDeChasse.TirerSurUneGalinette(built.Nom, timeProvider, repository));
+                });
+
+        private static void Repeat(int times, Action call)
+        {
+            while (times > 0)
+            {
+                call();
+                times--;
+            }
         }
     }
 }
