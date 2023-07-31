@@ -29,16 +29,15 @@ namespace Bouchonnois.Domain
             Status = EnCours;
             _events = new List<Event>();
 
-            foreach (var chasseur in chasseurs)
-            {
-                _chasseurs.Add(new Chasseur(chasseur.nom)
-                {
-                    BallesRestantes = chasseur.nbBalles
-                });
-            }
-
+            chasseurs.ForEach(c => AddChasseur(c));
             EmitPartieDémarrée(timeProvider);
         }
+
+        private void AddChasseur((string nom, int nbBalles) chasseur)
+            => _chasseurs.Add(new Chasseur(chasseur.nom)
+            {
+                BallesRestantes = chasseur.nbBalles
+            });
 
         public static PartieDeChasse Create(
             Func<DateTime> timeProvider,
@@ -96,12 +95,12 @@ namespace Bouchonnois.Domain
 
         public void PrendreLapéro(Func<DateTime> timeProvider)
         {
-            if (Status == Apéro)
+            if (DuringApéro())
             {
                 throw new OnEstDéjàEnTrainDePrendreLapéro();
             }
 
-            if (Status == Terminée)
+            if (DéjàTerminée())
             {
                 throw new OnPrendPasLapéroQuandLaPartieEstTerminée();
             }
@@ -116,12 +115,12 @@ namespace Bouchonnois.Domain
 
         public void Reprendre(Func<DateTime> timeProvider)
         {
-            if (Status == EnCours)
+            if (DéjàEnCours())
             {
                 throw new LaChasseEstDéjàEnCours();
             }
 
-            if (Status == Terminée)
+            if (DéjàTerminée())
             {
                 throw new QuandCestFiniCestFini();
             }
@@ -148,7 +147,7 @@ namespace Bouchonnois.Domain
 
         public string Terminer(Func<DateTime> timeProvider)
         {
-            if (Status == Terminée)
+            if (DéjàTerminée())
             {
                 throw new QuandCestFiniCestFini();
             }
@@ -183,53 +182,43 @@ namespace Bouchonnois.Domain
 
         #endregion
 
-        #region Terminer
+        #region Tirer
 
-        public void Tirer(string chasseur, Func<DateTime> timeProvider,
+        public void Tirer(
+            string chasseur,
+            Func<DateTime> timeProvider,
             IPartieDeChasseRepository repository)
         {
-            if (Status != Apéro)
+            if (DuringApéro())
             {
-                if (Status != Terminée)
-                {
-                    if (_chasseurs.Exists(c => c.Nom == chasseur))
-                    {
-                        var chasseurQuiTire = _chasseurs.Find(c => c.Nom == chasseur)!;
-
-                        if (chasseurQuiTire.BallesRestantes == 0)
-                        {
-                            _events.Add(new Event(timeProvider(),
-                                $"{chasseur} tire -> T'as plus de balles mon vieux, chasse à la main"));
-                            repository.Save(this);
-
-                            throw new TasPlusDeBallesMonVieuxChasseALaMain();
-                        }
-
-                        _events.Add(new Event(timeProvider(), $"{chasseur} tire"));
-                        chasseurQuiTire.BallesRestantes--;
-                    }
-                    else
-                    {
-                        throw new ChasseurInconnu(chasseur);
-                    }
-                }
-                else
-                {
-                    _events.Add(new Event(timeProvider(),
-                        $"{chasseur} veut tirer -> On tire pas quand la partie est terminée"));
-                    repository.Save(this);
-
-                    throw new OnTirePasQuandLaPartieEstTerminée();
-                }
-            }
-            else
-            {
-                _events.Add(new Event(timeProvider(),
-                    $"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"));
-                repository.Save(this);
-
+                EmitEventAndSave(timeProvider, repository,
+                    $"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!");
                 throw new OnTirePasPendantLapéroCestSacré();
             }
+
+            if (DéjàTerminée())
+            {
+                EmitEventAndSave(timeProvider, repository,
+                    $"{chasseur} veut tirer -> On tire pas quand la partie est terminée");
+                throw new OnTirePasQuandLaPartieEstTerminée();
+            }
+
+            if (!ChasseurExiste(chasseur))
+            {
+                throw new ChasseurInconnu(chasseur);
+            }
+
+            var chasseurQuiTire = RetrieveChasseur(chasseur);
+
+            if (!chasseurQuiTire.AEncoreDesBalles())
+            {
+                EmitEventAndSave(timeProvider, repository,
+                    $"{chasseur} tire -> T'as plus de balles mon vieux, chasse à la main");
+                throw new TasPlusDeBallesMonVieuxChasseALaMain();
+            }
+
+            EmitEvent(timeProvider, $"{chasseur} tire");
+            chasseurQuiTire.BallesRestantes--;
         }
 
         #endregion
@@ -291,7 +280,19 @@ namespace Bouchonnois.Domain
             }
         }
 
+        private bool DuringApéro() => Status == Apéro;
+        private bool DéjàTerminée() => Status == Terminée;
+        private bool DéjàEnCours() => Status == EnCours;
+        private bool ChasseurExiste(string chasseur) => _chasseurs.Exists(c => c.Nom == chasseur);
+        private Chasseur RetrieveChasseur(string chasseur) => _chasseurs.Find(c => c.Nom == chasseur)!;
+
         private void EmitEvent(Func<DateTime> timeProvider, string message) =>
             _events.Add(new Event(timeProvider(), message));
+
+        private void EmitEventAndSave(Func<DateTime> timeProvider, IPartieDeChasseRepository repository, string message)
+        {
+            EmitEvent(timeProvider, message);
+            repository.Save(this);
+        }
     }
 }
