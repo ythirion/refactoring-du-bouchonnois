@@ -16,6 +16,7 @@ namespace Bouchonnois.Domain
         public PartieStatus Status { get; private set; }
         public IReadOnlyList<Event> Events => _events.ToImmutableArray();
 
+        #region Create
 
         private PartieDeChasse(Guid id,
             Func<DateTime> timeProvider,
@@ -36,14 +37,7 @@ namespace Bouchonnois.Domain
                 });
             }
 
-            string chasseursToString = Join(
-                ", ",
-                _chasseurs.Select(c => c.Nom + $" ({c.BallesRestantes} balles)")
-            );
-
-            _events.Add(new Event(timeProvider(),
-                $"La partie de chasse commence à {Terrain.Nom} avec {chasseursToString}")
-            );
+            EmitPartieDémarrée(timeProvider);
         }
 
         public static PartieDeChasse Create(
@@ -51,22 +45,11 @@ namespace Bouchonnois.Domain
             (string nom, int nbGalinettes) terrainDeChasse,
             List<(string nom, int nbBalles)> chasseurs)
         {
-            if (terrainDeChasse.nbGalinettes <= 0)
-            {
-                throw new ImpossibleDeDémarrerUnePartieSansGalinettes();
-            }
+            CheckTerrainValide(terrainDeChasse);
+            CheckChasseursValides(chasseurs);
 
-            if (chasseurs.Count == 0)
-            {
-                throw new ImpossibleDeDémarrerUnePartieSansChasseur();
-            }
-
-            if (chasseurs.Any(c => c.nbBalles == 0))
-            {
-                throw new ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle();
-            }
-
-            return new PartieDeChasse(Guid.NewGuid(),
+            return new PartieDeChasse(
+                Guid.NewGuid(),
                 timeProvider,
                 new Terrain(terrainDeChasse.nom)
                 {
@@ -76,20 +59,60 @@ namespace Bouchonnois.Domain
             );
         }
 
+        private static void CheckTerrainValide((string nom, int nbGalinettes) terrainDeChasse)
+        {
+            if (terrainDeChasse.nbGalinettes <= 0)
+            {
+                throw new ImpossibleDeDémarrerUnePartieSansGalinettes();
+            }
+        }
+
+        private static void CheckChasseursValides(List<(string nom, int nbBalles)> chasseurs)
+        {
+            if (chasseurs.Count == 0)
+            {
+                throw new ImpossibleDeDémarrerUnePartieSansChasseur();
+            }
+
+            if (AuMoinsUnChasseurNAPasDeBalles(chasseurs))
+            {
+                throw new ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle();
+            }
+        }
+
+        private static bool AuMoinsUnChasseurNAPasDeBalles(IEnumerable<(string nom, int nbBalles)> chasseurs)
+            => chasseurs.Any(c => c.nbBalles == 0);
+
+        private void EmitPartieDémarrée(Func<DateTime> timeProvider)
+        {
+            var chasseursToString = Join(", ", _chasseurs.Select(c => c.Nom + $" ({c.BallesRestantes} balles)"));
+            EmitEvent(timeProvider, $"La partie de chasse commence à {Terrain.Nom} avec {chasseursToString}");
+        }
+
+        #endregion
+
+
+        #region Apéro
+
         public void PrendreLapéro(Func<DateTime> timeProvider)
         {
             if (Status == Apéro)
             {
                 throw new OnEstDéjàEnTrainDePrendreLapéro();
             }
-            else if (Status == Terminée)
+
+            if (Status == Terminée)
             {
                 throw new OnPrendPasLapéroQuandLaPartieEstTerminée();
             }
 
             Status = Apéro;
-            _events.Add(new Event(timeProvider(), "Petit apéro"));
+            EmitEvent(timeProvider, "Petit apéro");
         }
+
+        #endregion
+
+        #region Reprendre
 
         public void Reprendre(Func<DateTime> timeProvider)
         {
@@ -104,8 +127,12 @@ namespace Bouchonnois.Domain
             }
 
             Status = EnCours;
-            _events.Add(new Event(timeProvider(), "Reprise de la chasse"));
+            EmitEvent(timeProvider, "Reprise de la chasse");
         }
+
+        #endregion
+
+        #region Consulter
 
         public string Consulter() =>
             Join(
@@ -115,40 +142,48 @@ namespace Bouchonnois.Domain
                     .Select(@event => @event.ToString())
             );
 
+        #endregion
+
+        #region Terminer
+
         public string Terminer(Func<DateTime> timeProvider)
         {
-            var classement = Chasseurs
-                .GroupBy(c => c.NbGalinettes)
-                .OrderByDescending(g => g.Key);
-
             if (Status == Terminée)
             {
                 throw new QuandCestFiniCestFini();
             }
 
             Status = Terminée;
-
             string result;
 
-            if (classement.All(group => group.Key == 0))
+            var classement = Classement();
+
+            if (TousBrocouilles(classement))
             {
                 result = "Brocouille";
-                _events.Add(
-                    new Event(timeProvider(), "La partie de chasse est terminée, vainqueur : Brocouille")
-                );
+                EmitEvent(timeProvider, "La partie de chasse est terminée, vainqueur : Brocouille");
             }
             else
             {
                 result = Join(", ", classement.ElementAt(0).Select(c => c.Nom));
-                _events.Add(
-                    new Event(timeProvider(),
-                        $"La partie de chasse est terminée, vainqueur : {Join(", ", classement.ElementAt(0).Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}"
-                    )
-                );
+                EmitEvent(timeProvider,
+                    $"La partie de chasse est terminée, vainqueur : {Join(", ", classement.ElementAt(0).Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}");
             }
 
             return result;
         }
+
+        private IOrderedEnumerable<IGrouping<int, Chasseur>> Classement()
+            => Chasseurs
+                .GroupBy(c => c.NbGalinettes)
+                .OrderByDescending(g => g.Key);
+
+        private static bool TousBrocouilles(IOrderedEnumerable<IGrouping<int, Chasseur>> classement) =>
+            classement.All(group => group.Key == 0);
+
+        #endregion
+
+        #region Terminer
 
         public void Tirer(string chasseur, Func<DateTime> timeProvider,
             IPartieDeChasseRepository repository)
@@ -196,6 +231,9 @@ namespace Bouchonnois.Domain
                 throw new OnTirePasPendantLapéroCestSacré();
             }
         }
+
+        #endregion
+
 
         public void TirerSurUneGalinette(string chasseur,
             Func<DateTime> timeProvider,
@@ -252,5 +290,8 @@ namespace Bouchonnois.Domain
                 throw new TasTropPicoléMonVieuxTasRienTouché();
             }
         }
+
+        private void EmitEvent(Func<DateTime> timeProvider, string message) =>
+            _events.Add(new Event(timeProvider(), message));
     }
 }
