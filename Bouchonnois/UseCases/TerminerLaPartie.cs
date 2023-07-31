@@ -1,5 +1,4 @@
 using Bouchonnois.Domain;
-using Bouchonnois.Domain.Exceptions;
 
 namespace Bouchonnois.UseCases
 {
@@ -16,39 +15,9 @@ namespace Bouchonnois.UseCases
 
         public string Handle(Guid id)
         {
+            // TODO : missing null check here
             var partieDeChasse = _repository.GetById(id);
-
-            var classement = partieDeChasse
-                .Chasseurs
-                .GroupBy(c => c.NbGalinettes)
-                .OrderByDescending(g => g.Key);
-
-            if (partieDeChasse.Status == PartieStatus.Terminée)
-            {
-                throw new QuandCestFiniCestFini();
-            }
-
-            partieDeChasse.Status = PartieStatus.Terminée;
-
-            string result;
-
-            if (classement.All(group => group.Key == 0))
-            {
-                result = "Brocouille";
-                partieDeChasse.Events.Add(
-                    new Event(_timeProvider(), "La partie de chasse est terminée, vainqueur : Brocouille")
-                );
-            }
-            else
-            {
-                result = string.Join(", ", classement.ElementAt(0).Select(c => c.Nom));
-                partieDeChasse.Events.Add(
-                    new Event(_timeProvider(),
-                        $"La partie de chasse est terminée, vainqueur : {string.Join(", ", classement.ElementAt(0).Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}"
-                    )
-                );
-            }
-
+            var result = partieDeChasse.Terminer(_timeProvider);
 
             _repository.Save(partieDeChasse);
 

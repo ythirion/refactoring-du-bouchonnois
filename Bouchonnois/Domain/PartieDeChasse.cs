@@ -126,5 +126,41 @@ namespace Bouchonnois.Domain
                     .OrderByDescending(@event => @event.Date)
                     .Select(@event => @event.ToString())
             );
+
+        public string Terminer(Func<DateTime> timeProvider)
+        {
+            var classement = this
+                .Chasseurs
+                .GroupBy(c => c.NbGalinettes)
+                .OrderByDescending(g => g.Key);
+
+            if (this.Status == PartieStatus.Terminée)
+            {
+                throw new QuandCestFiniCestFini();
+            }
+
+            this.Status = PartieStatus.Terminée;
+
+            string result;
+
+            if (classement.All(group => group.Key == 0))
+            {
+                result = "Brocouille";
+                this.Events.Add(
+                    new Event(timeProvider(), "La partie de chasse est terminée, vainqueur : Brocouille")
+                );
+            }
+            else
+            {
+                result = string.Join(", ", classement.ElementAt(0).Select(c => c.Nom));
+                this.Events.Add(
+                    new Event(timeProvider(),
+                        $"La partie de chasse est terminée, vainqueur : {string.Join(", ", classement.ElementAt(0).Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}"
+                    )
+                );
+            }
+
+            return result;
+        }
     }
 }
