@@ -59,8 +59,6 @@ namespace Bouchonnois.Tests.Builders
 
             ChangeStatus(partieDeChasse, timeProvider);
 
-            partieDeChasse.Events = _events.ToList();
-
             return partieDeChasse;
         }
 

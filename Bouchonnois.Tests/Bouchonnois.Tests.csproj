@@ -37,10 +37,4 @@
       <ProjectReference Include="..\Bouchonnois\Bouchonnois.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <None Update="Unit\ConsulterStatus.QuandLaPartieEstTerminée.verified.txt">
-        <DependentUpon>ConsulterStatus.cs</DependentUpon>
-      </None>
-    </ItemGroup>
-
 </Project>
