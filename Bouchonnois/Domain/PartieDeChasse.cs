@@ -18,7 +18,7 @@ namespace Bouchonnois.Domain
         public Guid Id { get; }
         public List<Chasseur> Chasseurs { get; }
         public Terrain Terrain { get; }
-        public PartieStatus Status { get; set; }
+        public PartieStatus Status { get; private set; }
         public List<Event> Events { get; set; }
 
         public static PartieDeChasse Create(

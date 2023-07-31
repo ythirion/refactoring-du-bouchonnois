@@ -8,13 +8,12 @@ namespace Bouchonnois.Tests.Builders
     {
         private int _nbGalinettes;
         private ChasseurBuilder[] _chasseurs = {Dédé(), Bernard(), Robert()};
-        private PartieStatus _status = EnCours;
+        private List<PartieStatus> _status = new();
         private Event[] _events = Array.Empty<Event>();
 
         private PartieDeChasseBuilder(int nbGalinettes) => _nbGalinettes = nbGalinettes;
 
         public static PartieDeChasseBuilder SurUnTerrainRicheEnGalinettes(int nbGalinettes = 3) => new(nbGalinettes);
-        public static PartieDeChasseBuilder SurUnTerrainSansGalinettes() => new(0);
 
         public static Guid UnePartieDeChasseInexistante() => Guid.NewGuid();
 
@@ -26,13 +25,13 @@ namespace Bouchonnois.Tests.Builders
 
         public PartieDeChasseBuilder ALapéro()
         {
-            _status = Apéro;
+            _status.Add(Apéro);
             return this;
         }
 
         public PartieDeChasseBuilder Terminée()
         {
-            _status = PartieStatus.Terminée;
+            _status.Add(PartieStatus.Terminée);
             return this;
         }
 
@@ -58,7 +57,8 @@ namespace Bouchonnois.Tests.Builders
             TirerSurLesGalinettes(partieDeChasse, timeProvider, repository, builtChasseurs);
             TirerDansLeVide(partieDeChasse, timeProvider, repository, chasseursSansBalles);
 
-            partieDeChasse.Status = _status;
+            ChangeStatus(partieDeChasse, timeProvider);
+
             partieDeChasse.Events = _events.ToList();
 
             return partieDeChasse;
@@ -84,6 +84,15 @@ namespace Bouchonnois.Tests.Builders
                     Repeat(built.NbGalinettes,
                         () => partieDeChasse.TirerSurUneGalinette(built.Nom, timeProvider, repository));
                 });
+
+        private void ChangeStatus(PartieDeChasse partieDeChasse, Func<DateTime> timeProvider) =>
+            _status.ForEach(status => ChangeStatus(partieDeChasse, status, timeProvider));
+
+        private void ChangeStatus(PartieDeChasse partieDeChasse, PartieStatus status, Func<DateTime> timeProvider)
+        {
+            if (status == PartieStatus.Terminée) partieDeChasse.Terminer(timeProvider);
+            else if (status == Apéro) partieDeChasse.PrendreLapéro(timeProvider);
+        }
 
         private static void Repeat(int times, Action call)
         {
