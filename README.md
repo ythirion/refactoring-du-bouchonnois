@@ -23,3 +23,4 @@ Différentes étapes ainsi qu'une proposition de solution accompagne ce reposito
 - [6. "Properties" everywhere](facilitation/06.properties.md)
 - [7. Tests d'architecture](facilitation/07.architecture-tests.md)
 - [8. Use Cases](facilitation/08.use-cases.md)
+- [9. Tell Don't Ask](facilitation/09.tell-dont-ask.md)
