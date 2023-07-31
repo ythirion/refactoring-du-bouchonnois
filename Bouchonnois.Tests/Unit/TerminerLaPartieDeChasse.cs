@@ -52,7 +52,7 @@ namespace Bouchonnois.Tests.Unit
         {
             Given(
                 UnePartieDeChasseExistante(
-                    SurUnTerrainRicheEnGalinettes()
+                    SurUnTerrainRicheEnGalinettes(4)
                         .Avec(Dédé().AyantTué(2), Bernard().AyantTué(2), Robert())
                 )
             );
@@ -90,7 +90,7 @@ namespace Bouchonnois.Tests.Unit
         {
             Given(
                 UnePartieDeChasseExistante(
-                    SurUnTerrainRicheEnGalinettes()
+                    SurUnTerrainRicheEnGalinettes(12)
                         .Avec(Dédé().AyantTué(3), Bernard().AyantTué(3), Robert().AyantTué(3))
                         .ALapéro()
                 )

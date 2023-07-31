@@ -51,7 +51,7 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(
                     UnePartieDeChasseExistante(
-                        SurUnTerrainSansGalinettes()
+                        SurUnTerrainRicheEnGalinettes()
                             .Avec(Dédé(), Bernard().SansBalles(), Robert())
                     ));
 

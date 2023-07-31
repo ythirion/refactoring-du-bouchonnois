@@ -66,8 +66,8 @@ namespace Bouchonnois.Tests.Unit
             public void CarPasDeGalinetteSurLeTerrain()
             {
                 Given(UnePartieDeChasseExistante(
-                    SurUnTerrainSansGalinettes()
-                        .Avec(Dédé(), Robert())
+                    SurUnTerrainRicheEnGalinettes(1)
+                        .Avec(Dédé().AyantTué(1), Robert())
                 ));
 
                 When(id => _useCase.Handle(id, Data.Bernard));

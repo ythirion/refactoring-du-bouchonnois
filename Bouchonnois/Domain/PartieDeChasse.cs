@@ -39,7 +39,7 @@ namespace Bouchonnois.Domain
         public List<Chasseur> Chasseurs { get; }
         public Terrain Terrain { get; }
         public PartieStatus Status { get; set; }
-        public List<Event> Events { get; init; }
+        public List<Event> Events { get; set; }
 
         public static PartieDeChasse Create(
             Func<DateTime> timeProvider,
@@ -85,6 +85,7 @@ namespace Bouchonnois.Domain
             partieDeChasse.Events.Add(new Event(timeProvider(),
                 $"La partie de chasse commence à {partieDeChasse.Terrain.Nom} avec {chasseursToString}")
             );
+
             return partieDeChasse;
         }
 

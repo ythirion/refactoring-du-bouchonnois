@@ -32,8 +32,7 @@ namespace Bouchonnois.Tests.Assert
                     .FailWith("Impossible de faire une assertion sur un message vide")
                     .Then
                     .Given(() => Subject!.Events)
-                    .ForCondition(events =>
-                        events.Count == 1 && events.Last() == new Event(expectedTime, expectedMessage))
+                    .ForCondition(events => events.Last() == new Event(expectedTime, expectedMessage))
                     .FailWith($"Les events devraient contenir {expectedEvent}."));
         }
 

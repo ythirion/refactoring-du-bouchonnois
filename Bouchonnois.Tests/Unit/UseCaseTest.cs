@@ -24,7 +24,7 @@ namespace Bouchonnois.Tests.Unit
 
         protected PartieDeChasse UnePartieDeChasseExistante(PartieDeChasseBuilder partieDeChasseBuilder)
         {
-            var partieDeChasse = partieDeChasseBuilder.Build();
+            var partieDeChasse = partieDeChasseBuilder.Build(TimeProvider, Repository);
             Repository.Add(partieDeChasse);
 
             return partieDeChasse;
