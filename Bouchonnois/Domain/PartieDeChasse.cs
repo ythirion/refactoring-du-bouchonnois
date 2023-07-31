@@ -34,10 +34,7 @@ namespace Bouchonnois.Domain
         }
 
         private void AddChasseur((string nom, int nbBalles) chasseur)
-            => _chasseurs.Add(new Chasseur(chasseur.nom)
-            {
-                BallesRestantes = chasseur.nbBalles
-            });
+            => _chasseurs.Add(new Chasseur(chasseur.nom, chasseur.nbBalles));
 
         public static PartieDeChasse Create(
             Func<DateTime> timeProvider,
@@ -50,10 +47,7 @@ namespace Bouchonnois.Domain
             return new PartieDeChasse(
                 Guid.NewGuid(),
                 timeProvider,
-                new Terrain(terrainDeChasse.nom)
-                {
-                    NbGalinettes = terrainDeChasse.nbGalinettes
-                },
+                new Terrain(terrainDeChasse.nom, terrainDeChasse.nbGalinettes),
                 chasseurs
             );
         }
@@ -217,8 +211,8 @@ namespace Bouchonnois.Domain
                 debutMessageSiPlusDeBalles: $"{chasseur} veut tirer sur une galinette",
                 c =>
                 {
-                    c.NbGalinettes++;
-                    Terrain.NbGalinettes--;
+                    c.ATué();
+                    Terrain.UneGalinetteEnMoins();
                     EmitEvent(timeProvider, $"{chasseur} tire sur une galinette");
                 });
         }
@@ -260,7 +254,7 @@ namespace Bouchonnois.Domain
                 throw new TasPlusDeBallesMonVieuxChasseALaMain();
             }
 
-            chasseurQuiTire.BallesRestantes--;
+            chasseurQuiTire.ATiré();
             continueWith?.Invoke(chasseurQuiTire);
         }
 

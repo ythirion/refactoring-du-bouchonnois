@@ -1,15 +1,15 @@
 using ArchUnitNET.Domain.Extensions;
 using Bouchonnois.Domain;
 using static Bouchonnois.Domain.PartieStatus;
+using static Bouchonnois.Tests.Builders.Functions;
 
 namespace Bouchonnois.Tests.Builders
 {
     public class PartieDeChasseBuilder
     {
-        private int _nbGalinettes;
+        private readonly int _nbGalinettes;
         private ChasseurBuilder[] _chasseurs = {Dédé(), Bernard(), Robert()};
-        private List<PartieStatus> _status = new();
-        private Event[] _events = Array.Empty<Event>();
+        private readonly List<PartieStatus> _status = new();
 
         private PartieDeChasseBuilder(int nbGalinettes) => _nbGalinettes = nbGalinettes;
 
@@ -37,7 +37,6 @@ namespace Bouchonnois.Tests.Builders
 
         public PartieDeChasseBuilder Events(params Event[] events)
         {
-            _events = events;
             return this;
         }
 
@@ -90,15 +89,6 @@ namespace Bouchonnois.Tests.Builders
         {
             if (status == PartieStatus.Terminée) partieDeChasse.Terminer(timeProvider);
             else if (status == Apéro) partieDeChasse.PrendreLapéro(timeProvider);
-        }
-
-        private static void Repeat(int times, Action call)
-        {
-            while (times > 0)
-            {
-                call();
-                times--;
-            }
         }
     }
 }

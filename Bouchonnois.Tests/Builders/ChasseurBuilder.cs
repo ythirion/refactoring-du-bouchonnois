@@ -1,10 +1,11 @@
 using Bouchonnois.Domain;
+using static Bouchonnois.Tests.Builders.Functions;
 
 namespace Bouchonnois.Tests.Builders
 {
     public class ChasseurBuilder
     {
-        private string? _nom;
+        private readonly string? _nom;
         private int _ballesRestantes;
         private int _nbGalinettes;
 
@@ -33,6 +34,11 @@ namespace Bouchonnois.Tests.Builders
         public static ChasseurBuilder Bernard() => new(Data.Bernard, 8);
         public static ChasseurBuilder Robert() => new(Data.Robert, 12);
 
-        public Chasseur Build() => new(_nom!) {BallesRestantes = _ballesRestantes, NbGalinettes = _nbGalinettes};
+        public Chasseur Build()
+        {
+            var chasseur = new Chasseur(_nom!, _ballesRestantes);
+            Repeat(_nbGalinettes, () => chasseur.ATué());
+            return chasseur;
+        }
     }
 }
