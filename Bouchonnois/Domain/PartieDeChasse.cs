@@ -162,5 +162,52 @@ namespace Bouchonnois.Domain
 
             return result;
         }
+
+        public void Tirer(string chasseur, Func<DateTime> timeProvider,
+            IPartieDeChasseRepository repository)
+        {
+            if (this.Status != PartieStatus.Apéro)
+            {
+                if (this.Status != PartieStatus.Terminée)
+                {
+                    if (this.Chasseurs.Exists(c => c.Nom == chasseur))
+                    {
+                        var chasseurQuiTire = this.Chasseurs.Find(c => c.Nom == chasseur)!;
+
+                        if (chasseurQuiTire.BallesRestantes == 0)
+                        {
+                            this.Events.Add(new Event(timeProvider(),
+                                $"{chasseur} tire -> T'as plus de balles mon vieux, chasse à la main"));
+                            repository.Save(this);
+
+                            throw new TasPlusDeBallesMonVieuxChasseALaMain();
+                        }
+
+                        this.Events.Add(new Event(timeProvider(), $"{chasseur} tire"));
+                        chasseurQuiTire.BallesRestantes--;
+                    }
+                    else
+                    {
+                        throw new ChasseurInconnu(chasseur);
+                    }
+                }
+                else
+                {
+                    this.Events.Add(new Event(timeProvider(),
+                        $"{chasseur} veut tirer -> On tire pas quand la partie est terminée"));
+                    repository.Save(this);
+
+                    throw new OnTirePasQuandLaPartieEstTerminée();
+                }
+            }
+            else
+            {
+                this.Events.Add(new Event(timeProvider(),
+                    $"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"));
+                repository.Save(this);
+
+                throw new OnTirePasPendantLapéroCestSacré();
+            }
+        }
     }
 }
