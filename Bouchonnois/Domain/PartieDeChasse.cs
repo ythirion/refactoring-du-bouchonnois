@@ -1,5 +1,4 @@
 ﻿using Bouchonnois.Domain.Exceptions;
-using Bouchonnois.UseCases.Exceptions;
 using static System.String;
 using static Bouchonnois.Domain.PartieStatus;
 
@@ -87,6 +86,21 @@ namespace Bouchonnois.Domain
                 $"La partie de chasse commence à {partieDeChasse.Terrain.Nom} avec {chasseursToString}")
             );
             return partieDeChasse;
+        }
+
+        public void PrendreLapéro(Func<DateTime> timeProvider)
+        {
+            if (Status == PartieStatus.Apéro)
+            {
+                throw new OnEstDéjàEnTrainDePrendreLapéro();
+            }
+            else if (Status == PartieStatus.Terminée)
+            {
+                throw new OnPrendPasLapéroQuandLaPartieEstTerminée();
+            }
+
+            Status = PartieStatus.Apéro;
+            Events.Add(new Event(timeProvider(), "Petit apéro"));
         }
 
         public void Reprendre(Func<DateTime> timeProvider)
