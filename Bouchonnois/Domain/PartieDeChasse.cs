@@ -1,4 +1,5 @@
-﻿using Bouchonnois.Domain.Exceptions;
+﻿using System.Collections.Immutable;
+using Bouchonnois.Domain.Exceptions;
 using static System.String;
 using static Bouchonnois.Domain.PartieStatus;
 
@@ -6,20 +7,44 @@ namespace Bouchonnois.Domain
 {
     public sealed class PartieDeChasse
     {
-        private PartieDeChasse(Guid id, Terrain terrain)
-        {
-            Id = id;
-            Chasseurs = new List<Chasseur>();
-            Terrain = terrain;
-            Status = EnCours;
-            Events = new List<Event>();
-        }
+        private readonly List<Chasseur> _chasseurs;
+        private readonly List<Event> _events;
 
         public Guid Id { get; }
-        public List<Chasseur> Chasseurs { get; }
+        public IReadOnlyList<Chasseur> Chasseurs => _chasseurs.ToImmutableArray();
         public Terrain Terrain { get; }
         public PartieStatus Status { get; private set; }
-        public List<Event> Events { get; }
+        public IReadOnlyList<Event> Events => _events.ToImmutableArray();
+
+
+        private PartieDeChasse(Guid id,
+            Func<DateTime> timeProvider,
+            Terrain terrain,
+            List<(string nom, int nbBalles)> chasseurs)
+        {
+            Id = id;
+            _chasseurs = new List<Chasseur>();
+            Terrain = terrain;
+            Status = EnCours;
+            _events = new List<Event>();
+
+            foreach (var chasseur in chasseurs)
+            {
+                _chasseurs.Add(new Chasseur(chasseur.nom)
+                {
+                    BallesRestantes = chasseur.nbBalles
+                });
+            }
+
+            string chasseursToString = Join(
+                ", ",
+                _chasseurs.Select(c => c.Nom + $" ({c.BallesRestantes} balles)")
+            );
+
+            _events.Add(new Event(timeProvider(),
+                $"La partie de chasse commence à {Terrain.Nom} avec {chasseursToString}")
+            );
+        }
 
         public static PartieDeChasse Create(
             Func<DateTime> timeProvider,
@@ -31,57 +56,39 @@ namespace Bouchonnois.Domain
                 throw new ImpossibleDeDémarrerUnePartieSansGalinettes();
             }
 
-            var partieDeChasse =
-                new PartieDeChasse(Guid.NewGuid(),
-                    new Terrain(terrainDeChasse.nom)
-                    {
-                        NbGalinettes = terrainDeChasse.nbGalinettes
-                    }
-                );
-
-            foreach (var chasseur in chasseurs)
-            {
-                if (chasseur.nbBalles == 0)
-                {
-                    throw new ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle();
-                }
-
-                partieDeChasse.Chasseurs.Add(new Chasseur(chasseur.nom)
-                {
-                    BallesRestantes = chasseur.nbBalles
-                });
-            }
-
-            if (partieDeChasse.Chasseurs.Count == 0)
+            if (chasseurs.Count == 0)
             {
                 throw new ImpossibleDeDémarrerUnePartieSansChasseur();
             }
 
-            string chasseursToString = string.Join(
-                ", ",
-                partieDeChasse.Chasseurs.Select(c => c.Nom + $" ({c.BallesRestantes} balles)")
-            );
+            if (chasseurs.Any(c => c.nbBalles == 0))
+            {
+                throw new ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle();
+            }
 
-            partieDeChasse.Events.Add(new Event(timeProvider(),
-                $"La partie de chasse commence à {partieDeChasse.Terrain.Nom} avec {chasseursToString}")
+            return new PartieDeChasse(Guid.NewGuid(),
+                timeProvider,
+                new Terrain(terrainDeChasse.nom)
+                {
+                    NbGalinettes = terrainDeChasse.nbGalinettes
+                },
+                chasseurs
             );
-
-            return partieDeChasse;
         }
 
         public void PrendreLapéro(Func<DateTime> timeProvider)
         {
-            if (Status == PartieStatus.Apéro)
+            if (Status == Apéro)
             {
                 throw new OnEstDéjàEnTrainDePrendreLapéro();
             }
-            else if (Status == PartieStatus.Terminée)
+            else if (Status == Terminée)
             {
                 throw new OnPrendPasLapéroQuandLaPartieEstTerminée();
             }
 
-            Status = PartieStatus.Apéro;
-            Events.Add(new Event(timeProvider(), "Petit apéro"));
+            Status = Apéro;
+            _events.Add(new Event(timeProvider(), "Petit apéro"));
         }
 
         public void Reprendre(Func<DateTime> timeProvider)
@@ -97,7 +104,7 @@ namespace Bouchonnois.Domain
             }
 
             Status = EnCours;
-            Events.Add(new Event(timeProvider(), "Reprise de la chasse"));
+            _events.Add(new Event(timeProvider(), "Reprise de la chasse"));
         }
 
         public string Consulter() =>
@@ -110,33 +117,32 @@ namespace Bouchonnois.Domain
 
         public string Terminer(Func<DateTime> timeProvider)
         {
-            var classement = this
-                .Chasseurs
+            var classement = Chasseurs
                 .GroupBy(c => c.NbGalinettes)
                 .OrderByDescending(g => g.Key);
 
-            if (this.Status == PartieStatus.Terminée)
+            if (Status == Terminée)
             {
                 throw new QuandCestFiniCestFini();
             }
 
-            this.Status = PartieStatus.Terminée;
+            Status = Terminée;
 
             string result;
 
             if (classement.All(group => group.Key == 0))
             {
                 result = "Brocouille";
-                this.Events.Add(
+                _events.Add(
                     new Event(timeProvider(), "La partie de chasse est terminée, vainqueur : Brocouille")
                 );
             }
             else
             {
-                result = string.Join(", ", classement.ElementAt(0).Select(c => c.Nom));
-                this.Events.Add(
+                result = Join(", ", classement.ElementAt(0).Select(c => c.Nom));
+                _events.Add(
                     new Event(timeProvider(),
-                        $"La partie de chasse est terminée, vainqueur : {string.Join(", ", classement.ElementAt(0).Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}"
+                        $"La partie de chasse est terminée, vainqueur : {Join(", ", classement.ElementAt(0).Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}"
                     )
                 );
             }
@@ -147,24 +153,24 @@ namespace Bouchonnois.Domain
         public void Tirer(string chasseur, Func<DateTime> timeProvider,
             IPartieDeChasseRepository repository)
         {
-            if (this.Status != PartieStatus.Apéro)
+            if (Status != Apéro)
             {
-                if (this.Status != PartieStatus.Terminée)
+                if (Status != Terminée)
                 {
-                    if (this.Chasseurs.Exists(c => c.Nom == chasseur))
+                    if (_chasseurs.Exists(c => c.Nom == chasseur))
                     {
-                        var chasseurQuiTire = this.Chasseurs.Find(c => c.Nom == chasseur)!;
+                        var chasseurQuiTire = _chasseurs.Find(c => c.Nom == chasseur)!;
 
                         if (chasseurQuiTire.BallesRestantes == 0)
                         {
-                            this.Events.Add(new Event(timeProvider(),
+                            _events.Add(new Event(timeProvider(),
                                 $"{chasseur} tire -> T'as plus de balles mon vieux, chasse à la main"));
                             repository.Save(this);
 
                             throw new TasPlusDeBallesMonVieuxChasseALaMain();
                         }
 
-                        this.Events.Add(new Event(timeProvider(), $"{chasseur} tire"));
+                        _events.Add(new Event(timeProvider(), $"{chasseur} tire"));
                         chasseurQuiTire.BallesRestantes--;
                     }
                     else
@@ -174,7 +180,7 @@ namespace Bouchonnois.Domain
                 }
                 else
                 {
-                    this.Events.Add(new Event(timeProvider(),
+                    _events.Add(new Event(timeProvider(),
                         $"{chasseur} veut tirer -> On tire pas quand la partie est terminée"));
                     repository.Save(this);
 
@@ -183,7 +189,7 @@ namespace Bouchonnois.Domain
             }
             else
             {
-                this.Events.Add(new Event(timeProvider(),
+                _events.Add(new Event(timeProvider(),
                     $"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"));
                 repository.Save(this);
 
@@ -195,19 +201,19 @@ namespace Bouchonnois.Domain
             Func<DateTime> timeProvider,
             IPartieDeChasseRepository repository)
         {
-            if (this.Terrain.NbGalinettes != 0)
+            if (Terrain.NbGalinettes != 0)
             {
-                if (this.Status != PartieStatus.Apéro)
+                if (Status != Apéro)
                 {
-                    if (this.Status != PartieStatus.Terminée)
+                    if (Status != Terminée)
                     {
-                        if (this.Chasseurs.Exists(c => c.Nom == chasseur))
+                        if (_chasseurs.Exists(c => c.Nom == chasseur))
                         {
-                            var chasseurQuiTire = this.Chasseurs.Find(c => c.Nom == chasseur)!;
+                            var chasseurQuiTire = _chasseurs.Find(c => c.Nom == chasseur)!;
 
                             if (chasseurQuiTire.BallesRestantes == 0)
                             {
-                                this.Events.Add(new Event(timeProvider(),
+                                _events.Add(new Event(timeProvider(),
                                     $"{chasseur} veut tirer sur une galinette -> T'as plus de balles mon vieux, chasse à la main"));
                                 repository.Save(this);
 
@@ -216,8 +222,8 @@ namespace Bouchonnois.Domain
 
                             chasseurQuiTire.BallesRestantes--;
                             chasseurQuiTire.NbGalinettes++;
-                            this.Terrain.NbGalinettes--;
-                            this.Events.Add(new Event(timeProvider(), $"{chasseur} tire sur une galinette"));
+                            Terrain.NbGalinettes--;
+                            _events.Add(new Event(timeProvider(), $"{chasseur} tire sur une galinette"));
                         }
                         else
                         {
@@ -226,7 +232,7 @@ namespace Bouchonnois.Domain
                     }
                     else
                     {
-                        this.Events.Add(new Event(timeProvider(),
+                        _events.Add(new Event(timeProvider(),
                             $"{chasseur} veut tirer -> On tire pas quand la partie est terminée"));
                         repository.Save(this);
 
@@ -235,7 +241,7 @@ namespace Bouchonnois.Domain
                 }
                 else
                 {
-                    this.Events.Add(new Event(timeProvider(),
+                    _events.Add(new Event(timeProvider(),
                         $"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"));
                     repository.Save(this);
                     throw new OnTirePasPendantLapéroCestSacré();
