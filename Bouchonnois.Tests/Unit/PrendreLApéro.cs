@@ -1,3 +1,4 @@
+using Bouchonnois.Domain.Exceptions;
 using Bouchonnois.UseCases;
 using Bouchonnois.UseCases.Exceptions;
 

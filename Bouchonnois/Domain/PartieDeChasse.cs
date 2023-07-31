@@ -1,4 +1,5 @@
 ﻿using Bouchonnois.Domain.Exceptions;
+using Bouchonnois.UseCases.Exceptions;
 using static System.String;
 using static Bouchonnois.Domain.PartieStatus;
 
@@ -40,6 +41,53 @@ namespace Bouchonnois.Domain
         public Terrain Terrain { get; }
         public PartieStatus Status { get; set; }
         public List<Event> Events { get; init; }
+
+        public static PartieDeChasse CreatePartieDeChasse(
+            Func<DateTime> timeProvider,
+            (string nom, int nbGalinettes) terrainDeChasse,
+            List<(string nom, int nbBalles)> chasseurs)
+        {
+            if (terrainDeChasse.nbGalinettes <= 0)
+            {
+                throw new ImpossibleDeDémarrerUnePartieSansGalinettes();
+            }
+
+            var partieDeChasse =
+                new PartieDeChasse(Guid.NewGuid(),
+                    new Terrain(terrainDeChasse.nom)
+                    {
+                        NbGalinettes = terrainDeChasse.nbGalinettes
+                    }
+                );
+
+            foreach (var chasseur in chasseurs)
+            {
+                if (chasseur.nbBalles == 0)
+                {
+                    throw new ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle();
+                }
+
+                partieDeChasse.Chasseurs.Add(new Chasseur(chasseur.nom)
+                {
+                    BallesRestantes = chasseur.nbBalles
+                });
+            }
+
+            if (partieDeChasse.Chasseurs.Count == 0)
+            {
+                throw new ImpossibleDeDémarrerUnePartieSansChasseur();
+            }
+
+            string chasseursToString = string.Join(
+                ", ",
+                partieDeChasse.Chasseurs.Select(c => c.Nom + $" ({c.BallesRestantes} balles)")
+            );
+
+            partieDeChasse.Events.Add(new Event(timeProvider(),
+                $"La partie de chasse commence à {partieDeChasse.Terrain.Nom} avec {chasseursToString}")
+            );
+            return partieDeChasse;
+        }
 
         public void Reprendre(Func<DateTime> timeProvider)
         {

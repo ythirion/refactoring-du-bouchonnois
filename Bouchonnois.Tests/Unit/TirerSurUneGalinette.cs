@@ -1,3 +1,4 @@
+using Bouchonnois.Domain.Exceptions;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.UseCases.Exceptions;
 

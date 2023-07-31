@@ -1,7 +1,7 @@
 using Bouchonnois.Domain;
+using Bouchonnois.Domain.Exceptions;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.UseCases;
-using Bouchonnois.UseCases.Exceptions;
 using FsCheck;
 using FsCheck.Xunit;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
