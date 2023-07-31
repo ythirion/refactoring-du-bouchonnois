@@ -158,9 +158,9 @@ namespace Bouchonnois.Domain
             }
             else
             {
-                result = Join(", ", classement.ElementAt(0).Select(c => c.Nom));
+                result = Join(", ", classement[0].Select(c => c.Nom));
                 EmitEvent(timeProvider,
-                    $"La partie de chasse est terminée, vainqueur : {Join(", ", classement.ElementAt(0).Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}");
+                    $"La partie de chasse est terminée, vainqueur : {Join(", ", classement[0].Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}");
             }
 
             return result;

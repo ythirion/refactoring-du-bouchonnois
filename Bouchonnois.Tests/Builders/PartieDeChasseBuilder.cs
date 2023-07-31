@@ -35,11 +35,6 @@ namespace Bouchonnois.Tests.Builders
             return this;
         }
 
-        public PartieDeChasseBuilder Events(params Event[] events)
-        {
-            return this;
-        }
-
         public PartieDeChasse Build(Func<DateTime> timeProvider, IPartieDeChasseRepository repository)
         {
             var builtChasseurs = _chasseurs.Select(c => c.Build());
@@ -85,7 +80,8 @@ namespace Bouchonnois.Tests.Builders
         private void ChangeStatus(PartieDeChasse partieDeChasse, Func<DateTime> timeProvider) =>
             _status.ForEach(status => ChangeStatus(partieDeChasse, status, timeProvider));
 
-        private void ChangeStatus(PartieDeChasse partieDeChasse, PartieStatus status, Func<DateTime> timeProvider)
+        private static void ChangeStatus(PartieDeChasse partieDeChasse, PartieStatus status,
+            Func<DateTime> timeProvider)
         {
             if (status == PartieStatus.Terminée) partieDeChasse.Terminer(timeProvider);
             else if (status == Apéro) partieDeChasse.PrendreLapéro(timeProvider);
