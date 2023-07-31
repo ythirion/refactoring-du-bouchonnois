@@ -1,4 +1,7 @@
-﻿namespace Bouchonnois.Domain
+﻿using Bouchonnois.Domain.Exceptions;
+using static Bouchonnois.Domain.PartieStatus;
+
+namespace Bouchonnois.Domain
 {
     public sealed class PartieDeChasse
     {
@@ -7,7 +10,7 @@
             Id = id;
             Chasseurs = new List<Chasseur>();
             Terrain = terrain;
-            Status = PartieStatus.EnCours;
+            Status = EnCours;
             Events = new List<Event>();
         }
 
@@ -36,5 +39,21 @@
         public Terrain Terrain { get; }
         public PartieStatus Status { get; set; }
         public List<Event> Events { get; init; }
+
+        public void Reprendre(Func<DateTime> timeProvider)
+        {
+            if (Status == EnCours)
+            {
+                throw new LaChasseEstDéjàEnCours();
+            }
+
+            if (Status == Terminée)
+            {
+                throw new QuandCestFiniCestFini();
+            }
+
+            Status = EnCours;
+            Events.Add(new Event(timeProvider(), "Reprise de la chasse"));
+        }
     }
 }

@@ -1,5 +1,5 @@
 using Bouchonnois.Domain;
-using Bouchonnois.UseCases.Exceptions;
+using Bouchonnois.Domain.Exceptions;
 
 namespace Bouchonnois.UseCases
 {

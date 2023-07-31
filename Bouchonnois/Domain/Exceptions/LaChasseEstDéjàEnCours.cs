@@ -1,4 +1,4 @@
-namespace Bouchonnois.UseCases.Exceptions
+namespace Bouchonnois.Domain.Exceptions
 {
     public class LaChasseEstDéjàEnCours : Exception
     {

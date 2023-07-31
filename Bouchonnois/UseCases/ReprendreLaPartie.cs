@@ -23,18 +23,7 @@ namespace Bouchonnois.UseCases
                 throw new LaPartieDeChasseNexistePas();
             }
 
-            if (partieDeChasse.Status == PartieStatus.EnCours)
-            {
-                throw new LaChasseEstDéjàEnCours();
-            }
-
-            if (partieDeChasse.Status == PartieStatus.Terminée)
-            {
-                throw new QuandCestFiniCestFini();
-            }
-
-            partieDeChasse.Status = PartieStatus.EnCours;
-            partieDeChasse.Events.Add(new Event(_timeProvider(), "Reprise de la chasse"));
+            partieDeChasse.Reprendre(_timeProvider);
             _repository.Save(partieDeChasse);
         }
     }
