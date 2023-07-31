@@ -79,11 +79,10 @@ namespace Bouchonnois.Domain
         private void EmitPartieDémarrée(Func<DateTime> timeProvider)
         {
             var chasseursToString = Join(", ", _chasseurs.Select(c => c.Nom + $" ({c.BallesRestantes} balles)"));
-            EmitEvent(timeProvider, $"La partie de chasse commence à {Terrain.Nom} avec {chasseursToString}");
+            EmitEvent($"La partie de chasse commence à {Terrain.Nom} avec {chasseursToString}", timeProvider);
         }
 
         #endregion
-
 
         #region Apéro
 
@@ -100,7 +99,7 @@ namespace Bouchonnois.Domain
             }
 
             Status = Apéro;
-            EmitEvent(timeProvider, "Petit apéro");
+            EmitEvent("Petit apéro", timeProvider);
         }
 
         #endregion
@@ -120,7 +119,7 @@ namespace Bouchonnois.Domain
             }
 
             Status = EnCours;
-            EmitEvent(timeProvider, "Reprise de la chasse");
+            EmitEvent("Reprise de la chasse", timeProvider);
         }
 
         #endregion
@@ -154,13 +153,12 @@ namespace Bouchonnois.Domain
             if (TousBrocouilles(classement))
             {
                 result = "Brocouille";
-                EmitEvent(timeProvider, "La partie de chasse est terminée, vainqueur : Brocouille");
+                EmitEvent("La partie de chasse est terminée, vainqueur : Brocouille", timeProvider);
             }
             else
             {
                 result = Join(", ", classement[0].Select(c => c.Nom));
-                EmitEvent(timeProvider,
-                    $"La partie de chasse est terminée, vainqueur : {Join(", ", classement[0].Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}");
+                EmitEvent($"La partie de chasse est terminée, vainqueur : {Join(", ", classement[0].Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}", timeProvider);
             }
 
             return result;
@@ -189,14 +187,15 @@ namespace Bouchonnois.Domain
                 repository,
                 debutMessageSiPlusDeBalles: $"{chasseur} tire");
 
-            EmitEvent(timeProvider, $"{chasseur} tire");
+            EmitEvent($"{chasseur} tire", timeProvider);
         }
 
         #endregion
 
         #region Tirer sur une Galinette
 
-        public void TirerSurUneGalinette(string chasseur,
+        public void TirerSurUneGalinette(
+            string chasseur,
             Func<DateTime> timeProvider,
             IPartieDeChasseRepository repository)
         {
@@ -213,7 +212,7 @@ namespace Bouchonnois.Domain
                 {
                     c.ATué();
                     Terrain.UneGalinetteEnMoins();
-                    EmitEvent(timeProvider, $"{chasseur} tire sur une galinette");
+                    EmitEvent($"{chasseur} tire sur une galinette", timeProvider);
                 });
         }
 
@@ -228,15 +227,13 @@ namespace Bouchonnois.Domain
         {
             if (DuringApéro())
             {
-                EmitEventAndSave(timeProvider, repository,
-                    $"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!");
+                EmitEventAndSave($"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!", timeProvider, repository);
                 throw new OnTirePasPendantLapéroCestSacré();
             }
 
             if (DéjàTerminée())
             {
-                EmitEventAndSave(timeProvider, repository,
-                    $"{chasseur} veut tirer -> On tire pas quand la partie est terminée");
+                EmitEventAndSave($"{chasseur} veut tirer -> On tire pas quand la partie est terminée", timeProvider, repository);
                 throw new OnTirePasQuandLaPartieEstTerminée();
             }
 
@@ -249,8 +246,7 @@ namespace Bouchonnois.Domain
 
             if (!chasseurQuiTire.AEncoreDesBalles())
             {
-                EmitEventAndSave(timeProvider, repository,
-                    $"{debutMessageSiPlusDeBalles} -> T'as plus de balles mon vieux, chasse à la main");
+                EmitEventAndSave($"{debutMessageSiPlusDeBalles} -> T'as plus de balles mon vieux, chasse à la main", timeProvider, repository);
                 throw new TasPlusDeBallesMonVieuxChasseALaMain();
             }
 
@@ -264,12 +260,12 @@ namespace Bouchonnois.Domain
         private bool ChasseurExiste(string chasseur) => _chasseurs.Exists(c => c.Nom == chasseur);
         private Chasseur RetrieveChasseur(string chasseur) => _chasseurs.Find(c => c.Nom == chasseur)!;
 
-        private void EmitEvent(Func<DateTime> timeProvider, string message) =>
+        private void EmitEvent(string message, Func<DateTime> timeProvider) =>
             _events.Add(new Event(timeProvider(), message));
 
-        private void EmitEventAndSave(Func<DateTime> timeProvider, IPartieDeChasseRepository repository, string message)
+        private void EmitEventAndSave(string message, Func<DateTime> timeProvider, IPartieDeChasseRepository repository)
         {
-            EmitEvent(timeProvider, message);
+            EmitEvent(message, timeProvider);
             repository.Save(this);
         }
     }
