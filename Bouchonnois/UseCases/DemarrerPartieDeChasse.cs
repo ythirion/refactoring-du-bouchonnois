@@ -15,7 +15,7 @@ namespace Bouchonnois.UseCases
 
         public Guid Handle((string nom, int nbGalinettes) terrainDeChasse, List<(string nom, int nbBalles)> chasseurs)
         {
-            var partieDeChasse = PartieDeChasse.CreatePartieDeChasse(_timeProvider, terrainDeChasse, chasseurs);
+            var partieDeChasse = PartieDeChasse.Create(_timeProvider, terrainDeChasse, chasseurs);
             _repository.Save(partieDeChasse);
 
             return partieDeChasse.Id;

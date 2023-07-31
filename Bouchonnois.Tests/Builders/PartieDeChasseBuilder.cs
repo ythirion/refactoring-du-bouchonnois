@@ -17,7 +17,7 @@ namespace Bouchonnois.Tests.Builders
 
         public static PartieDeChasseBuilder SurUnTerrainRicheEnGalinettes() => new(3);
         public static PartieDeChasseBuilder SurUnTerrainSansGalinettes() => new(0);
-        
+
         public static Guid UnePartieDeChasseInexistante() => Guid.NewGuid();
 
         public PartieDeChasseBuilder Avec(params ChasseurBuilder[] chasseurs)
@@ -44,12 +44,13 @@ namespace Bouchonnois.Tests.Builders
             return this;
         }
 
-        public PartieDeChasse Build() => new(
-            Guid.NewGuid(),
-            new Terrain("Pitibon sur Sauldre") {NbGalinettes = _nbGalinettes},
-            _chasseurs.Select(c => c.Build()).ToList(),
-            _events.ToList(),
-            _status
-        );
+        public PartieDeChasse Build() =>
+            new PartieDeChasse(
+                Guid.NewGuid(),
+                new Terrain("Pitibon sur Sauldre") {NbGalinettes = _nbGalinettes},
+                _chasseurs.Select(c => c.Build()).ToList(),
+                _events.ToList(),
+                _status
+            );
     }
 }
