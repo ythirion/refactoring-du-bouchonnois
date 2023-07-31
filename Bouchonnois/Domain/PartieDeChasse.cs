@@ -209,5 +209,61 @@ namespace Bouchonnois.Domain
                 throw new OnTirePasPendantLapéroCestSacré();
             }
         }
+
+        public void TirerSurUneGalinette(string chasseur,
+            Func<DateTime> timeProvider,
+            IPartieDeChasseRepository repository)
+        {
+            if (this.Terrain.NbGalinettes != 0)
+            {
+                if (this.Status != PartieStatus.Apéro)
+                {
+                    if (this.Status != PartieStatus.Terminée)
+                    {
+                        if (this.Chasseurs.Exists(c => c.Nom == chasseur))
+                        {
+                            var chasseurQuiTire = this.Chasseurs.Find(c => c.Nom == chasseur)!;
+
+                            if (chasseurQuiTire.BallesRestantes == 0)
+                            {
+                                this.Events.Add(new Event(timeProvider(),
+                                    $"{chasseur} veut tirer sur une galinette -> T'as plus de balles mon vieux, chasse à la main"));
+                                repository.Save(this);
+
+                                throw new TasPlusDeBallesMonVieuxChasseALaMain();
+                            }
+
+                            chasseurQuiTire.BallesRestantes--;
+                            chasseurQuiTire.NbGalinettes++;
+                            this.Terrain.NbGalinettes--;
+                            this.Events.Add(new Event(timeProvider(), $"{chasseur} tire sur une galinette"));
+                        }
+                        else
+                        {
+                            throw new ChasseurInconnu(chasseur);
+                        }
+                    }
+                    else
+                    {
+                        this.Events.Add(new Event(timeProvider(),
+                            $"{chasseur} veut tirer -> On tire pas quand la partie est terminée"));
+                        repository.Save(this);
+
+                        throw new OnTirePasQuandLaPartieEstTerminée();
+                    }
+                }
+                else
+                {
+                    this.Events.Add(new Event(timeProvider(),
+                        $"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"));
+                    repository.Save(this);
+                    throw new OnTirePasPendantLapéroCestSacré();
+                }
+            }
+            else
+            {
+                throw new TasTropPicoléMonVieuxTasRienTouché();
+            }
+        }
     }
 }
