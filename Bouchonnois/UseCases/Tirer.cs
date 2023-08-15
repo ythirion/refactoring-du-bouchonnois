@@ -1,16 +1,12 @@
 using Bouchonnois.Domain;
-using static Bouchonnois.UseCases.VoidResponse;
 
 namespace Bouchonnois.UseCases
 {
-    public sealed class Tirer : PartieDeChasseUseCase<Domain.Commands.Tirer, VoidResponse>
+    public sealed class Tirer : EmptyResponsePartieDeChasseUseCase<Domain.Commands.Tirer>
     {
         public Tirer(IPartieDeChasseRepository repository, Func<DateTime> timeProvider)
-            : base(repository, (partieDeChasse, command) =>
-            {
-                partieDeChasse.Tirer(command.Chasseur, timeProvider, repository);
-                return Empty;
-            })
+            : base(repository,
+                (partieDeChasse, command) => partieDeChasse.Tirer(command.Chasseur, timeProvider, repository))
         {
         }
     }

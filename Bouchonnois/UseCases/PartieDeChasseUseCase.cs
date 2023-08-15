@@ -1,6 +1,7 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Domain.Commands;
 using Bouchonnois.UseCases.Exceptions;
+using static Bouchonnois.UseCases.VoidResponse;
 
 namespace Bouchonnois.UseCases
 {
@@ -31,6 +32,22 @@ namespace Bouchonnois.UseCases
             _repository.Save(partieDeChasse);
 
             return response;
+        }
+    }
+
+    public abstract class EmptyResponsePartieDeChasseUseCase<TRequest> : PartieDeChasseUseCase<TRequest, VoidResponse>
+        where TRequest : PartieDeChasseCommand
+    {
+        protected EmptyResponsePartieDeChasseUseCase(IPartieDeChasseRepository repository,
+            Action<PartieDeChasse, TRequest> domainHandler)
+            : base(repository,
+                (partieDeChasse, command) =>
+                {
+                    domainHandler(partieDeChasse, command);
+                    return Empty;
+                }
+            )
+        {
         }
     }
 }
