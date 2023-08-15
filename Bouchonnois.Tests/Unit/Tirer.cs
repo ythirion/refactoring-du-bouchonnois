@@ -19,7 +19,7 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Bernard())
                 ));
 
-            When(id => _useCase.Handle(id, Data.Bernard));
+            When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
 
             Then(savedPartieDeChasse =>
                 savedPartieDeChasse
@@ -41,7 +41,7 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => _useCase.Handle(id, Data.Bernard));
+                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
 
                 ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
@@ -55,7 +55,7 @@ namespace Bouchonnois.Tests.Unit
                             .Avec(Dédé(), Bernard().SansBalles(), Robert())
                     ));
 
-                When(id => _useCase.Handle(id, Data.Bernard));
+                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
 
                 ThenThrow<TasPlusDeBallesMonVieuxChasseALaMain>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -70,7 +70,7 @@ namespace Bouchonnois.Tests.Unit
                         SurUnTerrainRicheEnGalinettes()
                     ));
 
-                When(id => _useCase.Handle(id, Data.ChasseurInconnu));
+                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenThrow<ChasseurInconnu>(
                     savedPartieDeChasse => savedPartieDeChasse.Should().BeNull(),
@@ -86,7 +86,7 @@ namespace Bouchonnois.Tests.Unit
                             .ALapéro()
                     ));
 
-                When(id => _useCase.Handle(id, Data.ChasseurInconnu));
+                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenThrow<OnTirePasPendantLapéroCestSacré>(
                     savedPartieDeChasse =>
@@ -105,7 +105,7 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée()
                     ));
 
-                When(id => _useCase.Handle(id, Data.ChasseurInconnu));
+                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenThrow<OnTirePasQuandLaPartieEstTerminée>(
                     savedPartieDeChasse =>

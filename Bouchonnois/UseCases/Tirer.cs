@@ -14,16 +14,16 @@ namespace Bouchonnois.UseCases
             _timeProvider = timeProvider;
         }
 
-        public void Handle(Guid id, string chasseur)
+        public void Handle(Domain.Commands.Tirer tirer)
         {
-            var partieDeChasse = _repository.GetById(id);
+            var partieDeChasse = _repository.GetById(tirer.Id);
 
             if (partieDeChasse == null)
             {
                 throw new LaPartieDeChasseNexistePas();
             }
 
-            partieDeChasse.Tirer(chasseur, _timeProvider, _repository);
+            partieDeChasse.Tirer(tirer.Chasseur, _timeProvider, _repository);
             _repository.Save(partieDeChasse);
         }
     }
