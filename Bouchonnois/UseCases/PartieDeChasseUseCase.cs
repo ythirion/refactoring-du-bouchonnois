@@ -9,14 +9,14 @@ namespace Bouchonnois.UseCases
         where TRequest : PartieDeChasseCommand
     {
         private readonly IPartieDeChasseRepository _repository;
-        private readonly Func<PartieDeChasse, TRequest, TResponse> _domainHandler;
+        private readonly Func<PartieDeChasse, TRequest, TResponse> _handler;
 
         protected PartieDeChasseUseCase(IPartieDeChasseRepository repository,
-            Func<PartieDeChasse, TRequest, TResponse> domainHandler
+            Func<PartieDeChasse, TRequest, TResponse> handler
         )
         {
             _repository = repository;
-            _domainHandler = domainHandler;
+            _handler = handler;
         }
 
         public TResponse Handle(TRequest command)
@@ -28,7 +28,7 @@ namespace Bouchonnois.UseCases
                 throw new LaPartieDeChasseNexistePas();
             }
 
-            var response = _domainHandler(partieDeChasse, command);
+            var response = _handler(partieDeChasse, command);
             _repository.Save(partieDeChasse);
 
             return response;
@@ -39,11 +39,11 @@ namespace Bouchonnois.UseCases
         where TRequest : PartieDeChasseCommand
     {
         protected EmptyResponsePartieDeChasseUseCase(IPartieDeChasseRepository repository,
-            Action<PartieDeChasse, TRequest> domainHandler)
+            Action<PartieDeChasse, TRequest> handler)
             : base(repository,
                 (partieDeChasse, command) =>
                 {
-                    domainHandler(partieDeChasse, command);
+                    handler(partieDeChasse, command);
                     return Empty;
                 }
             )
