@@ -62,12 +62,6 @@ namespace Bouchonnois.Tests.Unit
             assertResult?.Invoke();
         }
 
-        protected void Then(Action? assertResult = null)
-        {
-            _act!(_partieDeChasseId);
-            assertResult?.Invoke();
-        }
-
         protected void ThenThrow<TException>(Action<PartieDeChasse?> assert, string? expectedMessage = null)
             where TException : Exception
         {
