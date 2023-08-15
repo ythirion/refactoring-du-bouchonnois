@@ -1,8 +1,14 @@
+using Bouchonnois.Domain.Commands;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
 using Bouchonnois.UseCases;
 using FluentAssertions.Extensions;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
+using ConsulterStatus = Bouchonnois.UseCases.ConsulterStatus;
+using DemarrerPartieDeChasse = Bouchonnois.UseCases.DemarrerPartieDeChasse;
+using PrendreLapéro = Bouchonnois.UseCases.PrendreLapéro;
+using ReprendreLaPartie = Bouchonnois.UseCases.ReprendreLaPartie;
+using TerminerLaPartie = Bouchonnois.Domain.Commands.TerminerLaPartie;
 
 namespace Bouchonnois.Tests.Acceptance
 {
@@ -16,7 +22,7 @@ namespace Bouchonnois.Tests.Acceptance
         private readonly TirerSurUneGalinette _tirerSurUneGalinette;
         private readonly PrendreLapéro _prendreLapéro;
         private readonly ReprendreLaPartie _reprendreLaPartie;
-        private readonly TerminerLaPartie _terminerLaPartie;
+        private readonly UseCases.TerminerLaPartie _terminerLaPartie;
         private readonly ConsulterStatus _consulterStatus;
 
         public ScenarioTests()
@@ -29,7 +35,7 @@ namespace Bouchonnois.Tests.Acceptance
             _tirerSurUneGalinette = new TirerSurUneGalinette(repository, timeProvider);
             _prendreLapéro = new PrendreLapéro(repository, timeProvider);
             _reprendreLaPartie = new ReprendreLaPartie(repository, timeProvider);
-            _terminerLaPartie = new TerminerLaPartie(repository, timeProvider);
+            _terminerLaPartie = new UseCases.TerminerLaPartie(repository, timeProvider);
             _consulterStatus = new ConsulterStatus(repository);
         }
 
@@ -60,7 +66,7 @@ namespace Bouchonnois.Tests.Acceptance
             After(1.Seconds(), () => _tirer.Handle(id, Data.Bernard));
             After(1.Seconds(), () => _tirer.Handle(id, Data.Bernard));
             After(19.Minutes(), () => _tirerSurUneGalinette.Handle(id, Data.Robert));
-            After(30.Minutes(), () => _terminerLaPartie.Handle(id));
+            After(30.Minutes(), () => _terminerLaPartie.Handle(new TerminerLaPartie(id)));
 
             return Verify(_consulterStatus.Handle(new Domain.Commands.ConsulterStatus(id)));
         }

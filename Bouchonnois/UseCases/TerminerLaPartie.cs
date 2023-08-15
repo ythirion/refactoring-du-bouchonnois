@@ -1,4 +1,5 @@
 using Bouchonnois.Domain;
+using Bouchonnois.Domain.Commands;
 
 namespace Bouchonnois.UseCases
 {
@@ -13,10 +14,10 @@ namespace Bouchonnois.UseCases
             _timeProvider = timeProvider;
         }
 
-        public string Handle(Guid id)
+        public string Handle(Domain.Commands.TerminerLaPartie terminerLaPartie)
         {
             // TODO : missing null check here
-            var partieDeChasse = _repository.GetById(id);
+            var partieDeChasse = _repository.GetById(terminerLaPartie.PartieDeChasseId);
             var result = partieDeChasse.Terminer(_timeProvider);
 
             _repository.Save(partieDeChasse);
