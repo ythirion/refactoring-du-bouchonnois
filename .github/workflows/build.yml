@@ -11,6 +11,8 @@ on:
       - steps/06-properties
       - steps/07-architecture-tests
       - steps/08-use-cases
+      - steps/09-tell-dont-ask
+      - steps/10-commands
 jobs:
   build:
     name: Build and analyze
