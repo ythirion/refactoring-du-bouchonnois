@@ -1,13 +1,14 @@
-namespace Bouchonnois.Tests.Builders;
-
-public static class Functions
+namespace Bouchonnois.Tests.Builders
 {
-    public static void Repeat(int times, Action call)
+    public static class Functions
     {
-        while (times > 0)
+        public static void Repeat(int times, Action call)
         {
-            call();
-            times--;
+            while (times > 0)
+            {
+                call();
+                times--;
+            }
         }
     }
 }

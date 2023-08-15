@@ -1,3 +1,5 @@
+using Bouchonnois.Domain.Commands;
+using Bouchonnois.UseCases;
 using Bouchonnois.UseCases.Exceptions;
 using FsCheck;
 using FsCheck.Xunit;
@@ -26,7 +28,7 @@ namespace Bouchonnois.Tests.Unit
                 => ForAll(
                     _nonExistingPartiesDeChasse,
                     id => MustFailWith<LaPartieDeChasseNexistePas>(
-                        () => _useCase.Handle(id),
+                        () => _useCase.Handle(new Domain.Commands.ConsulterStatus(id)),
                         savedPartieDeChasse => savedPartieDeChasse == null
                     )
                 );

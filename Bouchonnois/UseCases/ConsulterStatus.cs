@@ -10,9 +10,9 @@ namespace Bouchonnois.UseCases
         public ConsulterStatus(IPartieDeChasseRepository repository)
             => _repository = repository;
 
-        public string Handle(Guid id)
+        public string Handle(Domain.Commands.ConsulterStatus consulterStatus)
         {
-            var partieDeChasse = _repository.GetById(id);
+            var partieDeChasse = _repository.GetById(consulterStatus.Id);
 
             if (partieDeChasse == null)
             {

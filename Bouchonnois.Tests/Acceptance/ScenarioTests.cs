@@ -4,6 +4,7 @@ using Bouchonnois.Tests.Doubles;
 using Bouchonnois.UseCases;
 using FluentAssertions.Extensions;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
+using ConsulterStatus = Bouchonnois.Domain.Commands.ConsulterStatus;
 using DemarrerPartieDeChasse = Bouchonnois.Domain.Commands.DemarrerPartieDeChasse;
 
 namespace Bouchonnois.Tests.Acceptance
@@ -19,7 +20,7 @@ namespace Bouchonnois.Tests.Acceptance
         private readonly PrendreLapéro _prendreLapéro;
         private readonly ReprendreLaPartie _reprendreLaPartie;
         private readonly TerminerLaPartie _terminerLaPartie;
-        private readonly ConsulterStatus _consulterStatus;
+        private readonly UseCases.ConsulterStatus _consulterStatus;
 
         public ScenarioTests()
         {
@@ -32,7 +33,7 @@ namespace Bouchonnois.Tests.Acceptance
             _prendreLapéro = new PrendreLapéro(repository, timeProvider);
             _reprendreLaPartie = new ReprendreLaPartie(repository, timeProvider);
             _terminerLaPartie = new TerminerLaPartie(repository, timeProvider);
-            _consulterStatus = new ConsulterStatus(repository);
+            _consulterStatus = new UseCases.ConsulterStatus(repository);
         }
 
         [Fact]
@@ -64,7 +65,7 @@ namespace Bouchonnois.Tests.Acceptance
             After(19.Minutes(), () => _tirerSurUneGalinette.Handle(id, Data.Robert));
             After(30.Minutes(), () => _terminerLaPartie.Handle(id));
 
-            return Verify(_consulterStatus.Handle(id));
+            return Verify(_consulterStatus.Handle(new ConsulterStatus(id)));
         }
 
         private void After(TimeSpan time, Action act)
