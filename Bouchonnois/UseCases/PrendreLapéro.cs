@@ -1,9 +1,10 @@
 using Bouchonnois.Domain;
 using Bouchonnois.UseCases.Exceptions;
+using static Bouchonnois.UseCases.VoidResponse;
 
 namespace Bouchonnois.UseCases
 {
-    public sealed class PrendreLapéro
+    public sealed class PrendreLapéro : IUseCase<Domain.Commands.PrendreLapéro, VoidResponse>
     {
         private readonly IPartieDeChasseRepository _repository;
         private readonly Func<DateTime> _timeProvider;
@@ -14,7 +15,7 @@ namespace Bouchonnois.UseCases
             _timeProvider = timeProvider;
         }
 
-        public void Handle(Domain.Commands.PrendreLapéro prendreLapéro)
+        public VoidResponse Handle(Domain.Commands.PrendreLapéro prendreLapéro)
         {
             var partieDeChasse = _repository.GetById(prendreLapéro.PartieDeChasseId);
 
@@ -25,6 +26,8 @@ namespace Bouchonnois.UseCases
 
             partieDeChasse.PrendreLapéro(_timeProvider);
             _repository.Save(partieDeChasse);
+
+            return Empty;
         }
     }
 }

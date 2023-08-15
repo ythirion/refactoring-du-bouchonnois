@@ -1,9 +1,8 @@
 using Bouchonnois.Domain;
-using Commands = Bouchonnois.Domain.Commands;
 
 namespace Bouchonnois.UseCases
 {
-    public sealed class DemarrerPartieDeChasse
+    public sealed class DemarrerPartieDeChasse : IUseCase<Domain.Commands.DemarrerPartieDeChasse, Guid>
     {
         private readonly IPartieDeChasseRepository _repository;
         private readonly Func<DateTime> _timeProvider;
@@ -14,7 +13,7 @@ namespace Bouchonnois.UseCases
             _timeProvider = timeProvider;
         }
 
-        public Guid Handle(Commands.DemarrerPartieDeChasse demarrerPartieDeChasse)
+        public Guid Handle(Domain.Commands.DemarrerPartieDeChasse demarrerPartieDeChasse)
         {
             var partieDeChasse = PartieDeChasse.Create(_timeProvider, demarrerPartieDeChasse);
             _repository.Save(partieDeChasse);
