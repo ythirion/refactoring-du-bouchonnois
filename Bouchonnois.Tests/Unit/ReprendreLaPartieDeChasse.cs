@@ -19,7 +19,7 @@ namespace Bouchonnois.Tests.Unit
                         .ALapéro()
                 ));
 
-            When(id => _useCase.Handle(id));
+            When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
 
             Then(savedPartieDeChasse => savedPartieDeChasse.Should()
                 .HaveEmittedEvent(Now, "Reprise de la chasse")
@@ -38,7 +38,7 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => _useCase.Handle(id));
+                When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
 
                 ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
@@ -50,7 +50,7 @@ namespace Bouchonnois.Tests.Unit
                     SurUnTerrainRicheEnGalinettes()
                 ));
 
-                When(id => _useCase.Handle(id));
+                When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
 
                 ThenThrow<LaChasseEstDéjàEnCours>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
@@ -63,7 +63,7 @@ namespace Bouchonnois.Tests.Unit
                         .Terminée()
                 ));
 
-                When(id => _useCase.Handle(id));
+                When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
 
                 ThenThrow<QuandCestFiniCestFini>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }

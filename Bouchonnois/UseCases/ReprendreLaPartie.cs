@@ -14,9 +14,9 @@ namespace Bouchonnois.UseCases
             _timeProvider = timeProvider;
         }
 
-        public void Handle(Guid id)
+        public void Handle(Domain.Commands.ReprendreLaPartie reprendreLaPartie)
         {
-            var partieDeChasse = _repository.GetById(id);
+            var partieDeChasse = _repository.GetById(reprendreLaPartie.PartieDeChasseId);
 
             if (partieDeChasse == null)
             {
