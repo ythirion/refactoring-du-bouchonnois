@@ -1,4 +1,5 @@
 using Bouchonnois.Domain;
+using Bouchonnois.Domain.Commands;
 using Bouchonnois.UseCases.Exceptions;
 
 namespace Bouchonnois.UseCases
@@ -14,16 +15,16 @@ namespace Bouchonnois.UseCases
             _timeProvider = timeProvider;
         }
 
-        public void Handle(Guid id, string chasseur)
+        public void Handle(Domain.Commands.TirerSurUneGalinette tirerSurUneGalinette)
         {
-            var partieDeChasse = _repository.GetById(id);
+            var partieDeChasse = _repository.GetById(tirerSurUneGalinette.PartieDeChasseId);
 
             if (partieDeChasse == null)
             {
                 throw new LaPartieDeChasseNexistePas();
             }
 
-            partieDeChasse.TirerSurUneGalinette(chasseur, _timeProvider, _repository);
+            partieDeChasse.TirerSurUneGalinette(tirerSurUneGalinette.Chasseur, _timeProvider, _repository);
 
             _repository.Save(partieDeChasse);
         }

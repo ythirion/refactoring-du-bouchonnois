@@ -16,7 +16,7 @@ namespace Bouchonnois.UseCases
 
         public void Handle(Domain.Commands.Tirer tirer)
         {
-            var partieDeChasse = _repository.GetById(tirer.Id);
+            var partieDeChasse = _repository.GetById(tirer.PartieDeChasseId);
 
             if (partieDeChasse == null)
             {
