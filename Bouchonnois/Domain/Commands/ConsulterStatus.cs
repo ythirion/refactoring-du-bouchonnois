@@ -1,4 +1,4 @@
 namespace Bouchonnois.Domain.Commands
 {
-    public record ConsulterStatus(Guid Id);
+    public record ConsulterStatus(Guid PartieDeChasseId);
 }

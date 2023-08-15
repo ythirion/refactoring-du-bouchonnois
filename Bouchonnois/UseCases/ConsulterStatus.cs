@@ -12,7 +12,7 @@ namespace Bouchonnois.UseCases
 
         public string Handle(Domain.Commands.ConsulterStatus consulterStatus)
         {
-            var partieDeChasse = _repository.GetById(consulterStatus.Id);
+            var partieDeChasse = _repository.GetById(consulterStatus.PartieDeChasseId);
 
             if (partieDeChasse == null)
             {
