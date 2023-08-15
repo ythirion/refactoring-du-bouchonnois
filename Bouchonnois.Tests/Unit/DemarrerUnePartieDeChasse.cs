@@ -1,4 +1,5 @@
 using Bouchonnois.Domain;
+using Bouchonnois.Domain.Commands;
 using Bouchonnois.Domain.Exceptions;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.UseCases;
@@ -7,13 +8,15 @@ using FsCheck.Xunit;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
 using static Bouchonnois.Tests.Unit.Generators;
 using static FsCheck.Prop;
+using Chasseur = Bouchonnois.Domain.Commands.Chasseur;
+using DemarrerPartieDeChasse = Bouchonnois.Domain.Commands.DemarrerPartieDeChasse;
 
 namespace Bouchonnois.Tests.Unit
 {
     [UsesVerify]
-    public class DemarrerUnePartieDeChasse : UseCaseTest<DemarrerPartieDeChasse>
+    public class DemarrerUnePartieDeChasse : UseCaseTest<UseCases.DemarrerPartieDeChasse>
     {
-        public DemarrerUnePartieDeChasse() : base((r, p) => new DemarrerPartieDeChasse(r, p))
+        public DemarrerUnePartieDeChasse() : base((r, p) => new UseCases.DemarrerPartieDeChasse(r, p))
         {
         }
 
@@ -24,10 +27,7 @@ namespace Bouchonnois.Tests.Unit
                 .Avec((Data.Dédé, 20), (Data.Bernard, 8), (Data.Robert, 12))
                 .SurUnTerrainRicheEnGalinettes();
 
-            _useCase.Handle(
-                command.Terrain,
-                command.Chasseurs
-            );
+            _useCase.Handle(command.Build());
 
             return Verify(Repository.SavedPartieDeChasse())
                 .DontScrubDateTimes();
@@ -42,12 +42,19 @@ namespace Bouchonnois.Tests.Unit
         private bool DémarreLaPartieAvecSuccès((string nom, int nbGalinettes) terrain,
             IEnumerable<(string nom, int nbBalles)> chasseurs)
             => _useCase.Handle(
-                terrain,
-                chasseurs.ToList()) == Repository.SavedPartieDeChasse()!.Id;
+                ToCommand(terrain, chasseurs)
+                ) == Repository.SavedPartieDeChasse()!.Id;
 
-        public class Echoue : UseCaseTest<DemarrerPartieDeChasse>
+        private static DemarrerPartieDeChasse ToCommand((string nom, int nbGalinettes) terrain, IEnumerable<(string nom, int nbBalles)> chasseurs)
         {
-            public Echoue() : base((r, p) => new DemarrerPartieDeChasse(r, p))
+            return new DemarrerPartieDeChasse(
+                new TerrainDeChasse(terrain.nom, terrain.nbGalinettes), 
+                chasseurs.Select(c => new Chasseur(c.nom, c.nbBalles)));
+        }
+
+        public class Echoue : UseCaseTest<UseCases.DemarrerPartieDeChasse>
+        {
+            public Echoue() : base((r, p) => new UseCases.DemarrerPartieDeChasse(r, p))
             {
             }
 
@@ -90,7 +97,7 @@ namespace Bouchonnois.Tests.Unit
                 (string nom, int nbGalinettes) terrain,
                 IEnumerable<(string nom, int nbBalles)> chasseurs,
                 Func<PartieDeChasse?, bool>? assert = null) where TException : Exception
-                => MustFailWith<TException>(() => _useCase.Handle(terrain, chasseurs.ToList()), assert);
+                => MustFailWith<TException>(() => _useCase.Handle(ToCommand(terrain, chasseurs)), assert);
         }
     }
 }

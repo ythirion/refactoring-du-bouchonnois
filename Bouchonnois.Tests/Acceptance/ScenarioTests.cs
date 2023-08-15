@@ -1,8 +1,10 @@
+using Bouchonnois.Domain.Commands;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
 using Bouchonnois.UseCases;
 using FluentAssertions.Extensions;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
+using DemarrerPartieDeChasse = Bouchonnois.Domain.Commands.DemarrerPartieDeChasse;
 
 namespace Bouchonnois.Tests.Acceptance
 {
@@ -11,7 +13,7 @@ namespace Bouchonnois.Tests.Acceptance
     {
         private DateTime _time = new(2024, 4, 25, 9, 0, 0);
 
-        private readonly DemarrerPartieDeChasse _demarrerPartieDeChasse;
+        private readonly UseCases.DemarrerPartieDeChasse _demarrerPartieDeChasse;
         private readonly Tirer _tirer;
         private readonly TirerSurUneGalinette _tirerSurUneGalinette;
         private readonly PrendreLapéro _prendreLapéro;
@@ -24,7 +26,7 @@ namespace Bouchonnois.Tests.Acceptance
             var repository = new PartieDeChasseRepositoryForTests();
             var timeProvider = () => _time;
 
-            _demarrerPartieDeChasse = new DemarrerPartieDeChasse(repository, timeProvider);
+            _demarrerPartieDeChasse = new UseCases.DemarrerPartieDeChasse(repository, timeProvider);
             _tirer = new Tirer(repository, timeProvider);
             _tirerSurUneGalinette = new TirerSurUneGalinette(repository, timeProvider);
             _prendreLapéro = new PrendreLapéro(repository, timeProvider);
@@ -40,10 +42,7 @@ namespace Bouchonnois.Tests.Acceptance
                 .Avec((Data.Dédé, 20), (Data.Bernard, 8), (Data.Robert, 12))
                 .SurUnTerrainRicheEnGalinettes(4);
 
-            var id = _demarrerPartieDeChasse.Handle(
-                command.Terrain,
-                command.Chasseurs
-            );
+            var id = _demarrerPartieDeChasse.Handle(command.Build());
 
             After(10.Minutes(), () => _tirer.Handle(id, Data.Dédé));
             After(30.Minutes(), () => _tirerSurUneGalinette.Handle(id, Data.Robert));

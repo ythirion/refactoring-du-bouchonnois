@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Bouchonnois.Domain.Commands;
 using Bouchonnois.Domain.Exceptions;
 using static System.String;
 using static Bouchonnois.Domain.PartieStatus;
@@ -21,48 +22,41 @@ namespace Bouchonnois.Domain
         private PartieDeChasse(Guid id,
             Func<DateTime> timeProvider,
             Terrain terrain,
-            List<(string nom, int nbBalles)> chasseurs)
+            Chasseur[] chasseurs)
         {
             Id = id;
-            _chasseurs = new List<Chasseur>();
+            _chasseurs = chasseurs.ToList();
             Terrain = terrain;
             Status = EnCours;
             _events = new List<Event>();
 
-            chasseurs.ForEach(c => AddChasseur(c));
             EmitPartieDémarrée(timeProvider);
         }
 
-        private void AddChasseur((string nom, int nbBalles) chasseur)
-            => _chasseurs.Add(new Chasseur(chasseur.nom, chasseur.nbBalles));
-
-        public static PartieDeChasse Create(
-            Func<DateTime> timeProvider,
-            (string nom, int nbGalinettes) terrainDeChasse,
-            List<(string nom, int nbBalles)> chasseurs)
+        public static PartieDeChasse Create(Func<DateTime> timeProvider, DemarrerPartieDeChasse demarrerPartieDeChasse)
         {
-            CheckTerrainValide(terrainDeChasse);
-            CheckChasseursValides(chasseurs);
+            CheckTerrainValide(demarrerPartieDeChasse.TerrainDeChasse);
+            CheckChasseursValides(demarrerPartieDeChasse.Chasseurs.ToArray());
 
             return new PartieDeChasse(
                 Guid.NewGuid(),
                 timeProvider,
-                new Terrain(terrainDeChasse.nom, terrainDeChasse.nbGalinettes),
-                chasseurs
+                new Terrain(demarrerPartieDeChasse.TerrainDeChasse.Nom, demarrerPartieDeChasse.TerrainDeChasse.NbGalinettes),
+                demarrerPartieDeChasse.Chasseurs.Select(c => new Chasseur(c.Nom, c.NbBalles)).ToArray()
             );
         }
 
-        private static void CheckTerrainValide((string nom, int nbGalinettes) terrainDeChasse)
+        private static void CheckTerrainValide(TerrainDeChasse terrainDeChasse)
         {
-            if (terrainDeChasse.nbGalinettes <= 0)
+            if (terrainDeChasse.NbGalinettes <= 0)
             {
                 throw new ImpossibleDeDémarrerUnePartieSansGalinettes();
             }
         }
 
-        private static void CheckChasseursValides(List<(string nom, int nbBalles)> chasseurs)
+        private static void CheckChasseursValides(Commands.Chasseur[] chasseurs)
         {
-            if (chasseurs.Count == 0)
+            if (!chasseurs.Any())
             {
                 throw new ImpossibleDeDémarrerUnePartieSansChasseur();
             }
@@ -73,8 +67,8 @@ namespace Bouchonnois.Domain
             }
         }
 
-        private static bool AuMoinsUnChasseurNaPasDeBalles(IEnumerable<(string nom, int nbBalles)> chasseurs)
-            => chasseurs.Any(c => c.nbBalles == 0);
+        private static bool AuMoinsUnChasseurNaPasDeBalles(Commands.Chasseur[] chasseurs)
+            => chasseurs.Any(c => c.NbBalles == 0);
 
         private void EmitPartieDémarrée(Func<DateTime> timeProvider)
         {

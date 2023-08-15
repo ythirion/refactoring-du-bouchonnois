@@ -1,4 +1,5 @@
 using Bouchonnois.Domain;
+using Commands = Bouchonnois.Domain.Commands;
 
 namespace Bouchonnois.UseCases
 {
@@ -13,9 +14,9 @@ namespace Bouchonnois.UseCases
             _timeProvider = timeProvider;
         }
 
-        public Guid Handle((string nom, int nbGalinettes) terrainDeChasse, List<(string nom, int nbBalles)> chasseurs)
+        public Guid Handle(Commands.DemarrerPartieDeChasse demarrerPartieDeChasse)
         {
-            var partieDeChasse = PartieDeChasse.Create(_timeProvider, terrainDeChasse, chasseurs);
+            var partieDeChasse = PartieDeChasse.Create(_timeProvider, demarrerPartieDeChasse);
             _repository.Save(partieDeChasse);
 
             return partieDeChasse.Id;

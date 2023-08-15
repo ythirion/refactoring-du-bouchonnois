@@ -1,3 +1,5 @@
+using Bouchonnois.Domain.Commands;
+
 namespace Bouchonnois.Tests.Builders
 {
     public class CommandBuilder
@@ -19,7 +21,10 @@ namespace Bouchonnois.Tests.Builders
             return this;
         }
 
-        public List<(string nom, int nbBalles)> Chasseurs => _chasseurs.ToList();
-        public (string nom, int nbGalinettes) Terrain => ("Pitibon sur Sauldre", _nbGalinettes);
+        public DemarrerPartieDeChasse Build() 
+            => new(
+                new TerrainDeChasse("Pitibon sur Sauldre", _nbGalinettes),
+                _chasseurs.Select(c => new Chasseur(c.Item1, c.Item2))
+                );
     }
 }

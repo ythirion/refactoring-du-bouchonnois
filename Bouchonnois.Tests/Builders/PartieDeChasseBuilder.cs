@@ -1,7 +1,9 @@
 using ArchUnitNET.Domain.Extensions;
 using Bouchonnois.Domain;
+using Bouchonnois.Domain.Commands;
 using static Bouchonnois.Domain.PartieStatus;
 using static Bouchonnois.Tests.Builders.Functions;
+using Chasseur = Bouchonnois.Domain.Chasseur;
 
 namespace Bouchonnois.Tests.Builders
 {
@@ -42,10 +44,12 @@ namespace Bouchonnois.Tests.Builders
 
             var partieDeChasse = PartieDeChasse.Create(
                 timeProvider,
-                ("Pitibon sur Sauldre", _nbGalinettes),
-                builtChasseurs
-                    .Select(c => (c.Nom, c.BallesRestantes > 0 ? c.BallesRestantes : 1))
-                    .ToList()
+                new DemarrerPartieDeChasse(
+                        new TerrainDeChasse("Pitibon sur Sauldre", _nbGalinettes),
+                        builtChasseurs
+                            .Select(c => new Domain.Commands.Chasseur(c.Nom, c.BallesRestantes > 0 ? c.BallesRestantes : 1))
+                            .ToList()
+                        )
             );
 
             TirerSurLesGalinettes(partieDeChasse, timeProvider, repository, builtChasseurs);
