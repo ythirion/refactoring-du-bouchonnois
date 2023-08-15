@@ -1,4 +1,4 @@
 namespace Bouchonnois.Domain.Commands
 {
-    public record ReprendreLaPartie(Guid PartieDeChasseId);
+    public record ReprendreLaPartie(Guid PartieDeChasseId) : PartieDeChasseCommand(PartieDeChasseId);
 }

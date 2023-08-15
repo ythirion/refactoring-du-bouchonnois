@@ -1,30 +1,17 @@
 using Bouchonnois.Domain;
-using Bouchonnois.UseCases.Exceptions;
+using static Bouchonnois.UseCases.VoidResponse;
 
 namespace Bouchonnois.UseCases
 {
-    public sealed class Tirer
+    public sealed class Tirer : PartieDeChasseUseCase<Domain.Commands.Tirer, VoidResponse>
     {
-        private readonly IPartieDeChasseRepository _repository;
-        private readonly Func<DateTime> _timeProvider;
-
         public Tirer(IPartieDeChasseRepository repository, Func<DateTime> timeProvider)
-        {
-            _repository = repository;
-            _timeProvider = timeProvider;
-        }
-
-        public void Handle(Domain.Commands.Tirer tirer)
-        {
-            var partieDeChasse = _repository.GetById(tirer.PartieDeChasseId);
-
-            if (partieDeChasse == null)
+            : base(repository, (partieDeChasse, command) =>
             {
-                throw new LaPartieDeChasseNexistePas();
-            }
-
-            partieDeChasse.Tirer(tirer.Chasseur, _timeProvider, _repository);
-            _repository.Save(partieDeChasse);
+                partieDeChasse.Tirer(command.Chasseur, timeProvider, repository);
+                return Empty;
+            })
+        {
         }
     }
 }

@@ -1,30 +1,17 @@
 using Bouchonnois.Domain;
-using Bouchonnois.UseCases.Exceptions;
+using static Bouchonnois.UseCases.VoidResponse;
 
 namespace Bouchonnois.UseCases
 {
-    public sealed class ReprendreLaPartie
+    public sealed class ReprendreLaPartie : PartieDeChasseUseCase<Domain.Commands.ReprendreLaPartie, VoidResponse>
     {
-        private readonly IPartieDeChasseRepository _repository;
-        private readonly Func<DateTime> _timeProvider;
-
         public ReprendreLaPartie(IPartieDeChasseRepository repository, Func<DateTime> timeProvider)
-        {
-            _repository = repository;
-            _timeProvider = timeProvider;
-        }
-
-        public void Handle(Domain.Commands.ReprendreLaPartie reprendreLaPartie)
-        {
-            var partieDeChasse = _repository.GetById(reprendreLaPartie.PartieDeChasseId);
-
-            if (partieDeChasse == null)
+            : base(repository, (partieDeChasse, _) =>
             {
-                throw new LaPartieDeChasseNexistePas();
-            }
-
-            partieDeChasse.Reprendre(_timeProvider);
-            _repository.Save(partieDeChasse);
+                partieDeChasse.Reprendre(timeProvider);
+                return Empty;
+            })
+        {
         }
     }
 }
