@@ -1,4 +1,5 @@
 using ArchUnitNET.Fluent.Syntax.Elements.Members.MethodMembers;
+using Bouchonnois.Domain.Commands;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace Bouchonnois.Tests.Architecture
@@ -34,6 +35,15 @@ namespace Bouchonnois.Tests.Architecture
             Interfaces().Should()
                 .HaveName("^I[A-Z].*", useRegularExpressions: true)
                 .Because("C# convention...")
+                .Check();
+
+        [Fact]
+        public void CommandsShouldBePartOfDomain() =>
+            Classes().That()
+                .ImplementInterface(typeof(ICommand))
+                .Or()
+                .HaveNameEndingWith("Command").Should()
+                .ResideInNamespace("Domain.Commands", true)
                 .Check();
     }
 }
