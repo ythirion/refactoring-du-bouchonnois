@@ -53,7 +53,8 @@ namespace Bouchonnois.Tests.Unit
                 Given(UnePartieDeChasseInexistante());
 
                 When(partieDeChasseId =>
-                    _useCase.HandleSansException(new Domain.Commands.Tirer(partieDeChasseId, Data.Bernard)));
+                    _useCase.HandleSansException(new Domain.Commands.Tirer(partieDeChasseId, Data.Bernard),
+                        TimeProvider));
 
                 ThenFailWith(
                     $"La partie de chasse {_partieDeChasseId} n'existe pas",
@@ -69,11 +70,11 @@ namespace Bouchonnois.Tests.Unit
                         SurUnTerrainRicheEnGalinettes()
                     ));
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
+                When(id => _useCase.HandleSansException(new Domain.Commands.Tirer(id, Data.ChasseurInconnu),
+                    TimeProvider));
 
-                ThenThrow<ChasseurInconnu>(
-                    savedPartieDeChasse => savedPartieDeChasse.Should().BeNull(),
-                    expectedMessage: "Chasseur inconnu Chasseur inconnu");
+                ThenFailWith("Chasseur inconnu Chasseur inconnu",
+                    savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
 
             [Fact]

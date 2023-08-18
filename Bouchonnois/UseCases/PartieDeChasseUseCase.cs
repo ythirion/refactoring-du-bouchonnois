@@ -8,7 +8,7 @@ namespace Bouchonnois.UseCases
     public abstract class PartieDeChasseUseCase<TRequest, TResponse> : IUseCase<TRequest, TResponse>
         where TRequest : PartieDeChasseCommand
     {
-        private readonly IPartieDeChasseRepository _repository;
+        protected readonly IPartieDeChasseRepository _repository;
         private readonly Func<PartieDeChasse, TRequest, TResponse> _handler;
 
         protected PartieDeChasseUseCase(IPartieDeChasseRepository repository,
