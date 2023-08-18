@@ -1,6 +1,7 @@
 using Bouchonnois.Domain.Exceptions;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.UseCases.Exceptions;
+using FluentAssertions.LanguageExt;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -44,6 +45,26 @@ namespace Bouchonnois.Tests.Unit
                 When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
 
                 ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+            }
+
+            [Fact]
+            public void CarPartieNexistePasSansException()
+            {
+                // TODO extract to Given When Then methods
+
+                // Arrange
+                var partieDeChasseId = UnePartieDeChasseInexistante();
+
+                // Act
+                var result = _useCase.HandleSansException(new Domain.Commands.Tirer(partieDeChasseId, Data.Bernard));
+
+                // Assert
+                result.Should().BeLeft(); // Par convention Left contient le cas d'erreur
+                result.IfLeft(error =>
+                {
+                    error.Message.Should().Be($"La partie de chasse {partieDeChasseId} n'existe pas");
+                    SavedPartieDeChasse().Should().BeNull();
+                });
             }
 
             [Fact]
