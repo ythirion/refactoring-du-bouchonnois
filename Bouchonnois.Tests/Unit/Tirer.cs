@@ -53,8 +53,7 @@ namespace Bouchonnois.Tests.Unit
                 Given(UnePartieDeChasseInexistante());
 
                 When(partieDeChasseId =>
-                    _useCase.HandleSansException(new Domain.Commands.Tirer(partieDeChasseId, Data.Bernard),
-                        TimeProvider));
+                    _useCase.HandleSansException(new Domain.Commands.Tirer(partieDeChasseId, Data.Bernard)));
 
                 ThenFailWith(
                     $"La partie de chasse {_partieDeChasseId} n'existe pas",
@@ -70,8 +69,7 @@ namespace Bouchonnois.Tests.Unit
                         SurUnTerrainRicheEnGalinettes()
                     ));
 
-                When(id => _useCase.HandleSansException(new Domain.Commands.Tirer(id, Data.ChasseurInconnu),
-                    TimeProvider));
+                When(id => _useCase.HandleSansException(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith("Chasseur inconnu Chasseur inconnu",
                     savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
@@ -86,11 +84,12 @@ namespace Bouchonnois.Tests.Unit
                             .Avec(Dédé(), Bernard().SansBalles(), Robert())
                     ));
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
+                When(id => _useCase.HandleSansException(new Domain.Commands.Tirer(id, Data.Bernard)));
 
-                ThenThrow<TasPlusDeBallesMonVieuxChasseALaMain>(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should()
-                        .HaveEmittedEvent(Now, "Bernard tire -> T'as plus de balles mon vieux, chasse à la main"));
+                ThenFailWith("Bernard tire -> T'as plus de balles mon vieux, chasse à la main",
+                    savedPartieDeChasse => savedPartieDeChasse.Should().HaveEmittedEvent(Now,
+                        $"Bernard tire -> T'as plus de balles mon vieux, chasse à la main")
+                );
             }
 
             [Fact]

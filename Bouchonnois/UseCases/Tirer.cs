@@ -7,14 +7,16 @@ namespace Bouchonnois.UseCases
 {
     public sealed class Tirer : EmptyResponsePartieDeChasseUseCase<Domain.Commands.Tirer>
     {
+        private readonly Func<DateTime> _timeProvider;
+
         public Tirer(IPartieDeChasseRepository repository, Func<DateTime> timeProvider)
             : base(repository,
                 (partieDeChasse, command) => partieDeChasse.Tirer(command.Chasseur, timeProvider, repository))
         {
+            _timeProvider = timeProvider;
         }
 
-        public Either<Error, VoidResponse> HandleSansException(Domain.Commands.Tirer command,
-            Func<DateTime> timeProvider)
+        public Either<Error, VoidResponse> HandleSansException(Domain.Commands.Tirer command)
         {
             var partieDeChasse = _repository.GetById(command.PartieDeChasseId);
 
@@ -23,11 +25,15 @@ namespace Bouchonnois.UseCases
 
             try
             {
-                partieDeChasse.Tirer(command.Chasseur, timeProvider, _repository);
+                partieDeChasse.Tirer(command.Chasseur, _timeProvider, _repository);
             }
             catch (ChasseurInconnu)
             {
                 return AnError($"Chasseur inconnu {command.Chasseur}");
+            }
+            catch (TasPlusDeBallesMonVieuxChasseALaMain)
+            {
+                return AnError($"{command.Chasseur} tire -> T'as plus de balles mon vieux, chasse à la main");
             }
 
             return VoidResponse.Empty;
