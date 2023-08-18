@@ -13,7 +13,7 @@ namespace Bouchonnois.Tests.Unit
         protected static List<(string, int)> PasDeChasseurs => new();
     }
 
-    public abstract partial class UseCaseTest<TUseCase> : UseCaseTestBase
+    public abstract class UseCaseTest<TUseCase, TSuccessResponse> : UseCaseTestBase
     {
         protected readonly PartieDeChasseRepositoryForTests Repository;
         protected readonly TUseCase _useCase;
@@ -38,28 +38,6 @@ namespace Bouchonnois.Tests.Unit
         protected void Given(Guid partieDeChasseId) => _partieDeChasseId = partieDeChasseId;
         protected void Given(PartieDeChasse unePartieDeChasseExistante) => Given(unePartieDeChasseExistante.Id);
 
-        protected bool MustFailWith<TException>(Action action, Func<PartieDeChasse?, bool>? assert = null)
-            where TException : Exception
-        {
-            try
-            {
-                action();
-                return false;
-            }
-            catch (TException)
-            {
-                return assert?.Invoke(SavedPartieDeChasse()) ?? true;
-            }
-        }
-    }
-
-    public abstract class UseCaseTestWithoutException<TUseCase, TSuccessResponse> : UseCaseTest<TUseCase>
-    {
-        protected UseCaseTestWithoutException(Func<IPartieDeChasseRepository, Func<DateTime>, TUseCase> useCaseFactory)
-            : base(useCaseFactory)
-        {
-        }
-
         private Func<Guid, Either<Error, TSuccessResponse>>? _act;
         protected void When(Func<Guid, Either<Error, TSuccessResponse>>? act) => _act = act;
 
@@ -70,7 +48,8 @@ namespace Bouchonnois.Tests.Unit
             result.IfRight(r => assert(r, SavedPartieDeChasse()));
         }
 
-        protected void ThenFailWith(string expectedErrorMessage, Action<PartieDeChasse?>? assertSavedPartieDeChasse)
+        protected void ThenFailWith(string expectedErrorMessage,
+            Action<PartieDeChasse?>? assertSavedPartieDeChasse = null)
         {
             var result = _act!(_partieDeChasseId);
             result.Should().BeLeft();
@@ -79,6 +58,12 @@ namespace Bouchonnois.Tests.Unit
                 r.Message.Should().Be(expectedErrorMessage);
                 assertSavedPartieDeChasse?.Invoke(SavedPartieDeChasse());
             });
+        }
+
+        protected bool FailWith(Func<Either<Error, TSuccessResponse>> func, Func<PartieDeChasse?, bool>? assert = null)
+        {
+            var result = func();
+            return result.IsLeft && (assert?.Invoke(SavedPartieDeChasse()) ?? true);
         }
     }
 }

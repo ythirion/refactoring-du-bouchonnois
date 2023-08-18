@@ -1,10 +1,9 @@
-using Bouchonnois.Domain.Exceptions;
 using Bouchonnois.Tests.Builders;
-using Bouchonnois.UseCases.Exceptions;
+using Bouchonnois.UseCases;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public class TirerSurUneGalinette : UseCaseTest<UseCases.TirerSurUneGalinette>
+    public class TirerSurUneGalinette : UseCaseTest<UseCases.TirerSurUneGalinette, VoidResponse>
     {
         public TirerSurUneGalinette() : base((r, p) => new UseCases.TirerSurUneGalinette(r, p))
         {
@@ -18,18 +17,20 @@ namespace Bouchonnois.Tests.Unit
                     SurUnTerrainRicheEnGalinettes()
                 ));
 
-            WhenWithException(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
+            When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
 
-            ThenWithException(savedPartieDeChasse =>
+            Then((response, savedPartieDeChasse) =>
+            {
+                response.Should().Be(VoidResponse.Empty);
                 savedPartieDeChasse
                     .Should()
                     .HaveEmittedEvent(Now, "Bernard tire sur une galinette").And
                     .ChasseurATiréSurUneGalinette(Data.Bernard, ballesRestantes: 7, galinettes: 1).And
-                    .GalinettesSurLeTerrain(2)
-            );
+                    .GalinettesSurLeTerrain(2);
+            });
         }
 
-        public class Echoue : UseCaseTest<UseCases.TirerSurUneGalinette>
+        public class Echoue : UseCaseTest<UseCases.TirerSurUneGalinette, VoidResponse>
         {
             public Echoue() : base((r, p) => new UseCases.TirerSurUneGalinette(r, p))
             {
@@ -40,9 +41,12 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(UnePartieDeChasseInexistante());
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
+                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
 
-                ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+                ThenFailWith(
+                    $"La partie de chasse {_partieDeChasseId} n'existe pas",
+                    savedPartieDeChasse => savedPartieDeChasse.Should().BeNull()
+                );
             }
 
             [Fact]
@@ -53,12 +57,11 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Dédé(), Bernard().SansBalles(), Robert())
                 ));
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
+                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
 
-                ThenThrow<TasPlusDeBallesMonVieuxChasseALaMain>(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should()
-                        .HaveEmittedEvent(Now,
-                            "Bernard veut tirer sur une galinette -> T'as plus de balles mon vieux, chasse à la main")
+                ThenFailWith("Bernard veut tirer sur une galinette -> T'as plus de balles mon vieux, chasse à la main",
+                    savedPartieDeChasse => savedPartieDeChasse.Should().HaveEmittedEvent(Now,
+                        "Bernard veut tirer sur une galinette -> T'as plus de balles mon vieux, chasse à la main")
                 );
             }
 
@@ -70,10 +73,11 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Dédé().AyantTué(1), Robert())
                 ));
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
+                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
 
-                ThenThrow<TasTropPicoléMonVieuxTasRienTouché>(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should().BeNull()
+                ThenFailWith("T'as trop picolé mon vieux, t'as rien touché",
+                    savedPartieDeChasse => savedPartieDeChasse.Should().HaveEmittedEvent(Now,
+                        "T'as trop picolé mon vieux, t'as rien touché")
                 );
             }
 
@@ -85,12 +89,11 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Dédé(), Robert())
                 ));
 
-                WhenWithException(id =>
-                    _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
+                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
 
-                ThenThrow<ChasseurInconnu>(savedPartieDeChasse =>
-                        savedPartieDeChasse.Should().BeNull(),
-                    expectedMessage: "Chasseur inconnu Chasseur inconnu"
+                ThenFailWith("Chasseur inconnu Chasseur inconnu",
+                    savedPartieDeChasse => savedPartieDeChasse.Should().HaveEmittedEvent(Now,
+                        "Chasseur inconnu Chasseur inconnu")
                 );
             }
 
@@ -103,14 +106,16 @@ namespace Bouchonnois.Tests.Unit
                         .ALapéro()
                 ));
 
-                WhenWithException(id =>
+                When(id =>
                     _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
 
-                ThenThrow<OnTirePasPendantLapéroCestSacré>(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should()
-                        .HaveEmittedEvent(Now,
-                            "Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!")
-                );
+                ThenFailWith(
+                    "Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!",
+                    savedPartieDeChasse =>
+                        savedPartieDeChasse
+                            .Should()
+                            .HaveEmittedEvent(Now,
+                                "Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"));
             }
 
             [Fact]
@@ -122,13 +127,14 @@ namespace Bouchonnois.Tests.Unit
                         .Terminée()
                 ));
 
-                WhenWithException(id =>
-                    _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
+                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
 
-                ThenThrow<OnTirePasQuandLaPartieEstTerminée>(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should().HaveEmittedEvent(Now,
-                        "Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée")
-                );
+                ThenFailWith("Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée",
+                    savedPartieDeChasse =>
+                        savedPartieDeChasse
+                            .Should()
+                            .HaveEmittedEvent(Now,
+                                "Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée"));
             }
         }
     }

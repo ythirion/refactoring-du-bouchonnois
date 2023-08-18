@@ -45,15 +45,15 @@ namespace Bouchonnois.Tests.Builders
             var partieDeChasse = PartieDeChasse.Create(
                 timeProvider,
                 new DemarrerPartieDeChasse(
-                        new TerrainDeChasse("Pitibon sur Sauldre", _nbGalinettes),
-                        builtChasseurs
-                            .Select(c => new Domain.Commands.Chasseur(c.Nom, c.BallesRestantes > 0 ? c.BallesRestantes : 1))
-                            .ToList()
-                        )
+                    new TerrainDeChasse("Pitibon sur Sauldre", _nbGalinettes),
+                    builtChasseurs
+                        .Select(c => new Domain.Commands.Chasseur(c.Nom, c.BallesRestantes > 0 ? c.BallesRestantes : 1))
+                        .ToList()
+                )
             );
 
             TirerSurLesGalinettes(partieDeChasse, timeProvider, repository, builtChasseurs);
-            TirerDansLeVide(partieDeChasse, timeProvider, repository, chasseursSansBalles);
+            TirerDansLeVide(partieDeChasse, timeProvider, chasseursSansBalles);
 
             ChangeStatus(partieDeChasse, timeProvider);
 
@@ -63,9 +63,8 @@ namespace Bouchonnois.Tests.Builders
         private static void TirerDansLeVide(
             PartieDeChasse partieDeChasse,
             Func<DateTime> timeProvider,
-            IPartieDeChasseRepository repository,
             IEnumerable<string> chasseursSansBalles) =>
-            chasseursSansBalles.ForEach(c => partieDeChasse.Tirer(c, timeProvider, repository));
+            chasseursSansBalles.ForEach(c => partieDeChasse.Tirer(c, timeProvider));
 
         private static void TirerSurLesGalinettes(
             PartieDeChasse partieDeChasse,

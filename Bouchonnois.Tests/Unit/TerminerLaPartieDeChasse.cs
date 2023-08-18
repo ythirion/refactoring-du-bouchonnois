@@ -1,10 +1,9 @@
-using Bouchonnois.Domain.Exceptions;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.UseCases;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public class TerminerLaPartieDeChasse : UseCaseTest<TerminerLaPartie>
+    public class TerminerLaPartieDeChasse : UseCaseTest<TerminerLaPartie, string>
     {
         public TerminerLaPartieDeChasse() : base((r, p) => new TerminerLaPartie(r, p))
         {
@@ -19,13 +18,16 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Dédé(), Bernard(), Robert().AyantTué(2))
                 ));
 
-            string? winner = null;
-            WhenWithException(id => winner = _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+            When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-            ThenWithException(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should()
-                        .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes"),
-                () => winner.Should().Be(Data.Robert));
+            Then((winner, savedPartieDeChasse) =>
+            {
+                savedPartieDeChasse
+                    .Should()
+                    .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes");
+
+                winner.Should().Be(Data.Robert);
+            });
         }
 
         [Fact]
@@ -38,13 +40,16 @@ namespace Bouchonnois.Tests.Unit
                 )
             );
 
-            string? winner = null;
-            WhenWithException(id => winner = _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+            When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-            ThenWithException(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should()
-                        .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes"),
-                () => winner.Should().Be(Data.Robert));
+            Then((winner, savedPartieDeChasse) =>
+            {
+                savedPartieDeChasse
+                    .Should()
+                    .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes");
+
+                winner.Should().Be(Data.Robert);
+            });
         }
 
         [Fact]
@@ -57,14 +62,17 @@ namespace Bouchonnois.Tests.Unit
                 )
             );
 
-            string? winner = null;
-            WhenWithException(id => winner = _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+            When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-            ThenWithException(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should()
-                        .HaveEmittedEvent(Now,
-                            "La partie de chasse est terminée, vainqueur : Dédé - 2 galinettes, Bernard - 2 galinettes"),
-                () => winner.Should().Be("Dédé, Bernard"));
+            Then((winner, savedPartieDeChasse) =>
+            {
+                savedPartieDeChasse
+                    .Should()
+                    .HaveEmittedEvent(Now,
+                        "La partie de chasse est terminée, vainqueur : Dédé - 2 galinettes, Bernard - 2 galinettes");
+
+                winner.Should().Be("Dédé, Bernard");
+            });
         }
 
         [Fact]
@@ -76,13 +84,17 @@ namespace Bouchonnois.Tests.Unit
                 )
             );
 
-            string? winner = null;
-            WhenWithException(id => winner = _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+            When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-            ThenWithException(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should()
-                        .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Brocouille"),
-                () => winner.Should().Be("Brocouille"));
+            Then((winner, savedPartieDeChasse) =>
+            {
+                savedPartieDeChasse
+                    .Should()
+                    .HaveEmittedEvent(Now,
+                        "La partie de chasse est terminée, vainqueur : Brocouille");
+
+                winner.Should().Be("Brocouille");
+            });
         }
 
         [Fact]
@@ -96,17 +108,20 @@ namespace Bouchonnois.Tests.Unit
                 )
             );
 
-            string? winner = null;
-            WhenWithException(id => winner = _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+            When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-            ThenWithException(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should()
-                        .HaveEmittedEvent(Now,
-                            "La partie de chasse est terminée, vainqueur : Dédé - 3 galinettes, Bernard - 3 galinettes, Robert - 3 galinettes"),
-                () => winner.Should().Be("Dédé, Bernard, Robert"));
+            Then((winner, savedPartieDeChasse) =>
+            {
+                savedPartieDeChasse
+                    .Should()
+                    .HaveEmittedEvent(Now,
+                        "La partie de chasse est terminée, vainqueur : Dédé - 3 galinettes, Bernard - 3 galinettes, Robert - 3 galinettes");
+
+                winner.Should().Be("Dédé, Bernard, Robert");
+            });
         }
 
-        public class Echoue : UseCaseTest<TerminerLaPartie>
+        public class Echoue : UseCaseTest<TerminerLaPartie, string>
         {
             public Echoue() : base((r, p) => new TerminerLaPartie(r, p))
             {
@@ -121,9 +136,9 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée())
                 );
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+                When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-                ThenThrow<QuandCestFiniCestFini>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+                ThenFailWith("Quand c'est fini, c'est fini");
             }
         }
     }

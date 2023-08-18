@@ -1,10 +1,8 @@
-using Bouchonnois.Domain.Exceptions;
 using Bouchonnois.UseCases;
-using Bouchonnois.UseCases.Exceptions;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public class PrendreLApéro : UseCaseTest<PrendreLapéro>
+    public class PrendreLApéro : UseCaseTest<PrendreLapéro, VoidResponse>
     {
         public PrendreLApéro() : base((r, p) => new PrendreLapéro(r, p))
         {
@@ -19,16 +17,19 @@ namespace Bouchonnois.Tests.Unit
                 )
             );
 
-            WhenWithException(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+            When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
 
-            ThenWithException(savedPartieDeChasse =>
-                savedPartieDeChasse.Should()
+            Then((response, partieDeChasse) =>
+            {
+                response.Should().Be(VoidResponse.Empty);
+                partieDeChasse.Should()
                     .HaveEmittedEvent(Now, "Petit apéro")
                     .And
-                    .BeInApéro());
+                    .BeInApéro();
+            });
         }
 
-        public class Echoue : UseCaseTest<PrendreLapéro>
+        public class Echoue : UseCaseTest<PrendreLapéro, VoidResponse>
         {
             public Echoue() : base((r, p) => new PrendreLapéro(r, p))
             {
@@ -39,9 +40,12 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(UnePartieDeChasseInexistante());
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+                When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
 
-                ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+                ThenFailWith(
+                    $"La partie de chasse {_partieDeChasseId} n'existe pas",
+                    savedPartieDeChasse => savedPartieDeChasse.Should().BeNull()
+                );
             }
 
             [Fact]
@@ -53,10 +57,9 @@ namespace Bouchonnois.Tests.Unit
                             .ALapéro())
                 );
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+                When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
 
-                ThenThrow<OnEstDéjàEnTrainDePrendreLapéro>(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should().BeNull());
+                ThenFailWith("On est déjà en plein apéro");
             }
 
             [Fact]
@@ -68,10 +71,9 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée())
                 );
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+                When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
 
-                ThenThrow<OnPrendPasLapéroQuandLaPartieEstTerminée>(savedPartieDeChasse =>
-                    savedPartieDeChasse.Should().BeNull());
+                ThenFailWith("La partie de chasse est déjà terminée");
             }
         }
     }

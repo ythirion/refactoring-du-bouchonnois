@@ -1,10 +1,8 @@
-using Bouchonnois.Domain.Exceptions;
 using Bouchonnois.UseCases;
-using Bouchonnois.UseCases.Exceptions;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public class ReprendreLaPartieDeChasse : UseCaseTest<ReprendreLaPartie>
+    public class ReprendreLaPartieDeChasse : UseCaseTest<ReprendreLaPartie, VoidResponse>
     {
         public ReprendreLaPartieDeChasse() : base((r, p) => new ReprendreLaPartie(r, p))
         {
@@ -19,15 +17,15 @@ namespace Bouchonnois.Tests.Unit
                         .ALapéro()
                 ));
 
-            WhenWithException(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
+            When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
 
-            ThenWithException(savedPartieDeChasse => savedPartieDeChasse.Should()
+            Then((_, savedPartieDeChasse) => savedPartieDeChasse.Should()
                 .HaveEmittedEvent(Now, "Reprise de la chasse")
                 .And
                 .BeEnCours());
         }
 
-        public class Echoue : UseCaseTest<ReprendreLaPartie>
+        public class Echoue : UseCaseTest<ReprendreLaPartie, VoidResponse>
         {
             public Echoue() : base((r, p) => new ReprendreLaPartie(r, p))
             {
@@ -38,9 +36,12 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(UnePartieDeChasseInexistante());
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
+                When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
 
-                ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+                ThenFailWith(
+                    $"La partie de chasse {_partieDeChasseId} n'existe pas",
+                    savedPartieDeChasse => savedPartieDeChasse.Should().BeNull()
+                );
             }
 
             [Fact]
@@ -50,9 +51,9 @@ namespace Bouchonnois.Tests.Unit
                     SurUnTerrainRicheEnGalinettes()
                 ));
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
+                When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
 
-                ThenThrow<LaChasseEstDéjàEnCours>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+                ThenFailWith($"La partie de chasse est déjà en cours");
             }
 
             [Fact]
@@ -63,9 +64,9 @@ namespace Bouchonnois.Tests.Unit
                         .Terminée()
                 ));
 
-                WhenWithException(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
+                When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
 
-                ThenThrow<QuandCestFiniCestFini>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
+                ThenFailWith("La partie de chasse est déjà terminée");
             }
         }
     }

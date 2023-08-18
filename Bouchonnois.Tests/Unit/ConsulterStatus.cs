@@ -1,6 +1,3 @@
-using Bouchonnois.Domain.Commands;
-using Bouchonnois.UseCases;
-using Bouchonnois.UseCases.Exceptions;
 using FsCheck;
 using FsCheck.Xunit;
 using static FsCheck.Arb;
@@ -8,13 +5,13 @@ using static FsCheck.Prop;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public class ConsulterStatus : UseCaseTest<UseCases.ConsulterStatus>
+    public class ConsulterStatus : UseCaseTest<UseCases.ConsulterStatus, string>
     {
         public ConsulterStatus() : base((r, t) => new UseCases.ConsulterStatus(r))
         {
         }
 
-        public class Echoue : UseCaseTest<UseCases.ConsulterStatus>
+        public class Echoue : UseCaseTest<UseCases.ConsulterStatus, string>
         {
             private readonly Arbitrary<Guid> _nonExistingPartiesDeChasse = Generate<Guid>().ToArbitrary();
 
@@ -27,9 +24,9 @@ namespace Bouchonnois.Tests.Unit
             public Property CarPartieNexistePas()
                 => ForAll(
                     _nonExistingPartiesDeChasse,
-                    id => MustFailWith<LaPartieDeChasseNexistePas>(
+                    id => FailWith(
                         () => _useCase.Handle(new Domain.Commands.ConsulterStatus(id)),
-                        savedPartieDeChasse => savedPartieDeChasse == null
+                        savedPartieDeChasse => true
                     )
                 );
         }

@@ -3,7 +3,7 @@ using Bouchonnois.UseCases;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public class Tirer : UseCaseTestWithoutException<UseCases.Tirer, VoidResponse>
+    public class Tirer : UseCaseTest<UseCases.Tirer, VoidResponse>
     {
         public Tirer() : base((r, p) => new UseCases.Tirer(r, p))
         {
@@ -18,7 +18,7 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Bernard())
                 ));
 
-            When(id => _useCase.HandleSansException(new Domain.Commands.Tirer(id, Data.Bernard)));
+            When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
 
 
             Then((response, savedPartieDeChasse) =>
@@ -32,7 +32,7 @@ namespace Bouchonnois.Tests.Unit
             });
         }
 
-        public class Echoue : UseCaseTestWithoutException<UseCases.Tirer, VoidResponse>
+        public class Echoue : UseCaseTest<UseCases.Tirer, VoidResponse>
         {
             public Echoue() : base((r, p) => new UseCases.Tirer(r, p))
             {
@@ -44,7 +44,7 @@ namespace Bouchonnois.Tests.Unit
                 Given(UnePartieDeChasseInexistante());
 
                 When(partieDeChasseId =>
-                    _useCase.HandleSansException(new Domain.Commands.Tirer(partieDeChasseId, Data.Bernard)));
+                    _useCase.Handle(new Domain.Commands.Tirer(partieDeChasseId, Data.Bernard)));
 
                 ThenFailWith(
                     $"La partie de chasse {_partieDeChasseId} n'existe pas",
@@ -60,7 +60,7 @@ namespace Bouchonnois.Tests.Unit
                         SurUnTerrainRicheEnGalinettes()
                     ));
 
-                When(id => _useCase.HandleSansException(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
+                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith("Chasseur inconnu Chasseur inconnu",
                     savedPartieDeChasse => savedPartieDeChasse.Should().HaveEmittedEvent(Now,
@@ -77,7 +77,7 @@ namespace Bouchonnois.Tests.Unit
                             .Avec(Dédé(), Bernard().SansBalles(), Robert())
                     ));
 
-                When(id => _useCase.HandleSansException(new Domain.Commands.Tirer(id, Data.Bernard)));
+                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
 
                 ThenFailWith("Bernard tire -> T'as plus de balles mon vieux, chasse à la main",
                     savedPartieDeChasse => savedPartieDeChasse.Should().HaveEmittedEvent(Now,
@@ -94,7 +94,7 @@ namespace Bouchonnois.Tests.Unit
                             .ALapéro()
                     ));
 
-                When(id => _useCase.HandleSansException(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
+                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith(
                     "Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!",
@@ -114,7 +114,7 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée()
                     ));
 
-                When(id => _useCase.HandleSansException(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
+                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith("Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée",
                     savedPartieDeChasse =>

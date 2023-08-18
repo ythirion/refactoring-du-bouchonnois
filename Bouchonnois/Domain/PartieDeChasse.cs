@@ -83,47 +83,51 @@ namespace Bouchonnois.Domain
 
         #region Apéro
 
-        public void PrendreLapéro(Func<DateTime> timeProvider)
+        public Either<Error, PartieDeChasse> PrendreLapéro(Func<DateTime> timeProvider)
         {
             if (DuringApéro())
             {
-                throw new OnEstDéjàEnTrainDePrendreLapéro();
+                return AnError("On est déjà en plein apéro");
             }
 
             if (DéjàTerminée())
             {
-                throw new OnPrendPasLapéroQuandLaPartieEstTerminée();
+                return AnError("La partie de chasse est déjà terminée");
             }
 
             Status = Apéro;
             EmitEvent("Petit apéro", timeProvider);
+
+            return this;
         }
 
         #endregion
 
         #region Reprendre
 
-        public void Reprendre(Func<DateTime> timeProvider)
+        public Either<Error, PartieDeChasse> Reprendre(Func<DateTime> timeProvider)
         {
             if (DéjàEnCours())
             {
-                throw new LaChasseEstDéjàEnCours();
+                return AnError("La partie de chasse est déjà en cours");
             }
 
             if (DéjàTerminée())
             {
-                throw new QuandCestFiniCestFini();
+                return AnError("La partie de chasse est déjà terminée");
             }
 
             Status = EnCours;
             EmitEvent("Reprise de la chasse", timeProvider);
+
+            return this;
         }
 
         #endregion
 
         #region Consulter
 
-        public string Consulter() =>
+        public Either<Error, string> Consulter() =>
             Join(
                 Environment.NewLine,
                 Events
@@ -135,11 +139,11 @@ namespace Bouchonnois.Domain
 
         #region Terminer
 
-        public string Terminer(Func<DateTime> timeProvider)
+        public Either<Error, string> Terminer(Func<DateTime> timeProvider)
         {
             if (DéjàTerminée())
             {
-                throw new QuandCestFiniCestFini();
+                return AnError("Quand c'est fini, c'est fini");
             }
 
             Status = Terminée;
@@ -176,27 +180,15 @@ namespace Bouchonnois.Domain
 
         #region Tirer
 
-        public void Tirer(
-            string chasseur,
-            Func<DateTime> timeProvider,
-            IPartieDeChasseRepository repository)
-        {
-            Tirer(chasseur,
-                timeProvider,
-                repository,
-                debutMessageSiPlusDeBalles: $"{chasseur} tire");
-
-            EmitEvent($"{chasseur} tire", timeProvider);
-        }
-
-        public Either<Error, PartieDeChasse> TirerSansException(
+        public Either<Error, PartieDeChasse> Tirer(
             string chasseur,
             Func<DateTime> timeProvider)
-            => TirerSansException(chasseur,
+            => Tirer(chasseur,
                 timeProvider,
-                debutMessageSiPlusDeBalles: $"{chasseur} tire");
+                debutMessageSiPlusDeBalles: $"{chasseur} tire",
+                c => EmitEvent($"{chasseur} tire", timeProvider));
 
-        private Either<Error, PartieDeChasse> TirerSansException(
+        private Either<Error, PartieDeChasse> Tirer(
             string chasseur,
             Func<DateTime> timeProvider,
             string debutMessageSiPlusDeBalles,
@@ -231,8 +223,6 @@ namespace Bouchonnois.Domain
             chasseurQuiTire.ATiré();
             continueWith?.Invoke(chasseurQuiTire);
 
-            EmitEvent($"{chasseur} tire", timeProvider);
-
             return this;
         }
 
@@ -246,19 +236,20 @@ namespace Bouchonnois.Domain
 
         #region Tirer sur une Galinette
 
-        public void TirerSurUneGalinette(
+        public Either<Error, PartieDeChasse> TirerSurUneGalinette(
             string chasseur,
             Func<DateTime> timeProvider,
             IPartieDeChasseRepository repository)
         {
             if (Terrain.NbGalinettes == 0)
             {
-                throw new TasTropPicoléMonVieuxTasRienTouché();
+                return EmitAndReturn(
+                    $"T'as trop picolé mon vieux, t'as rien touché",
+                    timeProvider);
             }
 
-            Tirer(chasseur,
+            return Tirer(chasseur,
                 timeProvider,
-                repository,
                 debutMessageSiPlusDeBalles: $"{chasseur} veut tirer sur une galinette",
                 c =>
                 {
@@ -270,45 +261,6 @@ namespace Bouchonnois.Domain
 
         #endregion
 
-        private void Tirer(
-            string chasseur,
-            Func<DateTime> timeProvider,
-            IPartieDeChasseRepository repository,
-            string debutMessageSiPlusDeBalles,
-            Action<Chasseur>? continueWith = null)
-        {
-            if (DuringApéro())
-            {
-                EmitEventAndSave($"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!", timeProvider,
-                    repository);
-                throw new OnTirePasPendantLapéroCestSacré();
-            }
-
-            if (DéjàTerminée())
-            {
-                EmitEventAndSave($"{chasseur} veut tirer -> On tire pas quand la partie est terminée", timeProvider,
-                    repository);
-                throw new OnTirePasQuandLaPartieEstTerminée();
-            }
-
-            if (!ChasseurExiste(chasseur))
-            {
-                throw new ChasseurInconnu(chasseur);
-            }
-
-            var chasseurQuiTire = RetrieveChasseur(chasseur);
-
-            if (!chasseurQuiTire.AEncoreDesBalles())
-            {
-                EmitEventAndSave($"{debutMessageSiPlusDeBalles} -> T'as plus de balles mon vieux, chasse à la main",
-                    timeProvider, repository);
-                throw new TasPlusDeBallesMonVieuxChasseALaMain();
-            }
-
-            chasseurQuiTire.ATiré();
-            continueWith?.Invoke(chasseurQuiTire);
-        }
-
         private bool DuringApéro() => Status == Apéro;
         private bool DéjàTerminée() => Status == Terminée;
         private bool DéjàEnCours() => Status == EnCours;
@@ -317,11 +269,5 @@ namespace Bouchonnois.Domain
 
         private void EmitEvent(string message, Func<DateTime> timeProvider) =>
             _events.Add(new Event(timeProvider(), message));
-
-        private void EmitEventAndSave(string message, Func<DateTime> timeProvider, IPartieDeChasseRepository repository)
-        {
-            EmitEvent(message, timeProvider);
-            repository.Save(this);
-        }
     }
 }

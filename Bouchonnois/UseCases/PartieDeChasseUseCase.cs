@@ -1,7 +1,7 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Domain.Commands;
-using Bouchonnois.UseCases.Exceptions;
-using static Bouchonnois.UseCases.VoidResponse;
+using LanguageExt;
+using static Bouchonnois.Domain.Error;
 
 namespace Bouchonnois.UseCases
 {
@@ -9,45 +9,29 @@ namespace Bouchonnois.UseCases
         where TRequest : PartieDeChasseCommand
     {
         protected readonly IPartieDeChasseRepository _repository;
-        private readonly Func<PartieDeChasse, TRequest, TResponse> _handler;
+        private readonly Func<PartieDeChasse, TRequest, Either<Error, TResponse>> _handler;
 
         protected PartieDeChasseUseCase(IPartieDeChasseRepository repository,
-            Func<PartieDeChasse, TRequest, TResponse> handler
+            Func<PartieDeChasse, TRequest, Either<Error, TResponse>> handler
         )
         {
             _repository = repository;
             _handler = handler;
         }
 
-        public TResponse Handle(TRequest command)
+        public Either<Error, TResponse> Handle(TRequest command)
         {
-            var partieDeChasse = _repository.GetById(command.PartieDeChasseId);
+            PartieDeChasse? foundPartieDeChasse = null;
 
-            if (partieDeChasse == null)
-            {
-                throw new LaPartieDeChasseNexistePas();
-            }
+            var result = _repository
+                .GetByIdOption(command.PartieDeChasseId)
+                .ToEither(() => AnError($"La partie de chasse {command.PartieDeChasseId} n'existe pas"))
+                .Do(p => foundPartieDeChasse = p)
+                .Bind(p => _handler(p, command));
 
-            var response = _handler(partieDeChasse, command);
-            _repository.Save(partieDeChasse);
+            if (foundPartieDeChasse != null) _repository.Save(foundPartieDeChasse);
 
-            return response;
-        }
-    }
-
-    public abstract class EmptyResponsePartieDeChasseUseCase<TRequest> : PartieDeChasseUseCase<TRequest, VoidResponse>
-        where TRequest : PartieDeChasseCommand
-    {
-        protected EmptyResponsePartieDeChasseUseCase(IPartieDeChasseRepository repository,
-            Action<PartieDeChasse, TRequest> handler)
-            : base(repository,
-                (partieDeChasse, command) =>
-                {
-                    handler(partieDeChasse, command);
-                    return Empty;
-                }
-            )
-        {
+            return result;
         }
     }
 }

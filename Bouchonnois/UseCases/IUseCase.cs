@@ -1,9 +1,11 @@
+using Bouchonnois.Domain;
 using Bouchonnois.Domain.Commands;
+using LanguageExt;
 
 namespace Bouchonnois.UseCases
 {
-    public interface IUseCase<in TRequest, out TResponse> where TRequest : ICommand
+    public interface IUseCase<in TRequest, TResponse> where TRequest : ICommand
     {
-        public TResponse Handle(TRequest command);
+        public Either<Error, TResponse> Handle(TRequest command);
     }
 }

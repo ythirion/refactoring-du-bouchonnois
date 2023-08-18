@@ -1,4 +1,5 @@
 using Bouchonnois.Domain;
+using LanguageExt;
 
 namespace Bouchonnois.UseCases
 {
@@ -13,7 +14,7 @@ namespace Bouchonnois.UseCases
             _timeProvider = timeProvider;
         }
 
-        public Guid Handle(Domain.Commands.DemarrerPartieDeChasse demarrerPartieDeChasse)
+        public Either<Error, Guid> Handle(Domain.Commands.DemarrerPartieDeChasse demarrerPartieDeChasse)
         {
             var partieDeChasse = PartieDeChasse.Create(_timeProvider, demarrerPartieDeChasse);
             _repository.Save(partieDeChasse);
