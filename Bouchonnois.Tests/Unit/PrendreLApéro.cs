@@ -21,7 +21,7 @@ namespace Bouchonnois.Tests.Unit
 
             WhenWithException(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
 
-            Then(savedPartieDeChasse =>
+            ThenWithException(savedPartieDeChasse =>
                 savedPartieDeChasse.Should()
                     .HaveEmittedEvent(Now, "Petit apéro")
                     .And

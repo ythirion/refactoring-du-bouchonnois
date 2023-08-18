@@ -20,7 +20,7 @@ namespace Bouchonnois.Tests.Unit
 
             WhenWithException(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
 
-            Then(savedPartieDeChasse =>
+            ThenWithException(savedPartieDeChasse =>
                 savedPartieDeChasse
                     .Should()
                     .HaveEmittedEvent(Now, "Bernard tire sur une galinette").And

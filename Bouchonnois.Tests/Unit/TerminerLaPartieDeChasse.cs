@@ -22,7 +22,7 @@ namespace Bouchonnois.Tests.Unit
             string? winner = null;
             WhenWithException(id => winner = _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-            Then(savedPartieDeChasse =>
+            ThenWithException(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
                         .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes"),
                 () => winner.Should().Be(Data.Robert));
@@ -41,7 +41,7 @@ namespace Bouchonnois.Tests.Unit
             string? winner = null;
             WhenWithException(id => winner = _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-            Then(savedPartieDeChasse =>
+            ThenWithException(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
                         .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes"),
                 () => winner.Should().Be(Data.Robert));
@@ -60,7 +60,7 @@ namespace Bouchonnois.Tests.Unit
             string? winner = null;
             WhenWithException(id => winner = _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-            Then(savedPartieDeChasse =>
+            ThenWithException(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
                         .HaveEmittedEvent(Now,
                             "La partie de chasse est terminée, vainqueur : Dédé - 2 galinettes, Bernard - 2 galinettes"),
@@ -79,7 +79,7 @@ namespace Bouchonnois.Tests.Unit
             string? winner = null;
             WhenWithException(id => winner = _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-            Then(savedPartieDeChasse =>
+            ThenWithException(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
                         .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Brocouille"),
                 () => winner.Should().Be("Brocouille"));
@@ -99,7 +99,7 @@ namespace Bouchonnois.Tests.Unit
             string? winner = null;
             WhenWithException(id => winner = _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
 
-            Then(savedPartieDeChasse =>
+            ThenWithException(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
                         .HaveEmittedEvent(Now,
                             "La partie de chasse est terminée, vainqueur : Dédé - 3 galinettes, Bernard - 3 galinettes, Robert - 3 galinettes"),

@@ -1,7 +1,9 @@
 ﻿using System.Collections.Immutable;
 using Bouchonnois.Domain.Commands;
 using Bouchonnois.Domain.Exceptions;
+using LanguageExt;
 using static System.String;
+using static Bouchonnois.Domain.Error;
 using static Bouchonnois.Domain.PartieStatus;
 
 namespace Bouchonnois.Domain
@@ -41,7 +43,8 @@ namespace Bouchonnois.Domain
             return new PartieDeChasse(
                 Guid.NewGuid(),
                 timeProvider,
-                new Terrain(demarrerPartieDeChasse.TerrainDeChasse.Nom, demarrerPartieDeChasse.TerrainDeChasse.NbGalinettes),
+                new Terrain(demarrerPartieDeChasse.TerrainDeChasse.Nom,
+                    demarrerPartieDeChasse.TerrainDeChasse.NbGalinettes),
                 demarrerPartieDeChasse.Chasseurs.Select(c => new Chasseur(c.Nom, c.NbBalles)).ToArray()
             );
         }
@@ -152,7 +155,9 @@ namespace Bouchonnois.Domain
             else
             {
                 result = Join(", ", classement[0].Select(c => c.Nom));
-                EmitEvent($"La partie de chasse est terminée, vainqueur : {Join(", ", classement[0].Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}", timeProvider);
+                EmitEvent(
+                    $"La partie de chasse est terminée, vainqueur : {Join(", ", classement[0].Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}",
+                    timeProvider);
             }
 
             return result;
@@ -182,6 +187,59 @@ namespace Bouchonnois.Domain
                 debutMessageSiPlusDeBalles: $"{chasseur} tire");
 
             EmitEvent($"{chasseur} tire", timeProvider);
+        }
+
+        public Either<Error, PartieDeChasse> TirerSansException(
+            string chasseur,
+            Func<DateTime> timeProvider)
+            => TirerSansException(chasseur,
+                timeProvider,
+                debutMessageSiPlusDeBalles: $"{chasseur} tire");
+
+        private Either<Error, PartieDeChasse> TirerSansException(
+            string chasseur,
+            Func<DateTime> timeProvider,
+            string debutMessageSiPlusDeBalles,
+            Action<Chasseur>? continueWith = null)
+        {
+            if (DuringApéro())
+            {
+                return EmitAndReturn(
+                    $"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!",
+                    timeProvider);
+            }
+
+            if (DéjàTerminée())
+            {
+                return EmitAndReturn($"{chasseur} veut tirer -> On tire pas quand la partie est terminée",
+                    timeProvider);
+            }
+
+            if (!ChasseurExiste(chasseur))
+            {
+                return EmitAndReturn($"Chasseur inconnu {chasseur}", timeProvider);
+            }
+
+            var chasseurQuiTire = RetrieveChasseur(chasseur);
+
+            if (!chasseurQuiTire.AEncoreDesBalles())
+            {
+                return EmitAndReturn($"{debutMessageSiPlusDeBalles} -> T'as plus de balles mon vieux, chasse à la main",
+                    timeProvider);
+            }
+
+            chasseurQuiTire.ATiré();
+            continueWith?.Invoke(chasseurQuiTire);
+
+            EmitEvent($"{chasseur} tire", timeProvider);
+
+            return this;
+        }
+
+        private Either<Error, PartieDeChasse> EmitAndReturn(string message, Func<DateTime> timeProvider)
+        {
+            EmitEvent(message, timeProvider);
+            return AnError(message);
         }
 
         #endregion
@@ -221,13 +279,15 @@ namespace Bouchonnois.Domain
         {
             if (DuringApéro())
             {
-                EmitEventAndSave($"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!", timeProvider, repository);
+                EmitEventAndSave($"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!", timeProvider,
+                    repository);
                 throw new OnTirePasPendantLapéroCestSacré();
             }
 
             if (DéjàTerminée())
             {
-                EmitEventAndSave($"{chasseur} veut tirer -> On tire pas quand la partie est terminée", timeProvider, repository);
+                EmitEventAndSave($"{chasseur} veut tirer -> On tire pas quand la partie est terminée", timeProvider,
+                    repository);
                 throw new OnTirePasQuandLaPartieEstTerminée();
             }
 
@@ -240,7 +300,8 @@ namespace Bouchonnois.Domain
 
             if (!chasseurQuiTire.AEncoreDesBalles())
             {
-                EmitEventAndSave($"{debutMessageSiPlusDeBalles} -> T'as plus de balles mon vieux, chasse à la main", timeProvider, repository);
+                EmitEventAndSave($"{debutMessageSiPlusDeBalles} -> T'as plus de balles mon vieux, chasse à la main",
+                    timeProvider, repository);
                 throw new TasPlusDeBallesMonVieuxChasseALaMain();
             }
 

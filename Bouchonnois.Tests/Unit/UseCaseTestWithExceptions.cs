@@ -8,7 +8,7 @@ namespace Bouchonnois.Tests.Unit
 
         protected void WhenWithException(Action<Guid> act) => _actWithException = act;
 
-        protected void Then(Action<PartieDeChasse?> assert, Action? assertResult = null)
+        protected void ThenWithException(Action<PartieDeChasse?> assert, Action? assertResult = null)
         {
             _actWithException!(_partieDeChasseId);
             assert(SavedPartieDeChasse());

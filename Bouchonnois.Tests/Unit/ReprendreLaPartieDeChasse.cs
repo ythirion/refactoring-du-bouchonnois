@@ -21,7 +21,7 @@ namespace Bouchonnois.Tests.Unit
 
             WhenWithException(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
 
-            Then(savedPartieDeChasse => savedPartieDeChasse.Should()
+            ThenWithException(savedPartieDeChasse => savedPartieDeChasse.Should()
                 .HaveEmittedEvent(Now, "Reprise de la chasse")
                 .And
                 .BeEnCours());

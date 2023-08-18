@@ -1,5 +1,4 @@
 using Bouchonnois.Domain;
-using Bouchonnois.Domain.Exceptions;
 using LanguageExt;
 using static Bouchonnois.Domain.Error;
 
@@ -23,20 +22,13 @@ namespace Bouchonnois.UseCases
             if (partieDeChasse == null)
                 return AnError($"La partie de chasse {command.PartieDeChasseId} n'existe pas");
 
-            try
-            {
-                partieDeChasse.Tirer(command.Chasseur, _timeProvider, _repository);
-            }
-            catch (ChasseurInconnu)
-            {
-                return AnError($"Chasseur inconnu {command.Chasseur}");
-            }
-            catch (TasPlusDeBallesMonVieuxChasseALaMain)
-            {
-                return AnError($"{command.Chasseur} tire -> T'as plus de balles mon vieux, chasse à la main");
-            }
+            var result = partieDeChasse
+                .TirerSansException(command.Chasseur, _timeProvider)
+                .Map(_ => VoidResponse.Empty);
 
-            return VoidResponse.Empty;
+            _repository.Save(partieDeChasse);
+
+            return result;
         }
     }
 }

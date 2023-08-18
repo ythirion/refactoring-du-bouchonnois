@@ -63,6 +63,13 @@ namespace Bouchonnois.Tests.Unit
         private Func<Guid, Either<Error, TSuccessResponse>>? _act;
         protected void When(Func<Guid, Either<Error, TSuccessResponse>>? act) => _act = act;
 
+        protected void Then(Action<TSuccessResponse, PartieDeChasse?> assert)
+        {
+            var result = _act!(_partieDeChasseId);
+            result.Should().BeRight();
+            result.IfRight(r => assert(r, SavedPartieDeChasse()));
+        }
+
         protected void ThenFailWith(string expectedErrorMessage, Action<PartieDeChasse?>? assertSavedPartieDeChasse)
         {
             var result = _act!(_partieDeChasseId);
