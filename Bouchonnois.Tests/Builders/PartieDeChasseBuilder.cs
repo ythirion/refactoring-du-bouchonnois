@@ -53,7 +53,7 @@ namespace Bouchonnois.Tests.Builders
                 )
             ).RightUnsafe();
 
-            TirerSurLesGalinettes(partieDeChasse, timeProvider, repository, builtChasseurs);
+            TirerSurLesGalinettes(partieDeChasse, timeProvider, builtChasseurs);
             TirerDansLeVide(partieDeChasse, timeProvider, chasseursSansBalles);
 
             ChangeStatus(partieDeChasse, timeProvider);
@@ -70,7 +70,6 @@ namespace Bouchonnois.Tests.Builders
         private static void TirerSurLesGalinettes(
             PartieDeChasse partieDeChasse,
             Func<DateTime> timeProvider,
-            IPartieDeChasseRepository repository,
             IEnumerable<Chasseur> builtChasseurs) =>
             partieDeChasse
                 .Chasseurs
@@ -78,7 +77,7 @@ namespace Bouchonnois.Tests.Builders
                 {
                     var built = builtChasseurs.First(x => x.Nom == c.Nom);
                     Repeat(built.NbGalinettes,
-                        () => partieDeChasse.TirerSurUneGalinette(built.Nom, timeProvider, repository));
+                        () => partieDeChasse.TirerSurUneGalinette(built.Nom, timeProvider));
                 });
 
         private void ChangeStatus(PartieDeChasse partieDeChasse, Func<DateTime> timeProvider) =>

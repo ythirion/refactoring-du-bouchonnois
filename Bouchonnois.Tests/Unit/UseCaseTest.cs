@@ -6,14 +6,14 @@ using LanguageExt;
 
 namespace Bouchonnois.Tests.Unit
 {
-    public abstract class UseCaseTestBase
+    public abstract class UseCaseTest
     {
         protected static readonly DateTime Now = new(2024, 6, 6, 14, 50, 45);
         protected static readonly Func<DateTime> TimeProvider = () => Now;
         protected static List<(string, int)> PasDeChasseurs => new();
     }
 
-    public abstract class UseCaseTest<TUseCase, TSuccessResponse> : UseCaseTestBase
+    public abstract class UseCaseTest<TUseCase, TSuccessResponse> : UseCaseTest
     {
         protected readonly PartieDeChasseRepositoryForTests Repository;
         protected readonly TUseCase _useCase;
@@ -34,6 +34,8 @@ namespace Bouchonnois.Tests.Unit
         }
 
         protected PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
+
+        #region Given / When / Then DSL
 
         protected void Given(Guid partieDeChasseId) => _partieDeChasseId = partieDeChasseId;
         protected void Given(PartieDeChasse unePartieDeChasseExistante) => Given(unePartieDeChasseExistante.Id);
@@ -61,9 +63,8 @@ namespace Bouchonnois.Tests.Unit
         }
 
         protected bool FailWith(Func<Either<Error, TSuccessResponse>> func, Func<PartieDeChasse?, bool>? assert = null)
-        {
-            var result = func();
-            return result.IsLeft && (assert?.Invoke(SavedPartieDeChasse()) ?? true);
-        }
+            => func().IsLeft && (assert?.Invoke(SavedPartieDeChasse()) ?? true);
+
+        #endregion
     }
 }

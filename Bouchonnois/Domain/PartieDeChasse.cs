@@ -180,7 +180,7 @@ namespace Bouchonnois.Domain
             => Tirer(chasseur,
                 timeProvider,
                 debutMessageSiPlusDeBalles: $"{chasseur} tire",
-                c => EmitEvent($"{chasseur} tire", timeProvider));
+                _ => EmitEvent($"{chasseur} tire", timeProvider));
 
         private Either<Error, PartieDeChasse> Tirer(
             string chasseur,
@@ -232,8 +232,7 @@ namespace Bouchonnois.Domain
 
         public Either<Error, PartieDeChasse> TirerSurUneGalinette(
             string chasseur,
-            Func<DateTime> timeProvider,
-            IPartieDeChasseRepository repository)
+            Func<DateTime> timeProvider)
         {
             if (Terrain.NbGalinettes == 0)
             {

@@ -8,12 +8,12 @@ namespace Bouchonnois.UseCases
     public abstract class PartieDeChasseUseCase<TRequest, TResponse> : IUseCase<TRequest, TResponse>
         where TRequest : PartieDeChasseCommand
     {
-        protected readonly IPartieDeChasseRepository _repository;
+        private readonly IPartieDeChasseRepository _repository;
         private readonly Func<PartieDeChasse, TRequest, Either<Error, TResponse>> _handler;
 
-        protected PartieDeChasseUseCase(IPartieDeChasseRepository repository,
-            Func<PartieDeChasse, TRequest, Either<Error, TResponse>> handler
-        )
+        protected PartieDeChasseUseCase(
+            IPartieDeChasseRepository repository,
+            Func<PartieDeChasse, TRequest, Either<Error, TResponse>> handler)
         {
             _repository = repository;
             _handler = handler;
@@ -24,7 +24,7 @@ namespace Bouchonnois.UseCases
             PartieDeChasse? foundPartieDeChasse = null;
 
             var result = _repository
-                .GetByIdOption(command.PartieDeChasseId)
+                .GetById(command.PartieDeChasseId)
                 .ToEither(() => AnError($"La partie de chasse {command.PartieDeChasseId} n'existe pas"))
                 .Do(p => foundPartieDeChasse = p)
                 .Bind(p => _handler(p, command));
@@ -33,5 +33,8 @@ namespace Bouchonnois.UseCases
 
             return result;
         }
+
+        protected static Either<Error, VoidResponse> ToEmpty(Either<Error, PartieDeChasse> either)
+            => either.Map(_ => VoidResponse.Empty);
     }
 }

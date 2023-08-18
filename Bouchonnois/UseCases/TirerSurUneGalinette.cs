@@ -6,9 +6,8 @@ namespace Bouchonnois.UseCases
     {
         public TirerSurUneGalinette(IPartieDeChasseRepository repository, Func<DateTime> timeProvider)
             : base(repository,
-                (partieDeChasse, command) => partieDeChasse
-                    .TirerSurUneGalinette(command.Chasseur, timeProvider, repository)
-                    .Map(_ => VoidResponse.Empty))
+                (partieDeChasse, command) =>
+                    ToEmpty(partieDeChasse.TirerSurUneGalinette(command.Chasseur, timeProvider)))
         {
         }
     }

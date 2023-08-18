@@ -14,12 +14,7 @@ namespace Bouchonnois.Tests.Doubles
             _partiesDeChasse[partieDeChasse.Id] = partieDeChasse;
         }
 
-        public PartieDeChasse GetById(Guid partieDeChasseId)
-            => (_partiesDeChasse.ContainsKey(partieDeChasseId)
-                ? _partiesDeChasse[partieDeChasseId]
-                : null)!;
-
-        public Option<PartieDeChasse> GetByIdOption(Guid partieDeChasseId)
+        public Option<PartieDeChasse> GetById(Guid partieDeChasseId)
             => _partiesDeChasse.ContainsKey(partieDeChasseId)
                 ? _partiesDeChasse[partieDeChasseId]
                 : null;

@@ -7,7 +7,7 @@ namespace Bouchonnois.Tests.Unit
 {
     public class ConsulterStatus : UseCaseTest<UseCases.ConsulterStatus, string>
     {
-        public ConsulterStatus() : base((r, t) => new UseCases.ConsulterStatus(r))
+        public ConsulterStatus() : base((r, _) => new UseCases.ConsulterStatus(r))
         {
         }
 
@@ -15,7 +15,7 @@ namespace Bouchonnois.Tests.Unit
         {
             private readonly Arbitrary<Guid> _nonExistingPartiesDeChasse = Generate<Guid>().ToArbitrary();
 
-            public Echoue() : base((r, t) => new UseCases.ConsulterStatus(r))
+            public Echoue() : base((r, _) => new UseCases.ConsulterStatus(r))
 
             {
             }
@@ -26,7 +26,7 @@ namespace Bouchonnois.Tests.Unit
                     _nonExistingPartiesDeChasse,
                     id => FailWith(
                         () => _useCase.Handle(new Domain.Commands.ConsulterStatus(id)),
-                        savedPartieDeChasse => true
+                        _ => true
                     )
                 );
         }

@@ -6,9 +6,7 @@ namespace Bouchonnois.UseCases
     {
         public Tirer(IPartieDeChasseRepository repository, Func<DateTime> timeProvider)
             : base(repository,
-                (partieDeChasse, command) => partieDeChasse
-                    .Tirer(command.Chasseur, timeProvider)
-                    .Map(_ => VoidResponse.Empty))
+                (partieDeChasse, command) => ToEmpty(partieDeChasse.Tirer(command.Chasseur, timeProvider)))
         {
         }
     }
