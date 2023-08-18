@@ -19,7 +19,7 @@ namespace Bouchonnois.Tests.Unit
                 )
             );
 
-            When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+            WhenWithException(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
 
             Then(savedPartieDeChasse =>
                 savedPartieDeChasse.Should()
@@ -39,7 +39,7 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+                WhenWithException(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
 
                 ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
@@ -53,7 +53,7 @@ namespace Bouchonnois.Tests.Unit
                             .ALapéro())
                 );
 
-                When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+                WhenWithException(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
 
                 ThenThrow<OnEstDéjàEnTrainDePrendreLapéro>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should().BeNull());
@@ -68,7 +68,7 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée())
                 );
 
-                When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+                WhenWithException(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
 
                 ThenThrow<OnPrendPasLapéroQuandLaPartieEstTerminée>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should().BeNull());

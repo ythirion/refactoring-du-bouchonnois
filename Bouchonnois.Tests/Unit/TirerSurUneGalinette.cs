@@ -1,7 +1,5 @@
-using Bouchonnois.Domain.Commands;
 using Bouchonnois.Domain.Exceptions;
 using Bouchonnois.Tests.Builders;
-using Bouchonnois.UseCases;
 using Bouchonnois.UseCases.Exceptions;
 
 namespace Bouchonnois.Tests.Unit
@@ -20,7 +18,7 @@ namespace Bouchonnois.Tests.Unit
                     SurUnTerrainRicheEnGalinettes()
                 ));
 
-            When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
+            WhenWithException(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
 
             Then(savedPartieDeChasse =>
                 savedPartieDeChasse
@@ -42,7 +40,7 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
+                WhenWithException(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
 
                 ThenThrow<LaPartieDeChasseNexistePas>(savedPartieDeChasse => savedPartieDeChasse.Should().BeNull());
             }
@@ -55,7 +53,7 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Dédé(), Bernard().SansBalles(), Robert())
                 ));
 
-                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
+                WhenWithException(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
 
                 ThenThrow<TasPlusDeBallesMonVieuxChasseALaMain>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -72,7 +70,7 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Dédé().AyantTué(1), Robert())
                 ));
 
-                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
+                WhenWithException(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Bernard)));
 
                 ThenThrow<TasTropPicoléMonVieuxTasRienTouché>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should().BeNull()
@@ -87,7 +85,8 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Dédé(), Robert())
                 ));
 
-                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
+                WhenWithException(id =>
+                    _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
 
                 ThenThrow<ChasseurInconnu>(savedPartieDeChasse =>
                         savedPartieDeChasse.Should().BeNull(),
@@ -104,7 +103,8 @@ namespace Bouchonnois.Tests.Unit
                         .ALapéro()
                 ));
 
-                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
+                WhenWithException(id =>
+                    _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
 
                 ThenThrow<OnTirePasPendantLapéroCestSacré>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should()
@@ -122,7 +122,8 @@ namespace Bouchonnois.Tests.Unit
                         .Terminée()
                 ));
 
-                When(id => _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
+                WhenWithException(id =>
+                    _useCase.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
 
                 ThenThrow<OnTirePasQuandLaPartieEstTerminée>(savedPartieDeChasse =>
                     savedPartieDeChasse.Should().HaveEmittedEvent(Now,

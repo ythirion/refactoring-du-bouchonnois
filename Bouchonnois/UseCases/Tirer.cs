@@ -1,5 +1,6 @@
 using Bouchonnois.Domain;
 using LanguageExt;
+using static Bouchonnois.Domain.Error;
 
 namespace Bouchonnois.UseCases
 {
@@ -12,6 +13,6 @@ namespace Bouchonnois.UseCases
         }
 
         public Either<Error, VoidResponse> HandleSansException(Domain.Commands.Tirer command) =>
-            new Error($"La partie de chasse {command.PartieDeChasseId} n'existe pas");
+            AnError($"La partie de chasse {command.PartieDeChasseId} n'existe pas");
     }
 }

@@ -39,4 +39,10 @@
       <ProjectReference Include="..\Bouchonnois\Bouchonnois.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Unit\UseCaseTestWithExceptions.cs">
+        <DependentUpon>UseCaseTest.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>
