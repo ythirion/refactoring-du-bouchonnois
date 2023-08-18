@@ -62,8 +62,21 @@ namespace Bouchonnois.Tests.Unit
             });
         }
 
-        protected bool FailWith(Func<Either<Error, TSuccessResponse>> func, Func<PartieDeChasse?, bool>? assert = null)
-            => func().IsLeft && (assert?.Invoke(SavedPartieDeChasse()) ?? true);
+        protected bool FailWith(
+            string errorMessage,
+            Func<Either<Error, TSuccessResponse>> func,
+            Func<PartieDeChasse?, bool>? assert = null)
+        {
+            var result = func();
+
+            if (result.IsLeft)
+            {
+                return result.LeftUnsafe().Message == errorMessage
+                       && (assert?.Invoke(SavedPartieDeChasse()) ?? true);
+            }
+
+            return false;
+        }
 
         #endregion
     }

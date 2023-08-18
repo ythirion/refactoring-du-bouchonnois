@@ -62,6 +62,7 @@ namespace Bouchonnois.Tests.Unit
                     TerrainRicheEnGalinettesGenerator(),
                     terrain =>
                         EchoueAvec(
+                            "Impossible de démarrer une partie de chasse sans chasseurs...",
                             terrain,
                             PasDeChasseurs,
                             savedPartieDeChasse => savedPartieDeChasse == null)
@@ -74,6 +75,7 @@ namespace Bouchonnois.Tests.Unit
                     ChasseursAvecBallesGenerator(),
                     (terrain, chasseurs) =>
                         EchoueAvec(
+                            "Impossible de démarrer une partie de chasse sur un terrain sans galinettes",
                             terrain,
                             chasseurs.ToList(),
                             savedPartieDeChasse => savedPartieDeChasse == null)
@@ -86,16 +88,18 @@ namespace Bouchonnois.Tests.Unit
                     AuMoins1ChasseurSansBalle(),
                     (terrain, chasseurs) =>
                         EchoueAvec(
+                            "Impossible de démarrer une partie de chasse avec un chasseur sans balle(s)...",
                             terrain,
                             chasseurs.ToList(),
                             savedPartieDeChasse => savedPartieDeChasse == null)
                 );
 
             private bool EchoueAvec(
+                string message,
                 (string nom, int nbGalinettes) terrain,
                 IEnumerable<(string nom, int nbBalles)> chasseurs,
                 Func<PartieDeChasse?, bool>? assert = null) =>
-                FailWith(() => _useCase.Handle(ToCommand(terrain, chasseurs)), assert);
+                FailWith(message, () => _useCase.Handle(ToCommand(terrain, chasseurs)), assert);
         }
     }
 }

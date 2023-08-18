@@ -25,6 +25,7 @@ namespace Bouchonnois.Tests.Unit
                 => ForAll(
                     _nonExistingPartiesDeChasse,
                     id => FailWith(
+                        $"La partie de chasse {id} n'existe pas",
                         () => _useCase.Handle(new Domain.Commands.ConsulterStatus(id)),
                         _ => true
                     )
