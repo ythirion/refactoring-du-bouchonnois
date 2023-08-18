@@ -65,7 +65,7 @@ namespace Bouchonnois.Domain
         private static bool ContainsChasseurs(Commands.Chasseur[] chasseurs) => chasseurs.Any();
 
         private static bool AuMoinsUnChasseurNaPasDeBalles(Commands.Chasseur[] chasseurs)
-            => chasseurs.Any(c => c.NbBalles == 0);
+            => chasseurs.Exists(c => c.NbBalles == 0);
 
         private void EmitPartieDémarrée(Func<DateTime> timeProvider)
         {

@@ -5,21 +5,20 @@ namespace Bouchonnois.Tests.Doubles
 {
     public class PartieDeChasseRepositoryForTests : IPartieDeChasseRepository
     {
-        private readonly IDictionary<Guid, PartieDeChasse> _partiesDeChasse = new Dictionary<Guid, PartieDeChasse>();
+        private Map<Guid, PartieDeChasse> _partiesDeChasse = Map<Guid, PartieDeChasse>.Empty;
         private PartieDeChasse? _savedPartieDeChasse;
 
         public void Save(PartieDeChasse partieDeChasse)
         {
             _savedPartieDeChasse = partieDeChasse;
-            _partiesDeChasse[partieDeChasse.Id] = partieDeChasse;
+            Add(partieDeChasse);
         }
 
-        public Option<PartieDeChasse> GetById(Guid partieDeChasseId)
-            => _partiesDeChasse.ContainsKey(partieDeChasseId)
-                ? _partiesDeChasse[partieDeChasseId]
-                : null;
+        public Option<PartieDeChasse> GetById(Guid partieDeChasseId) => _partiesDeChasse.Find(partieDeChasseId);
 
-        public void Add(PartieDeChasse partieDeChasse) => _partiesDeChasse[partieDeChasse.Id] = partieDeChasse;
+        public void Add(PartieDeChasse partieDeChasse) =>
+            _partiesDeChasse = _partiesDeChasse.AddOrUpdate(partieDeChasse.Id, partieDeChasse);
+
         public PartieDeChasse? SavedPartieDeChasse() => _savedPartieDeChasse;
     }
 }
