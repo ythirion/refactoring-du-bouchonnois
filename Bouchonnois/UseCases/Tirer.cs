@@ -17,16 +17,16 @@ namespace Bouchonnois.UseCases
 
         public Either<Error, VoidResponse> HandleSansException(Domain.Commands.Tirer command)
         {
-            var partieDeChasse = _repository.GetById(command.PartieDeChasseId);
+            PartieDeChasse? foundPartieDeChasse = null;
 
-            if (partieDeChasse == null)
-                return AnError($"La partie de chasse {command.PartieDeChasseId} n'existe pas");
-
-            var result = partieDeChasse
-                .TirerSansException(command.Chasseur, _timeProvider)
+            var result = _repository
+                .GetByIdOption(command.PartieDeChasseId)
+                .ToEither(() => AnError($"La partie de chasse {command.PartieDeChasseId} n'existe pas"))
+                .Do(p => foundPartieDeChasse = p)
+                .Bind(partieDeChasse => partieDeChasse.TirerSansException(command.Chasseur, _timeProvider))
                 .Map(_ => VoidResponse.Empty);
 
-            _repository.Save(partieDeChasse);
+            if (foundPartieDeChasse != null) _repository.Save(foundPartieDeChasse);
 
             return result;
         }

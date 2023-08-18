@@ -1,4 +1,5 @@
 using Bouchonnois.Domain;
+using LanguageExt;
 
 namespace Bouchonnois.Tests.Doubles
 {
@@ -17,6 +18,11 @@ namespace Bouchonnois.Tests.Doubles
             => (_partiesDeChasse.ContainsKey(partieDeChasseId)
                 ? _partiesDeChasse[partieDeChasseId]
                 : null)!;
+
+        public Option<PartieDeChasse> GetByIdOption(Guid partieDeChasseId)
+            => _partiesDeChasse.ContainsKey(partieDeChasseId)
+                ? _partiesDeChasse[partieDeChasseId]
+                : null;
 
         public void Add(PartieDeChasse partieDeChasse) => _partiesDeChasse[partieDeChasse.Id] = partieDeChasse;
         public PartieDeChasse? SavedPartieDeChasse() => _savedPartieDeChasse;
