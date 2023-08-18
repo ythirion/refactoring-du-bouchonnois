@@ -15,11 +15,8 @@ namespace Bouchonnois.UseCases
         }
 
         public Either<Error, Guid> Handle(Domain.Commands.DemarrerPartieDeChasse demarrerPartieDeChasse)
-        {
-            var partieDeChasse = PartieDeChasse.Create(_timeProvider, demarrerPartieDeChasse);
-            _repository.Save(partieDeChasse);
-
-            return partieDeChasse.Id;
-        }
+            => PartieDeChasse.Create(_timeProvider, demarrerPartieDeChasse)
+                .Do(p => _repository.Save(p))
+                .Map(p => p.Id);
     }
 }

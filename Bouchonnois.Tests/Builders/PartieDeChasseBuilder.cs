@@ -1,6 +1,7 @@
 using ArchUnitNET.Domain.Extensions;
 using Bouchonnois.Domain;
 using Bouchonnois.Domain.Commands;
+using Bouchonnois.Tests.Unit;
 using static Bouchonnois.Domain.PartieStatus;
 using static Bouchonnois.Tests.Builders.Functions;
 using Chasseur = Bouchonnois.Domain.Chasseur;
@@ -39,7 +40,7 @@ namespace Bouchonnois.Tests.Builders
 
         public PartieDeChasse Build(Func<DateTime> timeProvider, IPartieDeChasseRepository repository)
         {
-            var builtChasseurs = _chasseurs.Select(c => c.Build());
+            var builtChasseurs = _chasseurs.Select(c => c.Build()).ToArray();
             var chasseursSansBalles = builtChasseurs.Where(c => c.BallesRestantes == 0).Select(c => c.Nom);
 
             var partieDeChasse = PartieDeChasse.Create(
@@ -50,7 +51,7 @@ namespace Bouchonnois.Tests.Builders
                         .Select(c => new Domain.Commands.Chasseur(c.Nom, c.BallesRestantes > 0 ? c.BallesRestantes : 1))
                         .ToList()
                 )
-            );
+            ).RightUnsafe();
 
             TirerSurLesGalinettes(partieDeChasse, timeProvider, repository, builtChasseurs);
             TirerDansLeVide(partieDeChasse, timeProvider, chasseursSansBalles);

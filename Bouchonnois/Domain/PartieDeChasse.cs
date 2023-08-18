@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using Bouchonnois.Domain.Commands;
-using Bouchonnois.Domain.Exceptions;
 using LanguageExt;
 using static System.String;
 using static Bouchonnois.Domain.Error;
@@ -35,10 +34,23 @@ namespace Bouchonnois.Domain
             EmitPartieDémarrée(timeProvider);
         }
 
-        public static PartieDeChasse Create(Func<DateTime> timeProvider, DemarrerPartieDeChasse demarrerPartieDeChasse)
+        public static Either<Error, PartieDeChasse> Create(Func<DateTime> timeProvider,
+            DemarrerPartieDeChasse demarrerPartieDeChasse)
         {
-            CheckTerrainValide(demarrerPartieDeChasse.TerrainDeChasse);
-            CheckChasseursValides(demarrerPartieDeChasse.Chasseurs.ToArray());
+            if (!IsTerrainValide(demarrerPartieDeChasse.TerrainDeChasse))
+            {
+                return AnError("Impossible de démarrer une partie de chasse sur un terrain sans galinettes");
+            }
+
+            if (!ContainsChasseurs(demarrerPartieDeChasse.Chasseurs.ToArray()))
+            {
+                return AnError("Impossible de démarrer une partie de chasse sans chasseurs...");
+            }
+
+            if (AuMoinsUnChasseurNaPasDeBalles(demarrerPartieDeChasse.Chasseurs.ToArray()))
+            {
+                return AnError("Impossible de démarrer une partie de chasse avec un chasseur sans balle(s)...");
+            }
 
             return new PartieDeChasse(
                 Guid.NewGuid(),
@@ -49,26 +61,8 @@ namespace Bouchonnois.Domain
             );
         }
 
-        private static void CheckTerrainValide(TerrainDeChasse terrainDeChasse)
-        {
-            if (terrainDeChasse.NbGalinettes <= 0)
-            {
-                throw new ImpossibleDeDémarrerUnePartieSansGalinettes();
-            }
-        }
-
-        private static void CheckChasseursValides(Commands.Chasseur[] chasseurs)
-        {
-            if (!chasseurs.Any())
-            {
-                throw new ImpossibleDeDémarrerUnePartieSansChasseur();
-            }
-
-            if (AuMoinsUnChasseurNaPasDeBalles(chasseurs))
-            {
-                throw new ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle();
-            }
-        }
+        private static bool IsTerrainValide(TerrainDeChasse terrainDeChasse) => terrainDeChasse.NbGalinettes > 0;
+        private static bool ContainsChasseurs(Commands.Chasseur[] chasseurs) => chasseurs.Any();
 
         private static bool AuMoinsUnChasseurNaPasDeBalles(Commands.Chasseur[] chasseurs)
             => chasseurs.Any(c => c.NbBalles == 0);
