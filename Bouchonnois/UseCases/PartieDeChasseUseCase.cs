@@ -19,20 +19,15 @@ namespace Bouchonnois.UseCases
             _handler = handler;
         }
 
-        public Either<Error, TResponse> Handle(TRequest command)
-        {
-            PartieDeChasse? foundPartieDeChasse = null;
-
-            var result = _repository
+        public Either<Error, TResponse> Handle(TRequest command) =>
+            _repository
                 .GetById(command.PartieDeChasseId)
                 .ToEither(() => AnError($"La partie de chasse {command.PartieDeChasseId} n'existe pas"))
-                .Do(p => foundPartieDeChasse = p)
-                .Bind(p => _handler(p, command));
+                .Bind(p => HandleCommand(p, command));
 
-            if (foundPartieDeChasse != null) _repository.Save(foundPartieDeChasse);
-
-            return result;
-        }
+        private Either<Error, TResponse> HandleCommand(PartieDeChasse partieDeChasse, TRequest command)
+            => _handler(partieDeChasse, command)
+                .Let(_ => _repository.Save(partieDeChasse));
 
         protected static Either<Error, VoidResponse> ToEmpty(Either<Error, PartieDeChasse> either)
             => either.Map(_ => VoidResponse.Empty);
