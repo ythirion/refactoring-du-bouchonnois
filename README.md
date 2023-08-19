@@ -25,3 +25,4 @@ Différentes étapes ainsi qu'une proposition de solution accompagne ce reposito
 - [8. Use Cases](facilitation/08.use-cases.md)
 - [9. Tell Don't Ask](facilitation/09.tell-dont-ask.md)
 - [10. Commands](facilitation/10.commands.md)
+- [11. Plus d'exceptions](facilitation/11.avoid-exceptions.md)
