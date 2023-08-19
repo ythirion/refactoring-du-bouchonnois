@@ -13,6 +13,7 @@ on:
       - steps/08-use-cases
       - steps/09-tell-dont-ask
       - steps/10-commands
+      - steps/11-avoid-exceptions
 jobs:
   build:
     name: Build and analyze
