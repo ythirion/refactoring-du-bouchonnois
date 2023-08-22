@@ -21,6 +21,7 @@ namespace Bouchonnois.Tests.Unit
 
             Then((response, partieDeChasse) =>
             {
+                // Utiliser 
                 response.Should().Be(VoidResponse.Empty);
                 partieDeChasse.Should()
                     .HaveEmittedEvent(Now, "Petit apéro")
