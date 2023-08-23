@@ -1,4 +1,5 @@
 using Bouchonnois.Domain.Tirer;
+using Domain.Core;
 using LanguageExt;
 
 namespace Bouchonnois.Domain;
@@ -12,11 +13,13 @@ public sealed partial class PartieDeChasse
                 intention: "veut tirer sur une galinette",
                 c => RaiseEvent((id, time) => new ChasseurATiréSurUneGalinette(id, time, chasseur)));
 
+    [EventSourced]
     private void Apply(ChasseurATiréSurUneGalinette @event)
-    {
-        var chasseur = RetrieveChasseur(@event.Chasseur);
-        chasseur.ATiré();
-        chasseur.ATué();
-        _terrain!.UneGalinetteEnMoins();
-    }
+        => RetrieveChasseur(@event.Chasseur)
+            .Let(chasseur =>
+            {
+                chasseur.ATiré();
+                chasseur.ATué();
+                _terrain!.UneGalinetteEnMoins();
+            });
 }

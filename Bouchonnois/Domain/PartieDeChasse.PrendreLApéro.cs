@@ -1,4 +1,5 @@
 using Bouchonnois.Domain.Apéro;
+using Domain.Core;
 using LanguageExt;
 
 namespace Bouchonnois.Domain;
@@ -22,5 +23,6 @@ public sealed partial class PartieDeChasse
         return Unit.Default;
     }
 
+    [EventSourced]
     private void Apply(ApéroDémarré @event) => _status = PartieStatus.Apéro;
 }
