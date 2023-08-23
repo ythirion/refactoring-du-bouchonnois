@@ -46,7 +46,7 @@ namespace Domain.Core
                 {
                     if (_throwOnApplyNotFound)
                     {
-                        throw new ApplicationException(
+                        throw new ArgumentException(
                             $"Aggregate of type '{_registered?.GetType().Name!}' raised an event of type '{eventMessage.GetType().Name}' but no handler could be found to handle the event."
                         );
                     }

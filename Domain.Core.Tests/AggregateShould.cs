@@ -50,7 +50,7 @@ namespace Domain.Core.Tests
         {
             var act = () => _movie.NotWellImplementedBehavior();
             act.Should()
-                .Throw<ApplicationException>()
+                .Throw<ArgumentException>()
                 .WithMessage(
                     "Aggregate of type 'Movie' raised an event of type 'NotWellImplementedDomainBehaviorRaised' but no handler could be found to handle the event.");
         }
