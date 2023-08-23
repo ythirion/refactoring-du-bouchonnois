@@ -41,9 +41,9 @@ namespace Bouchonnois.Tests.Unit
 
         private bool DémarreLaPartieAvecSuccès((string nom, int nbGalinettes) terrain,
             IEnumerable<(string nom, int nbBalles)> chasseurs)
-            => UseCase
+            => AsyncHelper.RunSync(async () => await UseCase
                 .Handle(ToCommand(terrain, chasseurs))
-                .RightUnsafe() == Repository.partieDeChasse()!.Id;
+            ).RightUnsafe() == Repository.PartieDeChasse()!.Id;
 
         private static Domain.Démarrer.DemarrerPartieDeChasse ToCommand((string nom, int nbGalinettes) terrain,
             IEnumerable<(string nom, int nbBalles)> chasseurs)
@@ -104,7 +104,8 @@ namespace Bouchonnois.Tests.Unit
                 IEnumerable<(string nom, int nbBalles)> chasseurs,
                 Func<PartieDeChasse?, bool>? assert = null) =>
                 AsyncHelper.RunSync(
-                    () => FailWith(message, () => UseCase.Handle(ToCommand(terrain, chasseurs)), assert));
+                    async () => await FailWith(message, () => UseCase.Handle(ToCommand(terrain, chasseurs)), assert)
+                );
         }
     }
 }

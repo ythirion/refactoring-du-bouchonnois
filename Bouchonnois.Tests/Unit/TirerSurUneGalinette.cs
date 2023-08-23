@@ -18,11 +18,12 @@ namespace Bouchonnois.Tests.Unit
                     SurUnTerrainRicheEnGalinettes()
                 ));
 
-            When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Bernard)));
+            await When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Bernard)));
 
             Then((response, partieDeChasse) =>
             {
                 response.Should().Be(VoidResponse.Empty);
+
                 partieDeChasse
                     .Should()
                     .HaveEmittedEvent(Repository,
@@ -37,11 +38,11 @@ namespace Bouchonnois.Tests.Unit
             }
 
             [Fact]
-            public void CarPartieNexistePas()
+            public async Task CarPartieNexistePas()
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Bernard)));
+                await When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Bernard)));
 
                 ThenFailWith(
                     $"La partie de chasse {PartieDeChasseId} n'existe pas",
@@ -58,9 +59,10 @@ namespace Bouchonnois.Tests.Unit
                             .Avec(Dédé(), Bernard().SansBalles(), Robert())
                     ));
 
-                When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Bernard)));
+                await When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Bernard)));
 
-                ThenFailWith("Bernard veut tirer sur une galinette -> T'as plus de balles mon vieux, chasse à la main",
+                ThenFailWith(
+                    "Bernard veut tirer sur une galinette -> T'as plus de balles mon vieux, chasse à la main",
                     partieDeChasse => partieDeChasse
                         .Should()
                         .HaveEmittedEvent(Repository,
@@ -78,7 +80,7 @@ namespace Bouchonnois.Tests.Unit
                             .Avec(Dédé().AyantTué(1), Robert())
                     ));
 
-                When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
+                await When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
 
                 ThenFailWith("Robert, t'as trop picolé mon vieux, t'as rien touché",
                     partieDeChasse => partieDeChasse.Should().HaveEmittedEvent(
@@ -96,7 +98,7 @@ namespace Bouchonnois.Tests.Unit
                             .Avec(Dédé(), Robert())
                     ));
 
-                When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
+                await When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
 
                 ThenFailWith($"Chasseur inconnu Chasseur inconnu",
                     partieDeChasse => partieDeChasse
@@ -116,7 +118,7 @@ namespace Bouchonnois.Tests.Unit
                             .ALapéro()
                     ));
 
-                When(id =>
+                await When(id =>
                     UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
 
                 ThenFailWith("Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!",
@@ -138,7 +140,7 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée()
                     ));
 
-                When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
+                await When(id => UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.ChasseurInconnu)));
 
                 ThenFailWith("Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée",
                     partieDeChasse =>

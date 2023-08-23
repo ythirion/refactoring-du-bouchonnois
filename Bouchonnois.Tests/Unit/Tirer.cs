@@ -19,7 +19,7 @@ namespace Bouchonnois.Tests.Unit
                         .Avec(Bernard())
                 ));
 
-            When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            await When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
 
 
             Then((response, partieDeChasse) =>
@@ -38,11 +38,11 @@ namespace Bouchonnois.Tests.Unit
             }
 
             [Fact]
-            public void CarPartieNexistePasSansException()
+            public async Task CarPartieNexistePasSansException()
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(partieDeChasseId =>
+                await When(partieDeChasseId =>
                     UseCase.Handle(new Domain.Tirer.Tirer(partieDeChasseId, Data.Bernard)));
 
                 ThenFailWith(
@@ -59,7 +59,7 @@ namespace Bouchonnois.Tests.Unit
                         SurUnTerrainRicheEnGalinettes()
                     ));
 
-                When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
+                await When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith($"Chasseur inconnu Chasseur inconnu",
                     partieDeChasse => partieDeChasse
@@ -78,7 +78,7 @@ namespace Bouchonnois.Tests.Unit
                             .Avec(Dédé(), Bernard().SansBalles(), Robert())
                     ));
 
-                When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+                await When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
 
                 ThenFailWith("Bernard tire -> T'as plus de balles mon vieux, chasse à la main",
                     partieDeChasse => partieDeChasse
@@ -97,7 +97,7 @@ namespace Bouchonnois.Tests.Unit
                             .ALapéro()
                     ));
 
-                When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
+                await When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith("Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!",
                     partieDeChasse =>
@@ -117,7 +117,7 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée()
                     ));
 
-                When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
+                await When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith("Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée",
                     partieDeChasse =>

@@ -42,7 +42,7 @@ namespace Bouchonnois.Tests.Acceptance
                 .Avec((Data.Dédé, 20), (Data.Bernard, 8), (Data.Robert, 12))
                 .SurUnTerrainRicheEnGalinettes(4);
 
-            var id = _demarrerPartieDeChasse.Handle(command.Build()).RightUnsafe();
+            var id = (await _demarrerPartieDeChasse.Handle(command.Build())).RightUnsafe();
 
             AfterSync(10.Minutes(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Dédé)));
             AfterSync(30.Minutes(),

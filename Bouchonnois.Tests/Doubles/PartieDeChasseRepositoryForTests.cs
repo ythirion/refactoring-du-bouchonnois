@@ -29,7 +29,7 @@ namespace Bouchonnois.Tests.Doubles
                 .GetEventsById<PartieDeChasse>(partieDeChasseId)
                 .Map(events => events.OrderByDescending(e => e.Date).ToSeq());
 
-        public PartieDeChasse? partieDeChasse() => _partieDeChasse;
+        public PartieDeChasse? PartieDeChasse() => _partieDeChasse;
 
         public IEvent LastEvent() => _emittedEvents.Last;
     }

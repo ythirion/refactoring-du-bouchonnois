@@ -34,32 +34,32 @@ namespace Bouchonnois.Tests.Unit
             return partieDeChasse;
         }
 
-        private PartieDeChasse? partieDeChasse() => Repository.partieDeChasse();
+        private PartieDeChasse? PartieDeChasse() => Repository.PartieDeChasse();
 
         #region Given / When / Then DSL
 
         protected void Given(Guid partieDeChasseId) => PartieDeChasseId = partieDeChasseId;
         protected void Given(PartieDeChasse unePartieDeChasseExistante) => Given(unePartieDeChasseExistante.Id);
 
-        private Func<Guid, EitherAsync<Error, TSuccessResponse>>? _act;
-        protected void When(Func<Guid, EitherAsync<Error, TSuccessResponse>>? act) => _act = act;
+        private Either<Error, TSuccessResponse> _result;
+
+        protected async Task When(Func<Guid, EitherAsync<Error, TSuccessResponse>>? act) =>
+            _result = await act!(PartieDeChasseId);
 
         protected void Then(Action<TSuccessResponse, PartieDeChasse?> assert)
         {
-            var result = _act!(PartieDeChasseId);
-            result.Should().BeRight();
-            result.IfRight(r => assert(r, partieDeChasse()));
+            _result.Should().BeRight();
+            _result.IfRight(r => assert(r, PartieDeChasse()));
         }
 
         protected void ThenFailWith(string expectedErrorMessage,
             Action<PartieDeChasse?>? assertpartieDeChasse = null)
         {
-            var result = _act!(PartieDeChasseId);
-            result.Should().BeLeft();
-            result.IfLeft(r =>
+            _result.Should().BeLeft();
+            _result.IfLeft(r =>
             {
                 r.Message.Should().Be(expectedErrorMessage);
-                assertpartieDeChasse?.Invoke(partieDeChasse());
+                assertpartieDeChasse?.Invoke(PartieDeChasse());
             });
         }
 
@@ -68,12 +68,11 @@ namespace Bouchonnois.Tests.Unit
             Func<EitherAsync<Error, TSuccessResponse>> func,
             Func<PartieDeChasse?, bool>? assert = null)
         {
-            var result = await func().AsTask();
+            var result = await func();
 
-            if (await result.IsLeft)
+            if (result.IsLeft)
             {
-                return result.LeftUnsafe().Message == errorMessage
-                       && (assert?.Invoke(partieDeChasse()) ?? true);
+                return result.LeftUnsafe().Message == errorMessage && (assert?.Invoke(PartieDeChasse()) ?? true);
             }
 
             return false;

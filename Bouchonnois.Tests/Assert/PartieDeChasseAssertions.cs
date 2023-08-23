@@ -1,4 +1,5 @@
 using Bouchonnois.Domain;
+using Bouchonnois.Tests.Doubles;
 using Domain.Core;
 using FluentAssertions.Primitives;
 using static FluentAssertions.Execution.Execute;
@@ -20,14 +21,12 @@ namespace Bouchonnois.Tests.Assert
             return new AndConstraint<PartieDeChasseAssertions>(this);
         }
 
-        public AndConstraint<PartieDeChasseAssertions> HaveEmittedEvent<TEvent>(
-            IPartieDeChasseRepository repository,
-            TEvent expectedEvent) where TEvent : class, IEvent =>
-            Call(() => Assertion
-                .Given(() => repository.EventsFor(Subject!.Id))
-                .ForCondition(events => AsyncHelper.RunSync(() =>
-                    events.Exists(stream => stream.Exists(@event => @event.Equals(expectedEvent)))))
-                .FailWith($"Les events devraient contenir {expectedEvent}.")
+        public void HaveEmittedEvent<TEvent>(PartieDeChasseRepositoryForTests repository,
+            TEvent expectedEvent) where TEvent : class, IEvent
+            => Call(() =>
+                Assertion.Given(() => Subject!.Id)
+                    .ForCondition(_ => repository.LastEvent().Equals(expectedEvent))
+                    .FailWith($"Les events devraient contenir {expectedEvent}.")
             );
     }
 }

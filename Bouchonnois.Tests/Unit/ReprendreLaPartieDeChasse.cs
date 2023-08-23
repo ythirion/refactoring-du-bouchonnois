@@ -19,7 +19,7 @@ namespace Bouchonnois.Tests.Unit
                         .ALapéro()
                 ));
 
-            When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
+            await When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
             Then((_, partieDeChasse) =>
                 partieDeChasse
@@ -34,11 +34,11 @@ namespace Bouchonnois.Tests.Unit
             }
 
             [Fact]
-            public void CarPartieNexistePas()
+            public async Task CarPartieNexistePas()
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
+                await When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
                 ThenFailWith(
                     $"La partie de chasse {PartieDeChasseId} n'existe pas",
@@ -54,7 +54,7 @@ namespace Bouchonnois.Tests.Unit
                         SurUnTerrainRicheEnGalinettes()
                     ));
 
-                When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
+                await When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
                 ThenFailWith($"La partie de chasse est déjà en cours");
             }
@@ -68,7 +68,7 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée()
                     ));
 
-                When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
+                await When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
                 ThenFailWith("La partie de chasse est déjà terminée");
             }
