@@ -21,7 +21,7 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            Then((winner, partieDeChasse) =>
+            await Then((winner, partieDeChasse) =>
             {
                 partieDeChasse
                     .Should()
@@ -43,7 +43,7 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            Then((winner, partieDeChasse) =>
+            await Then((winner, partieDeChasse) =>
             {
                 partieDeChasse
                     .Should()
@@ -65,7 +65,7 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            Then((winner, partieDeChasse) =>
+            await Then((winner, partieDeChasse) =>
             {
                 partieDeChasse
                     .Should()
@@ -87,7 +87,7 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            Then((winner, partieDeChasse) =>
+            await Then((winner, partieDeChasse) =>
             {
                 partieDeChasse
                     .Should()
@@ -110,16 +110,21 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            Then((winner, partieDeChasse) =>
+            await Then((winner, partieDeChasse) =>
             {
                 var partieExAequoTerminée =
                     new PartieTerminée(partieDeChasse!.Id, Now, 3, Data.Dédé, Data.Bernard, Data.Robert);
+
                 partieDeChasse
                     .Should()
                     .HaveEmittedEvent(Repository, partieExAequoTerminée);
 
-                partieExAequoTerminée.ToString().Should()
-                    .Be("La partie de chasse est terminée, vainqueur : Dédé, Bernard, Robert - 3 galinettes");
+                partieExAequoTerminée
+                    .ToString()
+                    .Should()
+                    .BeEquivalentTo(
+                        "La partie de chasse est terminée, vainqueur : Dédé, Bernard, Robert - 3 galinettes");
+
                 winner.Should().Be("Dédé, Bernard, Robert");
             });
         }
@@ -141,7 +146,7 @@ namespace Bouchonnois.Tests.Unit
 
                 When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-                ThenFailWith("Quand c'est fini, c'est fini");
+                await ThenFailWith("Quand c'est fini, c'est fini");
             }
         }
     }

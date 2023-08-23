@@ -19,8 +19,8 @@ namespace Bouchonnois.UseCases
             _handler = handler;
         }
 
-        public EitherAsync<Error, TResponse> Handle(TRequest command) =>
-            _repository
+        public EitherAsync<Error, TResponse> Handle(TRequest command)
+            => _repository
                 .GetById(command.PartieDeChasseId)
                 .ToEither(() => AnError($"La partie de chasse {command.PartieDeChasseId} n'existe pas"))
                 .Bind(p => HandleCommand(p, command));

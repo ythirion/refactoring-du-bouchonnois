@@ -44,17 +44,17 @@ namespace Bouchonnois.Tests.Unit
         private Func<Guid, EitherAsync<Error, TSuccessResponse>>? _act;
         protected void When(Func<Guid, EitherAsync<Error, TSuccessResponse>>? act) => _act = act;
 
-        protected void Then(Action<TSuccessResponse, PartieDeChasse?> assert)
+        protected async Task Then(Action<TSuccessResponse, PartieDeChasse?> assert)
         {
-            var result = _act!(PartieDeChasseId);
+            var result = await _act!(PartieDeChasseId);
             result.Should().BeRight();
             result.IfRight(r => assert(r, partieDeChasse()));
         }
 
-        protected void ThenFailWith(string expectedErrorMessage,
+        protected async Task ThenFailWith(string expectedErrorMessage,
             Action<PartieDeChasse?>? assertpartieDeChasse = null)
         {
-            var result = _act!(PartieDeChasseId);
+            var result = await _act!(PartieDeChasseId);
             result.Should().BeLeft();
             result.IfLeft(r =>
             {
