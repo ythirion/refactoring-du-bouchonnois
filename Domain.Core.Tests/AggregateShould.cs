@@ -68,7 +68,7 @@ namespace Domain.Core.Tests
         }
 
         [Fact]
-        public void implement_iequatable()
+        public void implement_equatable()
         {
             ((IEquatable<IAggregate>) _movie).Equals(new Movie(Guid.NewGuid(), Data.TimeProvider, Oppenheimer.Title,
                     Oppenheimer.ReleaseDate))
@@ -79,6 +79,20 @@ namespace Domain.Core.Tests
                 .Equals(new Movie(_id, Data.TimeProvider, Oppenheimer.Title, Oppenheimer.ReleaseDate))
                 .Should()
                 .BeTrue();
+        }
+
+        [Fact]
+        public void implement_equality_comparer()
+        {
+            var dummyMovie = new Movie(_movie.Id, () => DateTime.Now, "A fake movie", DateTime.Today);
+
+            _movie.Equals(_movie, null).Should().BeFalse();
+            _movie?.Equals(null, _movie).Should().BeFalse();
+            _movie?.Equals(null, null).Should().BeFalse();
+            _movie?.Equals(_movie, _movie).Should().BeTrue();
+            _movie?.Equals(_movie, dummyMovie).Should().BeTrue();
+
+            _movie?.GetHashCode(dummyMovie).Should().Be(_movie.GetHashCode());
         }
 
         [Fact]

@@ -2,7 +2,7 @@ using LanguageExt;
 
 namespace Domain.Core
 {
-    public abstract class Aggregate : IAggregate, IEquatable<IAggregate>
+    public abstract class Aggregate : IAggregate, IEquatable<IAggregate>, IEqualityComparer<IAggregate>
     {
         private readonly Func<DateTime> _timeProvider;
         private readonly IRouteEvents _registeredRoutes;
@@ -43,5 +43,10 @@ namespace Domain.Core
         public override bool Equals(object? obj) => Equals(obj as IAggregate);
 
         protected DateTime Time() => _timeProvider();
+
+        public bool Equals(IAggregate? x, IAggregate? y)
+            => x != null && y != null && (ReferenceEquals(x, y) || x.Id.Equals(y.Id));
+
+        public int GetHashCode(IAggregate obj) => GetHashCode();
     }
 }
