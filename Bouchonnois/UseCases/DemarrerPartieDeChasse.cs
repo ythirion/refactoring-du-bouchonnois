@@ -16,7 +16,7 @@ namespace Bouchonnois.UseCases
 
         public EitherAsync<Error, Guid> Handle(Domain.Démarrer.DemarrerPartieDeChasse demarrerPartieDeChasse)
             => PartieDeChasse.Create(_timeProvider, demarrerPartieDeChasse)
-                .MapAsync(async p => await _repository.Save(p))
+                .Map(async p => await _repository.Save(p))
                 .MapAsync(p => p.Id)
                 .ToAsync();
     }
