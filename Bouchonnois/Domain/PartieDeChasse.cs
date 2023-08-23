@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
+using Bouchonnois.Domain.Apéro;
 using Bouchonnois.Domain.Commands;
-using Bouchonnois.Domain.Events;
 using Domain.Core;
 using LanguageExt;
 using static System.String;
@@ -101,7 +101,7 @@ namespace Bouchonnois.Domain
             return Default;
         }
 
-        private void Apply(ApéroDémarré @event) => Status = Apéro;
+        private void Apply(ApéroDémarré @event) => Status = PartieStatus.Apéro;
 
         #endregion
 
@@ -262,7 +262,7 @@ namespace Bouchonnois.Domain
 
         #endregion
 
-        private bool DuringApéro() => Status == Apéro;
+        private bool DuringApéro() => Status == PartieStatus.Apéro;
         private bool DéjàTerminée() => Status == Terminée;
         private bool DéjàEnCours() => Status == EnCours;
         private bool ChasseurExiste(string chasseur) => _chasseurs.Exists(c => c.Nom == chasseur);

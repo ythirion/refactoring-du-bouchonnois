@@ -1,6 +1,10 @@
+using ArchUnitNET.Domain.Extensions;
 using ArchUnitNET.Fluent.Syntax.Elements.Members.MethodMembers;
-using Bouchonnois.Domain.Commands;
+using ArchUnitNET.Fluent.Syntax.Elements.Types.Classes;
+using Domain.Core;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
+using static LanguageExt.List;
+using ICommand = Bouchonnois.Domain.Commands.ICommand;
 
 namespace Bouchonnois.Tests.Architecture
 {
@@ -37,13 +41,20 @@ namespace Bouchonnois.Tests.Architecture
                 .Because("C# convention...")
                 .Check();
 
+        private readonly GivenClassesConjunction _commands = Classes().That()
+            .ImplementInterface(typeof(ICommand)).Or()
+            .HaveNameEndingWith("Command");
+
+        private readonly GivenClassesConjunction _events = Classes().That().ImplementInterface(typeof(IEvent));
+
         [Fact]
-        public void CommandsShouldBePartOfDomain() =>
-            Classes().That()
-                .ImplementInterface(typeof(ICommand))
-                .Or()
-                .HaveNameEndingWith("Command").Should()
-                .ResideInNamespace("Domain.Commands", true)
+        public void CommandsAndEventsShouldBePartOfDomain()
+            => create(_commands, _events)
+                .ForEach(ShouldBePartOfDomain);
+
+        private static void ShouldBePartOfDomain(GivenClassesConjunction classes)
+            => classes.Should()
+                .ResideInNamespace("Domain", true)
                 .Check();
     }
 }

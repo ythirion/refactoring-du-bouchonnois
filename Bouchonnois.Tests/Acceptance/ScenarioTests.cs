@@ -50,7 +50,7 @@ namespace Bouchonnois.Tests.Acceptance
             After(10.Minutes(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Dédé)));
             After(30.Minutes(),
                 () => _tirerSurUneGalinette.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Robert)));
-            After(20.Minutes(), () => _prendreLapéro.Handle(new Domain.Commands.PrendreLapéro(id)));
+            After(20.Minutes(), () => _prendreLapéro.Handle(new Domain.Apéro.PrendreLapéro(id)));
             After(1.Hours(), () => _reprendreLaPartie.Handle(new Domain.Commands.ReprendreLaPartie(id)));
             After(2.Minutes(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
             After(1.Minutes(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
@@ -58,7 +58,7 @@ namespace Bouchonnois.Tests.Acceptance
                 () => _tirerSurUneGalinette.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Dédé)));
             After(26.Minutes(),
                 () => _tirerSurUneGalinette.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Robert)));
-            After(10.Minutes(), () => _prendreLapéro.Handle(new Domain.Commands.PrendreLapéro(id)));
+            After(10.Minutes(), () => _prendreLapéro.Handle(new Domain.Apéro.PrendreLapéro(id)));
             After(170.Minutes(), () => _reprendreLaPartie.Handle(new Domain.Commands.ReprendreLaPartie(id)));
             After(11.Minutes(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
             After(1.Seconds(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));

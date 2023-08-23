@@ -1,5 +1,6 @@
-using Bouchonnois.Domain.Events;
+using Bouchonnois.Domain.Apéro;
 using Bouchonnois.UseCases;
+using PrendreLapéro = Bouchonnois.UseCases.PrendreLapéro;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -18,7 +19,7 @@ namespace Bouchonnois.Tests.Unit
                 )
             );
 
-            When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+            When(id => _useCase.Handle(new Domain.Apéro.PrendreLapéro(id)));
 
             Then((response, partieDeChasse) =>
             {
@@ -40,7 +41,7 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+                When(id => _useCase.Handle(new Domain.Apéro.PrendreLapéro(id)));
 
                 ThenFailWith(
                     $"La partie de chasse {_partieDeChasseId} n'existe pas",
@@ -57,7 +58,7 @@ namespace Bouchonnois.Tests.Unit
                             .ALapéro())
                 );
 
-                When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+                When(id => _useCase.Handle(new Domain.Apéro.PrendreLapéro(id)));
 
                 ThenFailWith("On est déjà en plein apéro");
             }
@@ -71,7 +72,7 @@ namespace Bouchonnois.Tests.Unit
                             .Terminée())
                 );
 
-                When(id => _useCase.Handle(new Domain.Commands.PrendreLapéro(id)));
+                When(id => _useCase.Handle(new Domain.Apéro.PrendreLapéro(id)));
 
                 ThenFailWith("La partie de chasse est déjà terminée");
             }

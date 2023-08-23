@@ -1,4 +1,4 @@
-namespace Bouchonnois.Domain.Events
+namespace Bouchonnois.Domain.Apéro
 {
     public sealed record ApéroDémarré(Guid Id, DateTime Date) : global::Domain.Core.Event(Id, 1, Date);
 }
