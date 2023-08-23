@@ -5,8 +5,8 @@ namespace Bouchonnois.Domain
 {
     public interface IPartieDeChasseRepository
     {
-        void Save(PartieDeChasse partieDeChasse);
-        Option<PartieDeChasse> GetById(Guid partieDeChasseId);
+        Task Save(PartieDeChasse partieDeChasse);
+        OptionAsync<PartieDeChasse> GetById(Guid partieDeChasseId);
         OptionAsync<Seq<IEvent>> EventsFor(Guid partieDeChasseId);
     }
 }

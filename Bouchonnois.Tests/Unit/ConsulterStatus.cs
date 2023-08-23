@@ -1,3 +1,4 @@
+using Domain.Core;
 using FsCheck;
 using FsCheck.Xunit;
 using static FsCheck.Arb;
@@ -24,11 +25,11 @@ namespace Bouchonnois.Tests.Unit
             public Property CarPartieNexistePas()
                 => ForAll(
                     _nonExistingPartiesDeChasse,
-                    id => FailWith(
+                    id => AsyncHelper.RunSync(() => FailWith(
                         $"La partie de chasse {id} n'existe pas",
-                        () => _useCase.Handle(new Domain.Commands.ConsulterStatus(id)),
+                        () => UseCase.Handle(new Domain.Consulter.ConsulterStatus(id)),
                         _ => true
-                    )
+                    ))
                 );
         }
     }

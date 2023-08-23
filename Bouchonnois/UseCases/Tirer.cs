@@ -2,7 +2,7 @@ using Bouchonnois.Domain;
 
 namespace Bouchonnois.UseCases
 {
-    public sealed class Tirer : PartieDeChasseUseCase<Domain.Commands.Tirer, VoidResponse>
+    public sealed class Tirer : PartieDeChasseUseCase<Domain.Tirer.Tirer, VoidResponse>
     {
         public Tirer(IPartieDeChasseRepository repository, Func<DateTime> timeProvider)
             : base(repository,

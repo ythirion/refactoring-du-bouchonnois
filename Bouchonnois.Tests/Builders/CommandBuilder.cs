@@ -1,4 +1,4 @@
-using Bouchonnois.Domain.Commands;
+using Bouchonnois.Domain.Démarrer;
 
 namespace Bouchonnois.Tests.Builders
 {
@@ -21,10 +21,10 @@ namespace Bouchonnois.Tests.Builders
             return this;
         }
 
-        public DemarrerPartieDeChasse Build() 
+        public DemarrerPartieDeChasse Build()
             => new(
                 new TerrainDeChasse("Pitibon sur Sauldre", _nbGalinettes),
                 _chasseurs.Select(c => new Chasseur(c.Item1, c.Item2))
-                );
+            );
     }
 }

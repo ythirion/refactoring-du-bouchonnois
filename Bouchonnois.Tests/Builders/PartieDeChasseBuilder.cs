@@ -1,7 +1,6 @@
 using ArchUnitNET.Domain.Extensions;
 using Bouchonnois.Domain;
-using Bouchonnois.Domain.Commands;
-using Bouchonnois.Tests.Unit;
+using Bouchonnois.Domain.Démarrer;
 using static Bouchonnois.Domain.PartieStatus;
 using static Bouchonnois.Tests.Builders.Functions;
 using Chasseur = Bouchonnois.Domain.Chasseur;
@@ -38,7 +37,7 @@ namespace Bouchonnois.Tests.Builders
             return this;
         }
 
-        public PartieDeChasse Build(Func<DateTime> timeProvider, IPartieDeChasseRepository repository)
+        public PartieDeChasse Build(Func<DateTime> timeProvider)
         {
             var builtChasseurs = _chasseurs.Select(c => c.Build()).ToArray();
             var chasseursSansBalles = builtChasseurs.Where(c => c.BallesRestantes == 0).Select(c => c.Nom);
@@ -48,7 +47,7 @@ namespace Bouchonnois.Tests.Builders
                 new DemarrerPartieDeChasse(
                     new TerrainDeChasse("Pitibon sur Sauldre", _nbGalinettes),
                     builtChasseurs
-                        .Select(c => new Domain.Commands.Chasseur(c.Nom, c.BallesRestantes > 0 ? c.BallesRestantes : 1))
+                        .Select(c => new Domain.Démarrer.Chasseur(c.Nom, c.BallesRestantes > 0 ? c.BallesRestantes : 1))
                         .ToList()
                 )
             ).RightUnsafe();

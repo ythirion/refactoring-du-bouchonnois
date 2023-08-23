@@ -1,4 +1,6 @@
-namespace Bouchonnois.Domain.Commands
+using Domain.Core;
+
+namespace Bouchonnois.Domain.Démarrer
 {
     public record DemarrerPartieDeChasse(TerrainDeChasse TerrainDeChasse, IEnumerable<Chasseur> Chasseurs) : ICommand;
 

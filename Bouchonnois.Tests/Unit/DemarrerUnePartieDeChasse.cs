@@ -1,12 +1,13 @@
 using Bouchonnois.Domain;
-using Bouchonnois.Domain.Commands;
+using Bouchonnois.Domain.Démarrer;
 using Bouchonnois.Tests.Builders;
+using Domain.Core;
 using FsCheck;
 using FsCheck.Xunit;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
 using static Bouchonnois.Tests.Unit.Generators;
 using static FsCheck.Prop;
-using Chasseur = Bouchonnois.Domain.Commands.Chasseur;
+using Chasseur = Bouchonnois.Domain.Démarrer.Chasseur;
 using DemarrerPartieDeChasse = Bouchonnois.UseCases.DemarrerPartieDeChasse;
 
 namespace Bouchonnois.Tests.Unit
@@ -23,11 +24,12 @@ namespace Bouchonnois.Tests.Unit
         {
             var command = DémarrerUnePartieDeChasse()
                 .Avec((Data.Dédé, 20), (Data.Bernard, 8), (Data.Robert, 12))
-                .SurUnTerrainRicheEnGalinettes();
+                .SurUnTerrainRicheEnGalinettes()
+                .Build();
 
-            _useCase.Handle(command.Build());
+            UseCase.Handle(command);
 
-            return Verify(Repository.SavedPartieDeChasse())
+            return Verify(Repository.LastEvent())
                 .DontScrubDateTimes();
         }
 
@@ -39,13 +41,14 @@ namespace Bouchonnois.Tests.Unit
 
         private bool DémarreLaPartieAvecSuccès((string nom, int nbGalinettes) terrain,
             IEnumerable<(string nom, int nbBalles)> chasseurs)
-            => _useCase.Handle(ToCommand(terrain, chasseurs))
+            => UseCase
+                .Handle(ToCommand(terrain, chasseurs))
                 .RightUnsafe() == Repository.SavedPartieDeChasse()!.Id;
 
-        private static Domain.Commands.DemarrerPartieDeChasse ToCommand((string nom, int nbGalinettes) terrain,
+        private static Domain.Démarrer.DemarrerPartieDeChasse ToCommand((string nom, int nbGalinettes) terrain,
             IEnumerable<(string nom, int nbBalles)> chasseurs)
         {
-            return new Domain.Commands.DemarrerPartieDeChasse(
+            return new Domain.Démarrer.DemarrerPartieDeChasse(
                 new TerrainDeChasse(terrain.nom, terrain.nbGalinettes),
                 chasseurs.Select(c => new Chasseur(c.nom, c.nbBalles)));
         }
@@ -94,12 +97,14 @@ namespace Bouchonnois.Tests.Unit
                             savedPartieDeChasse => savedPartieDeChasse == null)
                 );
 
+
             private bool EchoueAvec(
                 string message,
                 (string nom, int nbGalinettes) terrain,
                 IEnumerable<(string nom, int nbBalles)> chasseurs,
                 Func<PartieDeChasse?, bool>? assert = null) =>
-                FailWith(message, () => _useCase.Handle(ToCommand(terrain, chasseurs)), assert);
+                AsyncHelper.RunSync(
+                    () => FailWith(message, () => UseCase.Handle(ToCommand(terrain, chasseurs)), assert));
         }
     }
 }

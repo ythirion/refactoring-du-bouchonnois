@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Bouchonnois.Domain.Apéro;
-using Bouchonnois.Domain.Commands;
+using Bouchonnois.Domain.Démarrer;
 using Domain.Core;
 using LanguageExt;
 using static System.String;
@@ -68,9 +68,9 @@ namespace Bouchonnois.Domain
         }
 
         private static bool IsTerrainValide(TerrainDeChasse terrainDeChasse) => terrainDeChasse.NbGalinettes > 0;
-        private static bool ContainsChasseurs(Commands.Chasseur[] chasseurs) => chasseurs.Any();
+        private static bool ContainsChasseurs(Démarrer.Chasseur[] chasseurs) => chasseurs.Any();
 
-        private static bool AuMoinsUnChasseurNaPasDeBalles(Commands.Chasseur[] chasseurs)
+        private static bool AuMoinsUnChasseurNaPasDeBalles(Démarrer.Chasseur[] chasseurs)
             => chasseurs.Exists(c => c.NbBalles == 0);
 
         private void EmitPartieDémarrée(Func<DateTime> timeProvider)

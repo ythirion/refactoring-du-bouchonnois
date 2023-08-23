@@ -1,3 +1,4 @@
+using Bouchonnois.Domain.Tirer;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.UseCases;
 
@@ -5,20 +6,20 @@ namespace Bouchonnois.Tests.Unit
 {
     public class Tirer : UseCaseTest<UseCases.Tirer, VoidResponse>
     {
-        public Tirer() : base((r, p) => new UseCases.Tirer(r, p))
+        public Tirer() : base((r, p) => new UseCases.Tirer(r, TimeProvider))
         {
         }
 
         [Fact]
-        public void AvecUnChasseurAyantDesBalles()
+        public async Task AvecUnChasseurAyantDesBalles()
         {
             Given(
-                UnePartieDeChasseExistante(
+                await UnePartieDeChasseExistante(
                     SurUnTerrainRicheEnGalinettes()
                         .Avec(Bernard())
                 ));
 
-            When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
+            When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
 
 
             Then((response, savedPartieDeChasse) =>
@@ -26,15 +27,17 @@ namespace Bouchonnois.Tests.Unit
                 response.Should().Be(VoidResponse.Empty);
                 savedPartieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Now, "Bernard tire").And
-                    .ChasseurATiré(Data.Bernard, ballesRestantes: 7).And
+                    .HaveEmittedEvent(Repository, new ChasseurATiré(savedPartieDeChasse!.Id, Now, Data.Bernard))
+                    .And
+                    .ChasseurATiré(Data.Bernard, ballesRestantes: 7)
+                    .And
                     .GalinettesSurLeTerrain(3);
             });
         }
 
         public class Echoue : UseCaseTest<UseCases.Tirer, VoidResponse>
         {
-            public Echoue() : base((r, p) => new UseCases.Tirer(r, p))
+            public Echoue() : base((r, p) => new UseCases.Tirer(r, TimeProvider))
             {
             }
 
@@ -44,84 +47,90 @@ namespace Bouchonnois.Tests.Unit
                 Given(UnePartieDeChasseInexistante());
 
                 When(partieDeChasseId =>
-                    _useCase.Handle(new Domain.Commands.Tirer(partieDeChasseId, Data.Bernard)));
+                    UseCase.Handle(new Domain.Tirer.Tirer(partieDeChasseId, Data.Bernard)));
 
                 ThenFailWith(
-                    $"La partie de chasse {_partieDeChasseId} n'existe pas",
+                    $"La partie de chasse {PartieDeChasseId} n'existe pas",
                     savedPartieDeChasse => savedPartieDeChasse.Should().BeNull()
                 );
             }
 
             [Fact]
-            public void CarLeChasseurNestPasDansLaPartie()
+            public async Task CarLeChasseurNestPasDansLaPartie()
             {
                 Given(
-                    UnePartieDeChasseExistante(
+                    await UnePartieDeChasseExistante(
                         SurUnTerrainRicheEnGalinettes()
                     ));
 
-                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
+                When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
 
-                ThenFailWith("Chasseur inconnu Chasseur inconnu",
-                    savedPartieDeChasse => savedPartieDeChasse.Should().HaveEmittedEvent(Now,
-                        "Chasseur inconnu Chasseur inconnu")
+                ThenFailWith($"Chasseur inconnu Chasseur inconnu",
+                    savedPartieDeChasse => savedPartieDeChasse
+                        .Should()
+                        .HaveEmittedEvent(Repository,
+                            new ChasseurInconnuAVouluTiré(savedPartieDeChasse!.Id, Now, Data.ChasseurInconnu))
                 );
             }
 
             [Fact]
-            public void AvecUnChasseurNayantPlusDeBalles()
+            public async Task AvecUnChasseurNayantPlusDeBalles()
             {
                 Given(
-                    UnePartieDeChasseExistante(
+                    await UnePartieDeChasseExistante(
                         SurUnTerrainRicheEnGalinettes()
                             .Avec(Dédé(), Bernard().SansBalles(), Robert())
                     ));
 
-                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
+                When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
 
                 ThenFailWith("Bernard tire -> T'as plus de balles mon vieux, chasse à la main",
-                    savedPartieDeChasse => savedPartieDeChasse.Should().HaveEmittedEvent(Now,
-                        "Bernard tire -> T'as plus de balles mon vieux, chasse à la main")
+                    savedPartieDeChasse => savedPartieDeChasse
+                        .Should()
+                        .HaveEmittedEvent(Repository,
+                            new ChasseurSansBallesAVouluTiré(savedPartieDeChasse!.Id, Now, Data.Bernard, "tire"))
                 );
             }
 
             [Fact]
-            public void SiLesChasseursSontEnApero()
+            public async Task SiLesChasseursSontEnApero()
             {
                 Given(
-                    UnePartieDeChasseExistante(
+                    await UnePartieDeChasseExistante(
                         SurUnTerrainRicheEnGalinettes()
                             .ALapéro()
                     ));
 
-                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
+                When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
 
-                ThenFailWith(
-                    "Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!",
+                ThenFailWith("Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!",
                     savedPartieDeChasse =>
                         savedPartieDeChasse
                             .Should()
-                            .HaveEmittedEvent(Now,
-                                "Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"));
+                            .HaveEmittedEvent(Repository,
+                                new ChasseurAVouluTiréPendantLApéro(savedPartieDeChasse!.Id, Now, Data.ChasseurInconnu))
+                );
             }
 
             [Fact]
-            public void SiLaPartieDeChasseEstTerminée()
+            public async Task SiLaPartieDeChasseEstTerminée()
             {
                 Given(
-                    UnePartieDeChasseExistante(
+                    await UnePartieDeChasseExistante(
                         SurUnTerrainRicheEnGalinettes()
                             .Terminée()
                     ));
 
-                When(id => _useCase.Handle(new Domain.Commands.Tirer(id, Data.ChasseurInconnu)));
+                When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith("Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée",
                     savedPartieDeChasse =>
                         savedPartieDeChasse
                             .Should()
-                            .HaveEmittedEvent(Now,
-                                "Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée"));
+                            .HaveEmittedEvent(Repository,
+                                new ChasseurAVouluTiréQuandPartieTerminée(savedPartieDeChasse!.Id, Now,
+                                    Data.ChasseurInconnu))
+                );
             }
         }
     }

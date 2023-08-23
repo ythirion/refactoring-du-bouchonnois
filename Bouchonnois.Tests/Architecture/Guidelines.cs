@@ -4,7 +4,7 @@ using ArchUnitNET.Fluent.Syntax.Elements.Types.Classes;
 using Domain.Core;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 using static LanguageExt.List;
-using ICommand = Bouchonnois.Domain.Commands.ICommand;
+using ICommand = Bouchonnois.Domain.ICommand;
 
 namespace Bouchonnois.Tests.Architecture
 {

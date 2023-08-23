@@ -1,13 +1,9 @@
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
-using Bouchonnois.Tests.Unit;
 using Bouchonnois.UseCases;
 using Domain.Core;
 using FluentAssertions.Extensions;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
-using ConsulterStatus = Bouchonnois.UseCases.ConsulterStatus;
-using Tirer = Bouchonnois.UseCases.Tirer;
-using TirerSurUneGalinette = Bouchonnois.UseCases.TirerSurUneGalinette;
 
 namespace Bouchonnois.Tests.Acceptance
 {
@@ -47,32 +43,32 @@ namespace Bouchonnois.Tests.Acceptance
 
             var id = _demarrerPartieDeChasse.Handle(command.Build()).RightUnsafe();
 
-            After(10.Minutes(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Dédé)));
+            After(10.Minutes(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Dédé)));
             After(30.Minutes(),
-                () => _tirerSurUneGalinette.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Robert)));
+                () => _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
             After(20.Minutes(), () => _prendreLapéro.Handle(new Domain.Apéro.PrendreLapéro(id)));
-            After(1.Hours(), () => _reprendreLaPartie.Handle(new Domain.Commands.ReprendreLaPartie(id)));
-            After(2.Minutes(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
-            After(1.Minutes(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
+            After(1.Hours(), () => _reprendreLaPartie.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
+            After(2.Minutes(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            After(1.Minutes(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
             After(1.Minutes(),
-                () => _tirerSurUneGalinette.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Dédé)));
+                () => _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Dédé)));
             After(26.Minutes(),
-                () => _tirerSurUneGalinette.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Robert)));
+                () => _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
             After(10.Minutes(), () => _prendreLapéro.Handle(new Domain.Apéro.PrendreLapéro(id)));
-            After(170.Minutes(), () => _reprendreLaPartie.Handle(new Domain.Commands.ReprendreLaPartie(id)));
-            After(11.Minutes(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Commands.Tirer(id, Data.Bernard)));
+            After(170.Minutes(), () => _reprendreLaPartie.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
+            After(11.Minutes(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
             After(19.Minutes(),
-                () => _tirerSurUneGalinette.Handle(new Domain.Commands.TirerSurUneGalinette(id, Data.Robert)));
-            After(30.Minutes(), () => _terminerLaPartie.Handle(new Domain.Commands.TerminerLaPartie(id)));
+                () => _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
+            After(30.Minutes(), () => _terminerLaPartie.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
             return Verify(
-                _consulterStatus.Handle(new Domain.Commands.ConsulterStatus(id)).RightUnsafe()
+                _consulterStatus.Handle(new Domain.Consulter.ConsulterStatus(id)).RightUnsafe()
             );
         }
 

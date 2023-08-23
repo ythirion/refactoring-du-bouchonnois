@@ -1,142 +1,145 @@
+using Bouchonnois.Domain.Terminer;
 using Bouchonnois.Tests.Builders;
-using Bouchonnois.UseCases;
+using TerminerLaPartie = Bouchonnois.UseCases.TerminerLaPartie;
 
 namespace Bouchonnois.Tests.Unit
 {
     public class TerminerLaPartieDeChasse : UseCaseTest<TerminerLaPartie, string>
     {
-        public TerminerLaPartieDeChasse() : base((r, p) => new TerminerLaPartie(r, p))
+        public TerminerLaPartieDeChasse() : base((r, p) => new TerminerLaPartie(r, TimeProvider))
         {
         }
 
         [Fact]
-        public void QuandLaPartieEstEnCoursEt1SeulChasseurGagne()
+        public async Task QuandLaPartieEstEnCoursEt1SeulChasseurGagne()
         {
             Given(
-                UnePartieDeChasseExistante(
+                await UnePartieDeChasseExistante(
                     SurUnTerrainRicheEnGalinettes()
                         .Avec(Dédé(), Bernard(), Robert().AyantTué(2))
                 ));
 
-            When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+            When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
             Then((winner, savedPartieDeChasse) =>
             {
                 savedPartieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes");
+                    .HaveEmittedEvent(Repository, new PartieTerminée(savedPartieDeChasse!.Id, Now, Data.Robert, 2));
 
                 winner.Should().Be(Data.Robert);
             });
         }
 
         [Fact]
-        public void QuandLaPartieEstEnCoursEt1SeulChasseurDansLaPartie()
+        public async Task QuandLaPartieEstEnCoursEt1SeulChasseurDansLaPartie()
         {
             Given(
-                UnePartieDeChasseExistante(
+                await UnePartieDeChasseExistante(
                     SurUnTerrainRicheEnGalinettes()
                         .Avec(Robert().AyantTué(2))
                 )
             );
 
-            When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+            When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
             Then((winner, savedPartieDeChasse) =>
             {
                 savedPartieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Now, "La partie de chasse est terminée, vainqueur : Robert - 2 galinettes");
+                    .HaveEmittedEvent(Repository, new PartieTerminée(savedPartieDeChasse!.Id, Now, Data.Robert, 2));
 
                 winner.Should().Be(Data.Robert);
             });
         }
 
         [Fact]
-        public void QuandLaPartieEstEnCoursEt2ChasseursExAequo()
+        public async Task QuandLaPartieEstEnCoursEt2ChasseursExAequo()
         {
             Given(
-                UnePartieDeChasseExistante(
+                await UnePartieDeChasseExistante(
                     SurUnTerrainRicheEnGalinettes(4)
                         .Avec(Dédé().AyantTué(2), Bernard().AyantTué(2), Robert())
                 )
             );
 
-            When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+            When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
             Then((winner, savedPartieDeChasse) =>
             {
                 savedPartieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Now,
-                        "La partie de chasse est terminée, vainqueur : Dédé - 2 galinettes, Bernard - 2 galinettes");
+                    .HaveEmittedEvent(Repository,
+                        new PartieTerminée(savedPartieDeChasse!.Id, Now, 2, Data.Dédé, Data.Bernard));
 
                 winner.Should().Be("Dédé, Bernard");
             });
         }
 
         [Fact]
-        public void QuandLaPartieEstEnCoursEtToutLeMondeBrocouille()
+        public async Task QuandLaPartieEstEnCoursEtToutLeMondeBrocouille()
         {
             Given(
-                UnePartieDeChasseExistante(
+                await UnePartieDeChasseExistante(
                     SurUnTerrainRicheEnGalinettes()
                 )
             );
 
-            When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+            When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
             Then((winner, savedPartieDeChasse) =>
             {
                 savedPartieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Now,
-                        "La partie de chasse est terminée, vainqueur : Brocouille");
+                    .HaveEmittedEvent(Repository, new PartieTerminée(savedPartieDeChasse!.Id, Now, "Brocouille", 0));
 
                 winner.Should().Be("Brocouille");
             });
         }
 
         [Fact]
-        public void QuandLesChasseursSontALaperoEtTousExAequo()
+        public async Task QuandLesChasseursSontALaperoEtTousExAequo()
         {
             Given(
-                UnePartieDeChasseExistante(
+                await UnePartieDeChasseExistante(
                     SurUnTerrainRicheEnGalinettes(12)
                         .Avec(Dédé().AyantTué(3), Bernard().AyantTué(3), Robert().AyantTué(3))
                         .ALapéro()
                 )
             );
 
-            When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+            When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
             Then((winner, savedPartieDeChasse) =>
             {
+                var partieExAequoTerminée =
+                    new PartieTerminée(savedPartieDeChasse!.Id, Now, 3, Data.Dédé, Data.Bernard, Data.Robert);
                 savedPartieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Now,
-                        "La partie de chasse est terminée, vainqueur : Dédé - 3 galinettes, Bernard - 3 galinettes, Robert - 3 galinettes");
+                    .HaveEmittedEvent(Repository, partieExAequoTerminée);
 
+                partieExAequoTerminée.ToString().Should()
+                    .Be("La partie de chasse est terminée, vainqueur : Dédé, Bernard, Robert - 3 galinettes");
                 winner.Should().Be("Dédé, Bernard, Robert");
             });
         }
 
         public class Echoue : UseCaseTest<TerminerLaPartie, string>
         {
-            public Echoue() : base((r, p) => new TerminerLaPartie(r, p))
+            public Echoue() : base((r, p) => new TerminerLaPartie(r, TimeProvider))
             {
             }
 
             [Fact]
-            public void SiLaPartieDeChasseEstDéjàTerminée()
+            public async Task SiLaPartieDeChasseEstDéjàTerminée()
             {
                 Given(
-                    UnePartieDeChasseExistante(
+                    await UnePartieDeChasseExistante(
                         SurUnTerrainRicheEnGalinettes()
                             .Terminée())
                 );
 
-                When(id => _useCase.Handle(new Domain.Commands.TerminerLaPartie(id)));
+                When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
                 ThenFailWith("Quand c'est fini, c'est fini");
             }

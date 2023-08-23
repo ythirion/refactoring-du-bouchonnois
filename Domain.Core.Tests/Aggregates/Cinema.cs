@@ -1,21 +1,18 @@
-using Domain.Core;
+namespace Domain.Core.Tests.Aggregates;
 
-namespace Domain.Core.Tests.Aggregates
+public class Cinema : Aggregate
 {
-    public class Cinema : Aggregate
+    private string? _name;
+    private string? _city;
+    private Cinema(Guid id, Func<DateTime> timeProvider) : base(timeProvider, true) => Id = id;
+
+    public Cinema(Guid id, Func<DateTime> timeProvider, string name, string city) : this(id, timeProvider)
+        => RaiseEvent(new CinemaCreated(id, Time(), name, city));
+
+    private void Apply(CinemaCreated @event)
     {
-        private string? _name;
-        private string? _city;
-        private Cinema(Guid id, Func<DateTime> timeProvider) : base(timeProvider, true) => Id = id;
-
-        public Cinema(Guid id, Func<DateTime> timeProvider, string name, string city) : this(id, timeProvider)
-            => RaiseEvent(new CinemaCreated(id, Time(), name, city));
-
-        private void Apply(CinemaCreated @event)
-        {
-            _name = @event.Name;
-            _city = @event.City;
-        }
+        _name = @event.Name;
+        _city = @event.City;
     }
 }
 

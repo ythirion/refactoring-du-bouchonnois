@@ -1,4 +1,4 @@
-namespace Bouchonnois.Domain.Commands
+namespace Bouchonnois.Domain
 {
     public interface ICommand
     {

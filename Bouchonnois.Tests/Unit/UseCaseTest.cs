@@ -11,42 +11,42 @@ namespace Bouchonnois.Tests.Unit
     {
         protected static readonly DateTime Now = new(2024, 6, 6, 14, 50, 45);
         protected static readonly Func<DateTime> TimeProvider = () => Now;
-        protected static List<(string, int)> PasDeChasseurs => new();
+        protected static IEnumerable<(string, int)> PasDeChasseurs => new List<(string, int)>();
     }
 
     public abstract class UseCaseTest<TUseCase, TSuccessResponse> : UseCaseTest
     {
         protected readonly PartieDeChasseRepositoryForTests Repository;
-        protected readonly TUseCase _useCase;
-        protected Guid _partieDeChasseId;
+        protected readonly TUseCase UseCase;
+        protected Guid PartieDeChasseId;
 
         protected UseCaseTest(Func<IPartieDeChasseRepository, Func<DateTime>, TUseCase> useCaseFactory)
         {
             Repository = new PartieDeChasseRepositoryForTests(new InMemoryEventStore(TimeProvider));
-            _useCase = useCaseFactory(Repository, TimeProvider);
+            UseCase = useCaseFactory(Repository, TimeProvider);
         }
 
-        protected PartieDeChasse UnePartieDeChasseExistante(PartieDeChasseBuilder partieDeChasseBuilder)
+        protected async Task<PartieDeChasse> UnePartieDeChasseExistante(PartieDeChasseBuilder partieDeChasseBuilder)
         {
-            var partieDeChasse = partieDeChasseBuilder.Build(TimeProvider, Repository);
-            Repository.Add(partieDeChasse);
+            var partieDeChasse = partieDeChasseBuilder.Build(TimeProvider);
+            await Repository.Save(partieDeChasse);
 
             return partieDeChasse;
         }
 
-        protected PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
+        private PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
 
         #region Given / When / Then DSL
 
-        protected void Given(Guid partieDeChasseId) => _partieDeChasseId = partieDeChasseId;
+        protected void Given(Guid partieDeChasseId) => PartieDeChasseId = partieDeChasseId;
         protected void Given(PartieDeChasse unePartieDeChasseExistante) => Given(unePartieDeChasseExistante.Id);
 
-        private Func<Guid, Either<Error, TSuccessResponse>>? _act;
-        protected void When(Func<Guid, Either<Error, TSuccessResponse>>? act) => _act = act;
+        private Func<Guid, EitherAsync<Error, TSuccessResponse>>? _act;
+        protected void When(Func<Guid, EitherAsync<Error, TSuccessResponse>>? act) => _act = act;
 
         protected void Then(Action<TSuccessResponse, PartieDeChasse?> assert)
         {
-            var result = _act!(_partieDeChasseId);
+            var result = _act!(PartieDeChasseId);
             result.Should().BeRight();
             result.IfRight(r => assert(r, SavedPartieDeChasse()));
         }
@@ -54,7 +54,7 @@ namespace Bouchonnois.Tests.Unit
         protected void ThenFailWith(string expectedErrorMessage,
             Action<PartieDeChasse?>? assertSavedPartieDeChasse = null)
         {
-            var result = _act!(_partieDeChasseId);
+            var result = _act!(PartieDeChasseId);
             result.Should().BeLeft();
             result.IfLeft(r =>
             {
@@ -63,14 +63,14 @@ namespace Bouchonnois.Tests.Unit
             });
         }
 
-        protected bool FailWith(
+        protected async Task<bool> FailWith(
             string errorMessage,
-            Func<Either<Error, TSuccessResponse>> func,
+            Func<EitherAsync<Error, TSuccessResponse>> func,
             Func<PartieDeChasse?, bool>? assert = null)
         {
-            var result = func();
+            var result = await func().AsTask();
 
-            if (result.IsLeft)
+            if (await result.IsLeft)
             {
                 return result.LeftUnsafe().Message == errorMessage
                        && (assert?.Invoke(SavedPartieDeChasse()) ?? true);

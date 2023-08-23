@@ -3,7 +3,7 @@ using LanguageExt;
 
 namespace Bouchonnois.UseCases
 {
-    public sealed class DemarrerPartieDeChasse : IUseCase<Domain.Commands.DemarrerPartieDeChasse, Guid>
+    public sealed class DemarrerPartieDeChasse : IUseCase<Domain.Démarrer.DemarrerPartieDeChasse, Guid>
     {
         private readonly IPartieDeChasseRepository _repository;
         private readonly Func<DateTime> _timeProvider;
@@ -14,8 +14,8 @@ namespace Bouchonnois.UseCases
             _timeProvider = timeProvider;
         }
 
-        public Either<Error, Guid> Handle(Domain.Commands.DemarrerPartieDeChasse demarrerPartieDeChasse)
-            => PartieDeChasse.Create(_timeProvider, demarrerPartieDeChasse)
+        public EitherAsync<Error, Guid> Handle(Domain.Démarrer.DemarrerPartieDeChasse demarrerPartieDeChasse)
+            => PartieDeChasse.Create(_timeProvider, demarrerPartieDeChasse).ToAsync()
                 .Do(p => _repository.Save(p))
                 .Map(p => p.Id);
     }

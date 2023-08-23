@@ -1,4 +1,6 @@
+using Bouchonnois.Domain.Reprendre;
 using Bouchonnois.UseCases;
+using ReprendreLaPartie = Bouchonnois.UseCases.ReprendreLaPartie;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -9,25 +11,27 @@ namespace Bouchonnois.Tests.Unit
         }
 
         [Fact]
-        public void QuandLapéroEstEnCours()
+        public async Task QuandLapéroEstEnCours()
         {
             Given(
-                UnePartieDeChasseExistante(
+                await UnePartieDeChasseExistante(
                     SurUnTerrainRicheEnGalinettes()
                         .ALapéro()
                 ));
 
-            When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
+            When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
-            Then((_, savedPartieDeChasse) => savedPartieDeChasse.Should()
-                .HaveEmittedEvent(Now, "Reprise de la chasse")
-                .And
-                .BeEnCours());
+            Then((_, savedPartieDeChasse) =>
+                savedPartieDeChasse
+                    .Should()
+                    .HaveEmittedEvent(Repository, new PartieReprise(savedPartieDeChasse!.Id, Now))
+                    .And
+                    .BeEnCours());
         }
 
         public class Echoue : UseCaseTest<ReprendreLaPartie, VoidResponse>
         {
-            public Echoue() : base((r, p) => new ReprendreLaPartie(r, p))
+            public Echoue() : base((r, p) => new ReprendreLaPartie(r, TimeProvider))
             {
             }
 
@@ -36,35 +40,37 @@ namespace Bouchonnois.Tests.Unit
             {
                 Given(UnePartieDeChasseInexistante());
 
-                When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
+                When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
                 ThenFailWith(
-                    $"La partie de chasse {_partieDeChasseId} n'existe pas",
+                    $"La partie de chasse {PartieDeChasseId} n'existe pas",
                     savedPartieDeChasse => savedPartieDeChasse.Should().BeNull()
                 );
             }
 
             [Fact]
-            public void SiLaChasseEstEnCours()
+            public async Task SiLaChasseEstEnCours()
             {
-                Given(UnePartieDeChasseExistante(
-                    SurUnTerrainRicheEnGalinettes()
-                ));
+                Given(
+                    await UnePartieDeChasseExistante(
+                        SurUnTerrainRicheEnGalinettes()
+                    ));
 
-                When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
+                When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
                 ThenFailWith($"La partie de chasse est déjà en cours");
             }
 
             [Fact]
-            public void SiLaPartieDeChasseEstTerminée()
+            public async Task SiLaPartieDeChasseEstTerminée()
             {
-                Given(UnePartieDeChasseExistante(
-                    SurUnTerrainRicheEnGalinettes()
-                        .Terminée()
-                ));
+                Given(
+                    await UnePartieDeChasseExistante(
+                        SurUnTerrainRicheEnGalinettes()
+                            .Terminée()
+                    ));
 
-                When(id => _useCase.Handle(new Domain.Commands.ReprendreLaPartie(id)));
+                When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
                 ThenFailWith("La partie de chasse est déjà terminée");
             }
