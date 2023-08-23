@@ -1,4 +1,5 @@
 using Bouchonnois.Domain.Démarrer;
+using Domain.Core;
 using LanguageExt;
 
 namespace Bouchonnois.Domain
@@ -51,6 +52,7 @@ namespace Bouchonnois.Domain
             );
         }
 
+        [EventSourced]
         private void Apply(PartieDeChasseDémarrée @event)
         {
             Id = @event.Id;

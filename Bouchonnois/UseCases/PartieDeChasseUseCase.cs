@@ -29,9 +29,6 @@ namespace Bouchonnois.UseCases
             => _handler(partieDeChasse, command).ToAsync()
                 .Let(_ => _repository.Save(partieDeChasse));
 
-        protected static Either<Error, VoidResponse> ToEmpty(Either<Error, PartieDeChasse> either)
-            => either.Map(_ => VoidResponse.Empty);
-
         protected static Either<Error, VoidResponse> ToEmpty(Either<Error, Unit> either)
             => either.Map(_ => VoidResponse.Empty);
     }

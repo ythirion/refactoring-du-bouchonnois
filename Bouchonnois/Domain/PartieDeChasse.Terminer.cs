@@ -1,4 +1,5 @@
 using Bouchonnois.Domain.Terminer;
+using Domain.Core;
 using LanguageExt;
 
 namespace Bouchonnois.Domain;
@@ -31,5 +32,6 @@ public sealed partial class PartieDeChasse
     private static bool TousBrocouilles(IEnumerable<IGrouping<int, Chasseur>> classement) =>
         classement.All(group => group.Key == 0);
 
+    [EventSourced]
     private void Apply(PartieTerminée @event) => _status = PartieStatus.Terminée;
 }
