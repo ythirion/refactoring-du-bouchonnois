@@ -31,5 +31,8 @@ namespace Bouchonnois.UseCases
 
         protected static Either<Error, VoidResponse> ToEmpty(Either<Error, PartieDeChasse> either)
             => either.Map(_ => VoidResponse.Empty);
+
+        protected static Either<Error, VoidResponse> ToEmpty(Either<Error, Unit> either)
+            => either.Map(_ => VoidResponse.Empty);
     }
 }

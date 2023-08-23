@@ -6,6 +6,7 @@ using LanguageExt;
 using static System.String;
 using static Bouchonnois.Domain.Error;
 using static Bouchonnois.Domain.PartieStatus;
+using static LanguageExt.Unit;
 
 namespace Bouchonnois.Domain
 {
@@ -82,7 +83,7 @@ namespace Bouchonnois.Domain
 
         #region Apéro
 
-        public Either<Error, PartieDeChasse> PrendreLapéro(Func<DateTime> timeProvider)
+        public Either<Error, Unit> PrendreLapéro(Func<DateTime> timeProvider)
         {
             if (DuringApéro())
             {
@@ -94,12 +95,13 @@ namespace Bouchonnois.Domain
                 return AnError("La partie de chasse est déjà terminée");
             }
 
-            Status = Apéro;
             RaiseEvent(new ApéroDémarré(Id, timeProvider()));
             EmitEvent("Petit apéro", timeProvider);
 
-            return this;
+            return Default;
         }
+
+        private void Apply(ApéroDémarré @event) => Status = Apéro;
 
         #endregion
 
