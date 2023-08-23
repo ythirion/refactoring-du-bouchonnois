@@ -52,10 +52,10 @@ namespace Bouchonnois.Tests.Builders
                 )
             ).RightUnsafe();
 
-            TirerSurLesGalinettes(partieDeChasse, timeProvider, builtChasseurs);
+            TirerSurLesGalinettes(partieDeChasse, builtChasseurs);
             TirerDansLeVide(partieDeChasse, timeProvider, chasseursSansBalles);
 
-            ChangeStatus(partieDeChasse, timeProvider);
+            ChangeStatus(partieDeChasse);
 
             return partieDeChasse;
         }
@@ -68,22 +68,15 @@ namespace Bouchonnois.Tests.Builders
 
         private static void TirerSurLesGalinettes(
             PartieDeChasse partieDeChasse,
-            Func<DateTime> timeProvider,
             IEnumerable<Chasseur> builtChasseurs) =>
-            partieDeChasse
-                .Chasseurs
-                .ForEach(c =>
-                {
-                    var built = builtChasseurs.First(x => x.Nom == c.Nom);
-                    Repeat(built.NbGalinettes,
-                        () => partieDeChasse.TirerSurUneGalinette(built.Nom));
-                });
+            builtChasseurs
+                .ToList()
+                .ForEach(c => Repeat(c.NbGalinettes, () => partieDeChasse.TirerSurUneGalinette(c.Nom)));
 
-        private void ChangeStatus(PartieDeChasse partieDeChasse, Func<DateTime> timeProvider) =>
-            _status.ForEach(status => ChangeStatus(partieDeChasse, status, timeProvider));
+        private void ChangeStatus(PartieDeChasse partieDeChasse) =>
+            _status.ForEach(status => ChangeStatus(partieDeChasse, status));
 
-        private static void ChangeStatus(PartieDeChasse partieDeChasse, PartieStatus status,
-            Func<DateTime> timeProvider)
+        private static void ChangeStatus(PartieDeChasse partieDeChasse, PartieStatus status)
         {
             if (status == PartieStatus.Terminée) partieDeChasse.Terminer();
             else if (status == Apéro) partieDeChasse.PrendreLapéro();

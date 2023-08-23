@@ -26,9 +26,7 @@ namespace Bouchonnois.Tests.Unit
                 savedPartieDeChasse
                     .Should()
                     .HaveEmittedEvent(Repository,
-                        new ChasseurATiréSurUneGalinette(savedPartieDeChasse!.Id, Now, Data.Bernard)).And
-                    .ChasseurATiréSurUneGalinette(Data.Bernard, ballesRestantes: 7, galinettes: 1).And
-                    .GalinettesSurLeTerrain(2);
+                        new ChasseurATiréSurUneGalinette(savedPartieDeChasse!.Id, Now, Data.Bernard));
             });
         }
 

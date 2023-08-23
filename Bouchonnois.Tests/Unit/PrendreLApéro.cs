@@ -26,9 +26,7 @@ namespace Bouchonnois.Tests.Unit
                 response.Should().Be(VoidResponse.Empty);
                 partieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Repository, new ApéroDémarré(partieDeChasse!.Id, Now))
-                    .And
-                    .BeInApéro();
+                    .HaveEmittedEvent(Repository, new ApéroDémarré(partieDeChasse!.Id, Now));
             });
         }
 

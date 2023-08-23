@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using Bouchonnois.Domain.Apéro;
+﻿using Bouchonnois.Domain.Apéro;
 using Bouchonnois.Domain.Démarrer;
 using Bouchonnois.Domain.Reprendre;
 using Bouchonnois.Domain.Terminer;
@@ -17,10 +16,10 @@ namespace Bouchonnois.Domain
 {
     public sealed class PartieDeChasse : Aggregate
     {
+        private PartieStatus _status;
         private Arr<Chasseur> _chasseurs = Arr<Chasseur>.Empty;
-        public IReadOnlyList<Chasseur> Chasseurs => _chasseurs.ToImmutableArray();
-        public Terrain? Terrain { get; private set; }
-        public PartieStatus Status { get; private set; }
+        private Terrain? _terrain;
+
         private PartieDeChasse(Guid id, Func<DateTime> timeProvider) : base(timeProvider) => Id = id;
 
         #region Create
@@ -73,8 +72,8 @@ namespace Bouchonnois.Domain
         {
             Id = @event.Id;
             _chasseurs = @event.Chasseurs.Map(c => new Chasseur(c.Nom, c.BallesRestantes)).ToArray();
-            Terrain = new Terrain(@event.Terrain.Nom, @event.Terrain.NbGalinettes);
-            Status = EnCours;
+            _terrain = new Terrain(@event.Terrain.Nom, @event.Terrain.NbGalinettes);
+            _status = EnCours;
         }
 
         private static bool IsTerrainValide(TerrainDeChasse terrainDeChasse) => terrainDeChasse.NbGalinettes > 0;
@@ -104,7 +103,7 @@ namespace Bouchonnois.Domain
             return Default;
         }
 
-        private void Apply(ApéroDémarré @event) => Status = PartieStatus.Apéro;
+        private void Apply(ApéroDémarré @event) => _status = PartieStatus.Apéro;
 
         #endregion
 
@@ -127,7 +126,7 @@ namespace Bouchonnois.Domain
             return Default;
         }
 
-        private void Apply(PartieReprise @event) => Status = EnCours;
+        private void Apply(PartieReprise @event) => _status = EnCours;
 
         #endregion
 
@@ -174,7 +173,7 @@ namespace Bouchonnois.Domain
         private static bool TousBrocouilles(IEnumerable<IGrouping<int, Chasseur>> classement) =>
             classement.All(group => group.Key == 0);
 
-        private void Apply(PartieTerminée @event) => Status = Terminée;
+        private void Apply(PartieTerminée @event) => _status = Terminée;
 
         #endregion
 
@@ -228,7 +227,7 @@ namespace Bouchonnois.Domain
         #region Tirer sur une Galinette
 
         public Either<Error, Unit> TirerSurUneGalinette(string chasseur)
-            => Terrain is {NbGalinettes: 0}
+            => _terrain is {NbGalinettes: 0}
                 ? RaiseEventAndReturnAnError((id, time) => new ChasseurACruTiréSurGalinette(id, time, chasseur))
                 : Tirer(chasseur,
                     intention: "veut tirer sur une galinette",
@@ -239,14 +238,14 @@ namespace Bouchonnois.Domain
             var chasseur = RetrieveChasseur(@event.Chasseur);
             chasseur.ATiré();
             chasseur.ATué();
-            Terrain!.UneGalinetteEnMoins();
+            _terrain!.UneGalinetteEnMoins();
         }
 
         #endregion
 
-        private bool DuringApéro() => Status == PartieStatus.Apéro;
-        private bool DéjàTerminée() => Status == Terminée;
-        private bool DéjàEnCours() => Status == EnCours;
+        private bool DuringApéro() => _status == PartieStatus.Apéro;
+        private bool DéjàTerminée() => _status == Terminée;
+        private bool DéjàEnCours() => _status == EnCours;
         private bool ChasseurExiste(string chasseur) => _chasseurs.Exists(c => c.Nom == chasseur);
         private Chasseur RetrieveChasseur(string chasseur) => _chasseurs.ToList().Find(c => c.Nom == chasseur)!;
 

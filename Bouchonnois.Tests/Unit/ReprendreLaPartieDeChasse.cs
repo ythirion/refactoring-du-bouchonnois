@@ -24,9 +24,7 @@ namespace Bouchonnois.Tests.Unit
             Then((_, savedPartieDeChasse) =>
                 savedPartieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Repository, new PartieReprise(savedPartieDeChasse!.Id, Now))
-                    .And
-                    .BeEnCours());
+                    .HaveEmittedEvent(Repository, new PartieReprise(savedPartieDeChasse!.Id, Now)));
         }
 
         public class Echoue : UseCaseTest<ReprendreLaPartie, VoidResponse>

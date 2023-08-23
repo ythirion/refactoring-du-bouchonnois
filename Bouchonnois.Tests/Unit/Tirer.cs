@@ -27,11 +27,7 @@ namespace Bouchonnois.Tests.Unit
                 response.Should().Be(VoidResponse.Empty);
                 savedPartieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Repository, new ChasseurATiré(savedPartieDeChasse!.Id, Now, Data.Bernard))
-                    .And
-                    .ChasseurATiré(Data.Bernard, ballesRestantes: 7)
-                    .And
-                    .GalinettesSurLeTerrain(3);
+                    .HaveEmittedEvent(Repository, new ChasseurATiré(savedPartieDeChasse!.Id, Now, Data.Bernard));
             });
         }
 
