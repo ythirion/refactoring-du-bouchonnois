@@ -1,3 +1,4 @@
+using Domain.Core;
 using LanguageExt;
 
 namespace Bouchonnois.Domain
@@ -6,5 +7,6 @@ namespace Bouchonnois.Domain
     {
         void Save(PartieDeChasse partieDeChasse);
         Option<PartieDeChasse> GetById(Guid partieDeChasseId);
+        OptionAsync<Seq<IEvent>> EventsFor(Guid partieDeChasseId);
     }
 }

@@ -1,7 +1,9 @@
 using Bouchonnois.Domain;
-using FluentAssertions.Execution;
+using Domain.Core;
 using FluentAssertions.Primitives;
 using static Bouchonnois.Domain.PartieStatus;
+using static FluentAssertions.Execution.Execute;
+using Event = Bouchonnois.Domain.Event;
 
 namespace Bouchonnois.Tests.Assert
 {
@@ -27,7 +29,7 @@ namespace Bouchonnois.Tests.Assert
             var expectedEvent = new Event(expectedTime, expectedMessage);
 
             return Call(
-                () => Execute.Assertion
+                () => Assertion
                     .ForCondition(!string.IsNullOrEmpty(expectedMessage))
                     .FailWith("Impossible de faire une assertion sur un message vide")
                     .Then
@@ -36,13 +38,22 @@ namespace Bouchonnois.Tests.Assert
                     .FailWith($"Les events devraient contenir {expectedEvent}."));
         }
 
+        public AndConstraint<PartieDeChasseAssertions> HaveEmittedEvent<TEvent>(
+            IPartieDeChasseRepository repository,
+            TEvent expectedEvent) where TEvent : class, IEvent =>
+            Call(() => Assertion
+                .Given(() => repository.EventsFor(Subject!.Id))
+                .ForCondition(events => AsyncHelper.RunSync(() =>
+                    events.Exists(stream => stream.Exists(@event => @event.Equals(expectedEvent)))))
+                .FailWith($"Les events devraient contenir {expectedEvent}.")
+            );
 
         public AndConstraint<PartieDeChasseAssertions> ChasseurATiréSurUneGalinette(
             string nom,
             int ballesRestantes,
             int galinettes)
             => Call(() =>
-                Execute.Assertion
+                Assertion
                     .ForCondition(Subject!.Chasseurs.Any(c => c.Nom == nom))
                     .FailWith("Chasseur non présent dans la partie de chasse")
                     .Then
@@ -57,7 +68,7 @@ namespace Bouchonnois.Tests.Assert
             string nom,
             int ballesRestantes)
             => Call(() =>
-                Execute.Assertion
+                Assertion
                     .ForCondition(Subject!.Chasseurs.Any(c => c.Nom == nom))
                     .FailWith("Chasseur non présent dans la partie de chasse")
                     .Then
@@ -72,22 +83,22 @@ namespace Bouchonnois.Tests.Assert
 
         public AndConstraint<PartieDeChasseAssertions> GalinettesSurLeTerrain(int nbGalinettes)
             => Call(() =>
-                Execute.Assertion
+                Assertion
                     .Given(() => Subject!.Terrain)
-                    .ForCondition(terrain => terrain.NbGalinettes == nbGalinettes)
+                    .ForCondition(terrain => terrain!.NbGalinettes == nbGalinettes)
                     .FailWith(
-                        $"Le terrain devrait contenir {nbGalinettes} mais en contient {Subject!.Terrain.NbGalinettes}"));
+                        $"Le terrain devrait contenir {nbGalinettes} mais en contient {Subject!.Terrain!.NbGalinettes}"));
 
         public AndConstraint<PartieDeChasseAssertions> BeInApéro()
             => Call(() =>
-                Execute.Assertion
+                Assertion
                     .Given(() => Subject!)
                     .ForCondition(partieDeChasse => partieDeChasse.Status == Apéro)
                     .FailWith("Les chasseurs devraient être à l'apéro"));
 
         public AndConstraint<PartieDeChasseAssertions> BeEnCours()
             => Call(() =>
-                Execute.Assertion
+                Assertion
                     .Given(() => Subject!)
                     .ForCondition(partieDeChasse => partieDeChasse.Status == EnCours)
                     .FailWith("Les chasseurs devraient être en cours de chasse"));

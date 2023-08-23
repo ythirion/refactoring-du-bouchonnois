@@ -1,6 +1,7 @@
 using Bouchonnois.Domain;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
+using Domain.Core;
 using FluentAssertions.LanguageExt;
 using LanguageExt;
 
@@ -21,7 +22,7 @@ namespace Bouchonnois.Tests.Unit
 
         protected UseCaseTest(Func<IPartieDeChasseRepository, Func<DateTime>, TUseCase> useCaseFactory)
         {
-            Repository = new PartieDeChasseRepositoryForTests();
+            Repository = new PartieDeChasseRepositoryForTests(new InMemoryEventStore(TimeProvider));
             _useCase = useCaseFactory(Repository, TimeProvider);
         }
 

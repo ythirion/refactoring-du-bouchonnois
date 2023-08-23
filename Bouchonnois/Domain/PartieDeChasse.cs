@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Bouchonnois.Domain.Commands;
+using Bouchonnois.Domain.Events;
+using Domain.Core;
 using LanguageExt;
 using static System.String;
 using static Bouchonnois.Domain.Error;
@@ -7,16 +9,18 @@ using static Bouchonnois.Domain.PartieStatus;
 
 namespace Bouchonnois.Domain
 {
-    public sealed class PartieDeChasse
+    public sealed class PartieDeChasse : Aggregate
     {
-        private readonly List<Chasseur> _chasseurs;
-        private readonly List<Event> _events;
+        private readonly Arr<Chasseur> _chasseurs = Arr<Chasseur>.Empty;
 
-        public Guid Id { get; }
+        // TODO : à supprimer à terme
+        private readonly List<Event> _events = new();
         public IReadOnlyList<Chasseur> Chasseurs => _chasseurs.ToImmutableArray();
-        public Terrain Terrain { get; }
+        public Terrain? Terrain { get; }
         public PartieStatus Status { get; private set; }
         public IReadOnlyList<Event> Events => _events.ToImmutableArray();
+
+        private PartieDeChasse(Guid id, Func<DateTime> timeProvider) : base(timeProvider) => Id = id;
 
         #region Create
 
@@ -24,9 +28,10 @@ namespace Bouchonnois.Domain
             Func<DateTime> timeProvider,
             Terrain terrain,
             Chasseur[] chasseurs)
+            : this(id, timeProvider)
         {
             Id = id;
-            _chasseurs = chasseurs.ToList();
+            _chasseurs = chasseurs.ToArr();
             Terrain = terrain;
             Status = EnCours;
             _events = new List<Event>();
@@ -70,7 +75,7 @@ namespace Bouchonnois.Domain
         private void EmitPartieDémarrée(Func<DateTime> timeProvider)
         {
             var chasseursToString = Join(", ", _chasseurs.Select(c => c.Nom + $" ({c.BallesRestantes} balles)"));
-            EmitEvent($"La partie de chasse commence à {Terrain.Nom} avec {chasseursToString}", timeProvider);
+            EmitEvent($"La partie de chasse commence à {Terrain!.Nom} avec {chasseursToString}", timeProvider);
         }
 
         #endregion
@@ -90,6 +95,7 @@ namespace Bouchonnois.Domain
             }
 
             Status = Apéro;
+            RaiseEvent(new ApéroDémarré(Id, timeProvider()));
             EmitEvent("Petit apéro", timeProvider);
 
             return this;
@@ -234,7 +240,7 @@ namespace Bouchonnois.Domain
             string chasseur,
             Func<DateTime> timeProvider)
         {
-            if (Terrain.NbGalinettes == 0)
+            if (Terrain!.NbGalinettes == 0)
             {
                 return EmitAndReturn(
                     $"T'as trop picolé mon vieux, t'as rien touché",
@@ -258,7 +264,7 @@ namespace Bouchonnois.Domain
         private bool DéjàTerminée() => Status == Terminée;
         private bool DéjàEnCours() => Status == EnCours;
         private bool ChasseurExiste(string chasseur) => _chasseurs.Exists(c => c.Nom == chasseur);
-        private Chasseur RetrieveChasseur(string chasseur) => _chasseurs.Find(c => c.Nom == chasseur)!;
+        private Chasseur RetrieveChasseur(string chasseur) => _chasseurs.ToList().Find(c => c.Nom == chasseur)!;
 
         private void EmitEvent(string message, Func<DateTime> timeProvider) =>
             _events.Add(new Event(timeProvider(), message));

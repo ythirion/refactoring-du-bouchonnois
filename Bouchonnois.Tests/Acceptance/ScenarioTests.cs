@@ -2,6 +2,7 @@ using Bouchonnois.Tests.Builders;
 using Bouchonnois.Tests.Doubles;
 using Bouchonnois.Tests.Unit;
 using Bouchonnois.UseCases;
+using Domain.Core;
 using FluentAssertions.Extensions;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
 using ConsulterStatus = Bouchonnois.UseCases.ConsulterStatus;
@@ -25,8 +26,8 @@ namespace Bouchonnois.Tests.Acceptance
 
         public ScenarioTests()
         {
-            var repository = new PartieDeChasseRepositoryForTests();
             var timeProvider = () => _time;
+            var repository = new PartieDeChasseRepositoryForTests(new InMemoryEventStore(timeProvider));
 
             _demarrerPartieDeChasse = new DemarrerPartieDeChasse(repository, timeProvider);
             _tirer = new Tirer(repository, timeProvider);

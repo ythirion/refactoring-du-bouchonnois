@@ -1,3 +1,4 @@
+using Bouchonnois.Domain.Events;
 using Bouchonnois.UseCases;
 
 namespace Bouchonnois.Tests.Unit
@@ -21,12 +22,10 @@ namespace Bouchonnois.Tests.Unit
 
             Then((response, partieDeChasse) =>
             {
-                // Utiliser 
                 response.Should().Be(VoidResponse.Empty);
-                partieDeChasse.Should()
-                    .HaveEmittedEvent(Now, "Petit apéro")
-                    .And
-                    .BeInApéro();
+                partieDeChasse
+                    .Should()
+                    .HaveEmittedEvent(Repository, new ApéroDémarré(partieDeChasse!.Id, Now));
             });
         }
 
