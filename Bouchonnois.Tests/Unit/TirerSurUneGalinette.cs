@@ -6,7 +6,7 @@ namespace Bouchonnois.Tests.Unit
 {
     public class TirerSurUneGalinette : UseCaseTest<UseCases.TirerSurUneGalinette, VoidResponse>
     {
-        public TirerSurUneGalinette() : base((r, p) => new UseCases.TirerSurUneGalinette(r, TimeProvider))
+        public TirerSurUneGalinette() : base((r, p) => new UseCases.TirerSurUneGalinette(r))
         {
         }
 
@@ -34,7 +34,7 @@ namespace Bouchonnois.Tests.Unit
 
         public class Echoue : UseCaseTest<UseCases.TirerSurUneGalinette, VoidResponse>
         {
-            public Echoue() : base((r, p) => new UseCases.TirerSurUneGalinette(r, TimeProvider))
+            public Echoue() : base((r, p) => new UseCases.TirerSurUneGalinette(r))
             {
             }
 

@@ -27,11 +27,11 @@ namespace Bouchonnois.Tests.Acceptance
             var repository = new PartieDeChasseRepositoryForTests(new InMemoryEventStore(timeProvider));
 
             _demarrerPartieDeChasse = new DemarrerPartieDeChasse(repository, timeProvider);
-            _tirer = new Tirer(repository, timeProvider);
-            _tirerSurUneGalinette = new TirerSurUneGalinette(repository, timeProvider);
-            _prendreLapéro = new PrendreLapéro(repository, timeProvider);
-            _reprendreLaPartie = new ReprendreLaPartie(repository, timeProvider);
-            _terminerLaPartie = new TerminerLaPartie(repository, timeProvider);
+            _tirer = new Tirer(repository);
+            _tirerSurUneGalinette = new TirerSurUneGalinette(repository);
+            _prendreLapéro = new PrendreLapéro(repository);
+            _reprendreLaPartie = new ReprendreLaPartie(repository);
+            _terminerLaPartie = new TerminerLaPartie(repository);
             _consulterStatus = new ConsulterStatus(repository);
         }
 

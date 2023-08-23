@@ -6,7 +6,7 @@ namespace Bouchonnois.Tests.Unit
 {
     public class ReprendreLaPartieDeChasse : UseCaseTest<ReprendreLaPartie, VoidResponse>
     {
-        public ReprendreLaPartieDeChasse() : base((r, p) => new ReprendreLaPartie(r, p))
+        public ReprendreLaPartieDeChasse() : base((r, p) => new ReprendreLaPartie(r))
         {
         }
 
@@ -31,7 +31,7 @@ namespace Bouchonnois.Tests.Unit
 
         public class Echoue : UseCaseTest<ReprendreLaPartie, VoidResponse>
         {
-            public Echoue() : base((r, p) => new ReprendreLaPartie(r, TimeProvider))
+            public Echoue() : base((r, p) => new ReprendreLaPartie(r))
             {
             }
 

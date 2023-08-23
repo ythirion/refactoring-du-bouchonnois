@@ -6,7 +6,7 @@ namespace Bouchonnois.Tests.Unit
 {
     public class TerminerLaPartieDeChasse : UseCaseTest<TerminerLaPartie, string>
     {
-        public TerminerLaPartieDeChasse() : base((r, p) => new TerminerLaPartie(r, TimeProvider))
+        public TerminerLaPartieDeChasse() : base((r, p) => new TerminerLaPartie(r))
         {
         }
 
@@ -126,7 +126,7 @@ namespace Bouchonnois.Tests.Unit
 
         public class Echoue : UseCaseTest<TerminerLaPartie, string>
         {
-            public Echoue() : base((r, p) => new TerminerLaPartie(r, TimeProvider))
+            public Echoue() : base((r, p) => new TerminerLaPartie(r))
             {
             }
 

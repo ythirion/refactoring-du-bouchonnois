@@ -6,7 +6,7 @@ namespace Bouchonnois.Tests.Unit
 {
     public class PrendreLApéro : UseCaseTest<PrendreLapéro, VoidResponse>
     {
-        public PrendreLApéro() : base((r, p) => new PrendreLapéro(r, TimeProvider))
+        public PrendreLApéro() : base((r, p) => new PrendreLapéro(r))
         {
         }
 
@@ -34,7 +34,7 @@ namespace Bouchonnois.Tests.Unit
 
         public class Echoue : UseCaseTest<PrendreLapéro, VoidResponse>
         {
-            public Echoue() : base((r, p) => new PrendreLapéro(r, TimeProvider))
+            public Echoue() : base((r, p) => new PrendreLapéro(r))
             {
             }
 
