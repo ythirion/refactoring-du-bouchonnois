@@ -3,7 +3,6 @@ using Domain.Core;
 using FluentAssertions.Primitives;
 using static Bouchonnois.Domain.PartieStatus;
 using static FluentAssertions.Execution.Execute;
-using Event = Bouchonnois.Domain.Event;
 
 namespace Bouchonnois.Tests.Assert
 {
@@ -20,22 +19,6 @@ namespace Bouchonnois.Tests.Assert
         {
             act();
             return new AndConstraint<PartieDeChasseAssertions>(this);
-        }
-
-        public AndConstraint<PartieDeChasseAssertions> HaveEmittedEvent(
-            DateTime expectedTime,
-            string expectedMessage)
-        {
-            var expectedEvent = new Event(expectedTime, expectedMessage);
-
-            return Call(
-                () => Assertion
-                    .ForCondition(!string.IsNullOrEmpty(expectedMessage))
-                    .FailWith("Impossible de faire une assertion sur un message vide")
-                    .Then
-                    .Given(() => Subject!.Events)
-                    .ForCondition(events => events[^1] == new Event(expectedTime, expectedMessage))
-                    .FailWith($"Les events devraient contenir {expectedEvent}."));
         }
 
         public AndConstraint<PartieDeChasseAssertions> HaveEmittedEvent<TEvent>(

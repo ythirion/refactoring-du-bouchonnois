@@ -6,7 +6,7 @@ namespace Bouchonnois.UseCases
     {
         public PrendreLapéro(IPartieDeChasseRepository repository, Func<DateTime> timeProvider)
             : base(repository,
-                (partieDeChasse, _) => ToEmpty(partieDeChasse.PrendreLapéro(timeProvider)))
+                (partieDeChasse, _) => ToEmpty(partieDeChasse.PrendreLapéro()))
         {
         }
     }

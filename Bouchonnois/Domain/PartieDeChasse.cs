@@ -18,14 +18,9 @@ namespace Bouchonnois.Domain
     public sealed class PartieDeChasse : Aggregate
     {
         private Arr<Chasseur> _chasseurs = Arr<Chasseur>.Empty;
-
-        // TODO : à supprimer à terme
-        private readonly List<Event> _events = new();
         public IReadOnlyList<Chasseur> Chasseurs => _chasseurs.ToImmutableArray();
         public Terrain? Terrain { get; private set; }
         public PartieStatus Status { get; private set; }
-        public IReadOnlyList<Event> Events => _events.ToImmutableArray();
-
         private PartieDeChasse(Guid id, Func<DateTime> timeProvider) : base(timeProvider) => Id = id;
 
         #region Create
@@ -42,7 +37,6 @@ namespace Bouchonnois.Domain
                     chasseurs.Map(c => new ChasseurCréé(c.Nom, c.BallesRestantes)).ToArray()
                 )
             );
-            EmitPartieDémarrée(timeProvider);
         }
 
         public static Either<Error, PartieDeChasse> Create(
@@ -89,17 +83,11 @@ namespace Bouchonnois.Domain
         private static bool AuMoinsUnChasseurNaPasDeBalles(Démarrer.Chasseur[] chasseurs)
             => chasseurs.Exists(c => c.NbBalles == 0);
 
-        private void EmitPartieDémarrée(Func<DateTime> timeProvider)
-        {
-            var chasseursToString = Join(", ", _chasseurs.Select(c => c.Nom + $" ({c.BallesRestantes} balles)"));
-            EmitEvent($"La partie de chasse commence à {Terrain!.Nom} avec {chasseursToString}", timeProvider);
-        }
-
         #endregion
 
         #region Apéro
 
-        public Either<Error, Unit> PrendreLapéro(Func<DateTime> timeProvider)
+        public Either<Error, Unit> PrendreLapéro()
         {
             if (DuringApéro())
             {
@@ -111,8 +99,7 @@ namespace Bouchonnois.Domain
                 return AnError("La partie de chasse est déjà terminée");
             }
 
-            RaiseEvent(new ApéroDémarré(Id, timeProvider()));
-            EmitEvent("Petit apéro", timeProvider);
+            RaiseEvent((id, time) => new ApéroDémarré(id, time));
 
             return Default;
         }
@@ -123,7 +110,7 @@ namespace Bouchonnois.Domain
 
         #region Reprendre
 
-        public Either<Error, Unit> Reprendre(Func<DateTime> timeProvider)
+        public Either<Error, Unit> Reprendre()
         {
             if (DéjàEnCours())
             {
@@ -136,7 +123,6 @@ namespace Bouchonnois.Domain
             }
 
             RaiseEvent((id, time) => new PartieReprise(id, time));
-            EmitEvent("Reprise de la chasse", timeProvider);
 
             return Default;
         }
@@ -263,9 +249,6 @@ namespace Bouchonnois.Domain
         private bool DéjàEnCours() => Status == EnCours;
         private bool ChasseurExiste(string chasseur) => _chasseurs.Exists(c => c.Nom == chasseur);
         private Chasseur RetrieveChasseur(string chasseur) => _chasseurs.ToList().Find(c => c.Nom == chasseur)!;
-
-        private void EmitEvent(string message, Func<DateTime> timeProvider) =>
-            _events.Add(new Event(timeProvider(), message));
 
         private IEvent RaiseEvent(Func<Guid, DateTime, IEvent> eventFactory)
         {

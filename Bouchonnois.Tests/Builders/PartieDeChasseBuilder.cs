@@ -86,7 +86,7 @@ namespace Bouchonnois.Tests.Builders
             Func<DateTime> timeProvider)
         {
             if (status == PartieStatus.Terminée) partieDeChasse.Terminer();
-            else if (status == Apéro) partieDeChasse.PrendreLapéro(timeProvider);
+            else if (status == Apéro) partieDeChasse.PrendreLapéro();
         }
     }
 }
