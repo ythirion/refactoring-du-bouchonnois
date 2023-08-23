@@ -21,11 +21,11 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            Then((winner, savedPartieDeChasse) =>
+            Then((winner, partieDeChasse) =>
             {
-                savedPartieDeChasse
+                partieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Repository, new PartieTerminée(savedPartieDeChasse!.Id, Now, Data.Robert, 2));
+                    .HaveEmittedEvent(Repository, new PartieTerminée(partieDeChasse!.Id, Now, Data.Robert, 2));
 
                 winner.Should().Be(Data.Robert);
             });
@@ -43,11 +43,11 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            Then((winner, savedPartieDeChasse) =>
+            Then((winner, partieDeChasse) =>
             {
-                savedPartieDeChasse
+                partieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Repository, new PartieTerminée(savedPartieDeChasse!.Id, Now, Data.Robert, 2));
+                    .HaveEmittedEvent(Repository, new PartieTerminée(partieDeChasse!.Id, Now, Data.Robert, 2));
 
                 winner.Should().Be(Data.Robert);
             });
@@ -65,12 +65,12 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            Then((winner, savedPartieDeChasse) =>
+            Then((winner, partieDeChasse) =>
             {
-                savedPartieDeChasse
+                partieDeChasse
                     .Should()
                     .HaveEmittedEvent(Repository,
-                        new PartieTerminée(savedPartieDeChasse!.Id, Now, 2, Data.Dédé, Data.Bernard));
+                        new PartieTerminée(partieDeChasse!.Id, Now, 2, Data.Dédé, Data.Bernard));
 
                 winner.Should().Be("Dédé, Bernard");
             });
@@ -87,11 +87,11 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            Then((winner, savedPartieDeChasse) =>
+            Then((winner, partieDeChasse) =>
             {
-                savedPartieDeChasse
+                partieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Repository, new PartieTerminée(savedPartieDeChasse!.Id, Now, "Brocouille", 0));
+                    .HaveEmittedEvent(Repository, new PartieTerminée(partieDeChasse!.Id, Now, "Brocouille", 0));
 
                 winner.Should().Be("Brocouille");
             });
@@ -110,11 +110,11 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            Then((winner, savedPartieDeChasse) =>
+            Then((winner, partieDeChasse) =>
             {
                 var partieExAequoTerminée =
-                    new PartieTerminée(savedPartieDeChasse!.Id, Now, 3, Data.Dédé, Data.Bernard, Data.Robert);
-                savedPartieDeChasse
+                    new PartieTerminée(partieDeChasse!.Id, Now, 3, Data.Dédé, Data.Bernard, Data.Robert);
+                partieDeChasse
                     .Should()
                     .HaveEmittedEvent(Repository, partieExAequoTerminée);
 

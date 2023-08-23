@@ -7,7 +7,7 @@ namespace Bouchonnois.Tests.Doubles
     public class PartieDeChasseRepositoryForTests : IPartieDeChasseRepository
     {
         private readonly IEventStore _eventStore;
-        private PartieDeChasse? _savedPartieDeChasse;
+        private PartieDeChasse? _partieDeChasse;
         private Seq<IEvent> _emittedEvents;
 
         public PartieDeChasseRepositoryForTests(IEventStore eventStore)
@@ -16,7 +16,7 @@ namespace Bouchonnois.Tests.Doubles
         public Task Save(PartieDeChasse partieDeChasse)
         {
             _emittedEvents = ((IAggregate) partieDeChasse).GetUncommittedEvents().ToSeq();
-            _savedPartieDeChasse = partieDeChasse;
+            _partieDeChasse = partieDeChasse;
 
             return _eventStore.Save(partieDeChasse);
         }
@@ -29,7 +29,7 @@ namespace Bouchonnois.Tests.Doubles
                 .GetEventsById<PartieDeChasse>(partieDeChasseId)
                 .Map(events => events.OrderByDescending(e => e.Date).ToSeq());
 
-        public PartieDeChasse? SavedPartieDeChasse() => _savedPartieDeChasse;
+        public PartieDeChasse? partieDeChasse() => _partieDeChasse;
 
         public IEvent LastEvent() => _emittedEvents.Last;
     }

@@ -43,7 +43,7 @@ namespace Bouchonnois.Tests.Unit
             IEnumerable<(string nom, int nbBalles)> chasseurs)
             => UseCase
                 .Handle(ToCommand(terrain, chasseurs))
-                .RightUnsafe() == Repository.SavedPartieDeChasse()!.Id;
+                .RightUnsafe() == Repository.partieDeChasse()!.Id;
 
         private static Domain.Démarrer.DemarrerPartieDeChasse ToCommand((string nom, int nbGalinettes) terrain,
             IEnumerable<(string nom, int nbBalles)> chasseurs)
@@ -68,7 +68,7 @@ namespace Bouchonnois.Tests.Unit
                             "Impossible de démarrer une partie de chasse sans chasseurs...",
                             terrain,
                             PasDeChasseurs,
-                            savedPartieDeChasse => savedPartieDeChasse == null)
+                            partieDeChasse => partieDeChasse == null)
                 );
 
             [Property]
@@ -81,7 +81,7 @@ namespace Bouchonnois.Tests.Unit
                             "Impossible de démarrer une partie de chasse sur un terrain sans galinettes",
                             terrain,
                             chasseurs.ToList(),
-                            savedPartieDeChasse => savedPartieDeChasse == null)
+                            partieDeChasse => partieDeChasse == null)
                 );
 
             [Property]
@@ -94,7 +94,7 @@ namespace Bouchonnois.Tests.Unit
                             "Impossible de démarrer une partie de chasse avec un chasseur sans balle(s)...",
                             terrain,
                             chasseurs.ToList(),
-                            savedPartieDeChasse => savedPartieDeChasse == null)
+                            partieDeChasse => partieDeChasse == null)
                 );
 
 

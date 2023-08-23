@@ -21,10 +21,10 @@ namespace Bouchonnois.Tests.Unit
 
             When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
-            Then((_, savedPartieDeChasse) =>
-                savedPartieDeChasse
+            Then((_, partieDeChasse) =>
+                partieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Repository, new PartieReprise(savedPartieDeChasse!.Id, Now)));
+                    .HaveEmittedEvent(Repository, new PartieReprise(partieDeChasse!.Id, Now)));
         }
 
         public class Echoue : UseCaseTest<ReprendreLaPartie, VoidResponse>
@@ -42,7 +42,7 @@ namespace Bouchonnois.Tests.Unit
 
                 ThenFailWith(
                     $"La partie de chasse {PartieDeChasseId} n'existe pas",
-                    savedPartieDeChasse => savedPartieDeChasse.Should().BeNull()
+                    partieDeChasse => partieDeChasse.Should().BeNull()
                 );
             }
 

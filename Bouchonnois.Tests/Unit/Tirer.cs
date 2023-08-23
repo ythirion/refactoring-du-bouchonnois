@@ -22,12 +22,12 @@ namespace Bouchonnois.Tests.Unit
             When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
 
 
-            Then((response, savedPartieDeChasse) =>
+            Then((response, partieDeChasse) =>
             {
                 response.Should().Be(VoidResponse.Empty);
-                savedPartieDeChasse
+                partieDeChasse
                     .Should()
-                    .HaveEmittedEvent(Repository, new ChasseurATiré(savedPartieDeChasse!.Id, Now, Data.Bernard));
+                    .HaveEmittedEvent(Repository, new ChasseurATiré(partieDeChasse!.Id, Now, Data.Bernard));
             });
         }
 
@@ -47,7 +47,7 @@ namespace Bouchonnois.Tests.Unit
 
                 ThenFailWith(
                     $"La partie de chasse {PartieDeChasseId} n'existe pas",
-                    savedPartieDeChasse => savedPartieDeChasse.Should().BeNull()
+                    partieDeChasse => partieDeChasse.Should().BeNull()
                 );
             }
 
@@ -62,10 +62,10 @@ namespace Bouchonnois.Tests.Unit
                 When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith($"Chasseur inconnu Chasseur inconnu",
-                    savedPartieDeChasse => savedPartieDeChasse
+                    partieDeChasse => partieDeChasse
                         .Should()
                         .HaveEmittedEvent(Repository,
-                            new ChasseurInconnuAVouluTiré(savedPartieDeChasse!.Id, Now, Data.ChasseurInconnu))
+                            new ChasseurInconnuAVouluTiré(partieDeChasse!.Id, Now, Data.ChasseurInconnu))
                 );
             }
 
@@ -81,10 +81,10 @@ namespace Bouchonnois.Tests.Unit
                 When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
 
                 ThenFailWith("Bernard tire -> T'as plus de balles mon vieux, chasse à la main",
-                    savedPartieDeChasse => savedPartieDeChasse
+                    partieDeChasse => partieDeChasse
                         .Should()
                         .HaveEmittedEvent(Repository,
-                            new ChasseurSansBallesAVouluTiré(savedPartieDeChasse!.Id, Now, Data.Bernard, "tire"))
+                            new ChasseurSansBallesAVouluTiré(partieDeChasse!.Id, Now, Data.Bernard, "tire"))
                 );
             }
 
@@ -100,11 +100,11 @@ namespace Bouchonnois.Tests.Unit
                 When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith("Chasseur inconnu veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!",
-                    savedPartieDeChasse =>
-                        savedPartieDeChasse
+                    partieDeChasse =>
+                        partieDeChasse
                             .Should()
                             .HaveEmittedEvent(Repository,
-                                new ChasseurAVouluTiréPendantLApéro(savedPartieDeChasse!.Id, Now, Data.ChasseurInconnu))
+                                new ChasseurAVouluTiréPendantLApéro(partieDeChasse!.Id, Now, Data.ChasseurInconnu))
                 );
             }
 
@@ -120,11 +120,11 @@ namespace Bouchonnois.Tests.Unit
                 When(id => UseCase.Handle(new Domain.Tirer.Tirer(id, Data.ChasseurInconnu)));
 
                 ThenFailWith("Chasseur inconnu veut tirer -> On tire pas quand la partie est terminée",
-                    savedPartieDeChasse =>
-                        savedPartieDeChasse
+                    partieDeChasse =>
+                        partieDeChasse
                             .Should()
                             .HaveEmittedEvent(Repository,
-                                new ChasseurAVouluTiréQuandPartieTerminée(savedPartieDeChasse!.Id, Now,
+                                new ChasseurAVouluTiréQuandPartieTerminée(partieDeChasse!.Id, Now,
                                     Data.ChasseurInconnu))
                 );
             }

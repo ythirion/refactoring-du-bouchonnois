@@ -45,7 +45,7 @@ namespace Bouchonnois.Tests.Unit
 
                 ThenFailWith(
                     $"La partie de chasse {PartieDeChasseId} n'existe pas",
-                    savedPartieDeChasse => savedPartieDeChasse.Should().BeNull()
+                    partieDeChasse => partieDeChasse.Should().BeNull()
                 );
             }
 

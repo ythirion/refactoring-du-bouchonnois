@@ -34,7 +34,7 @@ namespace Bouchonnois.Tests.Unit
             return partieDeChasse;
         }
 
-        private PartieDeChasse? SavedPartieDeChasse() => Repository.SavedPartieDeChasse();
+        private PartieDeChasse? partieDeChasse() => Repository.partieDeChasse();
 
         #region Given / When / Then DSL
 
@@ -48,18 +48,18 @@ namespace Bouchonnois.Tests.Unit
         {
             var result = _act!(PartieDeChasseId);
             result.Should().BeRight();
-            result.IfRight(r => assert(r, SavedPartieDeChasse()));
+            result.IfRight(r => assert(r, partieDeChasse()));
         }
 
         protected void ThenFailWith(string expectedErrorMessage,
-            Action<PartieDeChasse?>? assertSavedPartieDeChasse = null)
+            Action<PartieDeChasse?>? assertpartieDeChasse = null)
         {
             var result = _act!(PartieDeChasseId);
             result.Should().BeLeft();
             result.IfLeft(r =>
             {
                 r.Message.Should().Be(expectedErrorMessage);
-                assertSavedPartieDeChasse?.Invoke(SavedPartieDeChasse());
+                assertpartieDeChasse?.Invoke(partieDeChasse());
             });
         }
 
@@ -73,7 +73,7 @@ namespace Bouchonnois.Tests.Unit
             if (await result.IsLeft)
             {
                 return result.LeftUnsafe().Message == errorMessage
-                       && (assert?.Invoke(SavedPartieDeChasse()) ?? true);
+                       && (assert?.Invoke(partieDeChasse()) ?? true);
             }
 
             return false;
