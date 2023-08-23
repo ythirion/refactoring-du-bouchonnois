@@ -1,19 +1,46 @@
 # Refactoring du Bouchonnois
-Work in progress pour créer 1 kata de refactoring du bouchonnois...
+Ce kata a pour objectif de s'exercer au refactoring sur un code existant afin de :
+- Identifier certains `smells` dans notre code
+- Comprendre quelle pratique et/ou outil peuvent nous aider pour surpasser ces `smells`
+- Pratiquer dans 1 environnement `safe` en dehors de son code de production
 
 ![Refactoring du Bouchonnois](img/refactoring-du-bouchonnois.webp)
 
-## Example Mapping
-Découvrir c'est quoi l'Example Mapping [ici](https://xtrem-tdd.netlify.app/Flavours/example-mapping).
+## Le contexte
+Nos vaillants chasseurs du Bouchonnois ont besoin de pouvoir gérer leurs parties de chasse.  
+Ils ont commencé à faire développer 1 système de gestion par une l'entreprise `Toshiba` mais ne sont pas satisfaits.  
 
-Ci-dessous, l'Example Mapping qui a servi d'alignement à notre équipe du Bouchonnois afin de développer ce système.
+L'entreprise leur parle d'une soit-disante `dette technique` qui les ralentit dans le développement de nouvelles features...
+
+[![Les Inconnus](img/inconnus.webp)](https://youtu.be/QuGcoOJKXT8?si=N0e-w8GhgEnrBWv4)
+
+Les chasseurs comptent sur nous pour améliorer la situation.
+
+### Example Mapping
+Ils ont fait quelques ateliers avec `Toshiba` et ont réussi à clarifier ce qui est attendu du système.
+
+Pour ce faire, ils ont utilisé le format `Example Mapping` à découvrir [ici](https://xtrem-tdd.netlify.app/Flavours/example-mapping).
+
+Voici l'Example Mapping qui a servi d'alignement pour développer ce système.
 
 ![Refactoring du Bouchonnois](example-mapping/example-mapping.webp)
 
 Version PDF disponible [ici](example-mapping/example-mapping.pdf)
 
 ## Facilitation
-Différentes étapes ainsi qu'une proposition de solution accompagne ce repository :
+### Pré-requis
+Le code est disponible en `.NET 7`.
+
+Voici la liste des packages utilisés :
+- `xUnit`
+- `FluentAssertions`
+- `Verify.xUnit`
+- `FSCheck`
+- `TngTech.ArchUnitNET.xUnit`
+- `LanguageExt.Core`
+- `FluentAssertions.LanguageExt`
+
+Afin d'améliorer le code on te propose de suivre les étapes ci-dessous :
 
 - [1. Se faire une idée de la code base](facilitation/01.gather-metrics.md)
 - [2. Treat Warnings as Errors](facilitation/02.treat-warnings-as-errors.md)
@@ -27,3 +54,33 @@ Différentes étapes ainsi qu'une proposition de solution accompagne ce reposito
 - [10. Commands](facilitation/10.commands.md)
 - [11. Plus d'exceptions](facilitation/11.avoid-exceptions.md)
 - [12. Event Sourcing](facilitation/12.event-sourcing.md)
+
+Pour chaque étape :
+- une proposition de solution "étape par étape" est proposée
+- il existe 1 branche / étape
+
+![Branches](img/branches.webp)
+
+### Objectifs pédagogiques
+À travers ces différentes étapes j'ai essayé d'introduire les sujets suivants :
+- Example Mapping
+- Static Code Analysis / Linter
+- Treat Warnings as Errors
+- Mutation Testing
+- Test Data Builders
+- Approval Testing
+- Automated Refactoring
+- Property-Based Testing
+- Tests d'Architecture
+- Test-Driven Development
+- Clean Architecture
+- Domain Driven Design
+- Tell Don't Ask
+- Functional Programming
+- Avoid Primitives
+- Avoid Exceptions
+- Architecture Decision Records
+- Event Sourcing
+- ...
+
+Bon voyage 🤩
