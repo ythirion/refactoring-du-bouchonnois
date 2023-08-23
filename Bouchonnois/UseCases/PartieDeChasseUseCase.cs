@@ -1,4 +1,5 @@
 using Bouchonnois.Domain;
+using Domain.Core;
 using LanguageExt;
 using static Bouchonnois.Domain.Error;
 

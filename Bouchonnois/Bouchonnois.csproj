@@ -7,19 +7,43 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="LanguageExt.Core" Version="4.4.3" />
+        <PackageReference Include="LanguageExt.Core" Version="4.4.3" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Domain.Core\Domain.Core.csproj" />
+        <ProjectReference Include="..\Domain.Core\Domain.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Domain\PartieDeChasse.Démarrer.cs">
+            <DependentUpon>PartieDeChasse.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Domain\PartieDeChasse.PrendreLApéro.cs">
+            <DependentUpon>PartieDeChasse.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Domain\PartieDeChasse.Reprendre.cs">
+          <DependentUpon>PartieDeChasse.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Domain\PartieDeChasse.Consulter.cs">
+          <DependentUpon>PartieDeChasse.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Domain\PartieDeChasse.Terminer.cs">
+          <DependentUpon>PartieDeChasse.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Domain\PartieDeChasse.TirerSurUneGalinette.cs">
+          <DependentUpon>PartieDeChasse.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Domain\PartieDeChasse.Tirer.cs">
+          <DependentUpon>PartieDeChasse.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
 </Project>
