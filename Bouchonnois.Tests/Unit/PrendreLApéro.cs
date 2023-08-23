@@ -21,7 +21,7 @@ namespace Bouchonnois.Tests.Unit
 
             await When(id => UseCase.Handle(new Domain.Apéro.PrendreLapéro(id)));
 
-            await Then((response, partieDeChasse) =>
+            Then((response, partieDeChasse) =>
             {
                 response.Should().Be(VoidResponse.Empty);
                 partieDeChasse
@@ -43,7 +43,7 @@ namespace Bouchonnois.Tests.Unit
 
                 await When(id => UseCase.Handle(new Domain.Apéro.PrendreLapéro(id)));
 
-                await ThenFailWith(
+                ThenFailWith(
                     $"La partie de chasse {PartieDeChasseId} n'existe pas",
                     partieDeChasse => partieDeChasse.Should().BeNull()
                 );
@@ -60,7 +60,7 @@ namespace Bouchonnois.Tests.Unit
 
                 await When(id => UseCase.Handle(new Domain.Apéro.PrendreLapéro(id)));
 
-                await ThenFailWith("On est déjà en plein apéro");
+                ThenFailWith("On est déjà en plein apéro");
             }
 
             [Fact]
@@ -74,7 +74,7 @@ namespace Bouchonnois.Tests.Unit
 
                 await When(id => UseCase.Handle(new Domain.Apéro.PrendreLapéro(id)));
 
-                await ThenFailWith("La partie de chasse est déjà terminée");
+                ThenFailWith("La partie de chasse est déjà terminée");
             }
         }
     }

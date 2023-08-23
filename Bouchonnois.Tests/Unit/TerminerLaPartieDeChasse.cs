@@ -21,7 +21,7 @@ namespace Bouchonnois.Tests.Unit
 
             await When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            await Then((winner, partieDeChasse) =>
+            Then((winner, partieDeChasse) =>
             {
                 partieDeChasse
                     .Should()
@@ -43,7 +43,7 @@ namespace Bouchonnois.Tests.Unit
 
             await When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            await Then((winner, partieDeChasse) =>
+            Then((winner, partieDeChasse) =>
             {
                 partieDeChasse
                     .Should()
@@ -65,7 +65,7 @@ namespace Bouchonnois.Tests.Unit
 
             await When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            await Then((winner, partieDeChasse) =>
+            Then((winner, partieDeChasse) =>
             {
                 partieDeChasse
                     .Should()
@@ -87,7 +87,7 @@ namespace Bouchonnois.Tests.Unit
 
             await When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            await Then((winner, partieDeChasse) =>
+            Then((winner, partieDeChasse) =>
             {
                 partieDeChasse
                     .Should()
@@ -110,7 +110,7 @@ namespace Bouchonnois.Tests.Unit
 
             await When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            await Then((winner, partieDeChasse) =>
+            Then((winner, partieDeChasse) =>
             {
                 var partieExAequoTerminée =
                     new PartieTerminée(partieDeChasse!.Id, Now, 3, Data.Dédé, Data.Bernard, Data.Robert);
@@ -146,7 +146,7 @@ namespace Bouchonnois.Tests.Unit
 
                 await When(id => UseCase.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-                await ThenFailWith("Quand c'est fini, c'est fini");
+                ThenFailWith("Quand c'est fini, c'est fini");
             }
         }
     }

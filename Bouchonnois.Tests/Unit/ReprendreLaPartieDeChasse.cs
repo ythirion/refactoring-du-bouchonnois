@@ -21,7 +21,7 @@ namespace Bouchonnois.Tests.Unit
 
             await When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
-            await Then((_, partieDeChasse) =>
+            Then((_, partieDeChasse) =>
                 partieDeChasse
                     .Should()
                     .HaveEmittedEvent(Repository, new PartieReprise(partieDeChasse!.Id, Now)));
@@ -40,7 +40,7 @@ namespace Bouchonnois.Tests.Unit
 
                 await When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
-                await ThenFailWith(
+                ThenFailWith(
                     $"La partie de chasse {PartieDeChasseId} n'existe pas",
                     partieDeChasse => partieDeChasse.Should().BeNull()
                 );
@@ -56,7 +56,7 @@ namespace Bouchonnois.Tests.Unit
 
                 await When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
-                await ThenFailWith($"La partie de chasse est déjà en cours");
+                ThenFailWith($"La partie de chasse est déjà en cours");
             }
 
             [Fact]
@@ -70,7 +70,7 @@ namespace Bouchonnois.Tests.Unit
 
                 await When(id => UseCase.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
 
-                await ThenFailWith("La partie de chasse est déjà terminée");
+                ThenFailWith("La partie de chasse est déjà terminée");
             }
         }
     }
