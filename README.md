@@ -26,3 +26,4 @@ Différentes étapes ainsi qu'une proposition de solution accompagne ce reposito
 - [9. Tell Don't Ask](facilitation/09.tell-dont-ask.md)
 - [10. Commands](facilitation/10.commands.md)
 - [11. Plus d'exceptions](facilitation/11.avoid-exceptions.md)
+- [12. Event Sourcing](facilitation/12.event-sourcing.md)
