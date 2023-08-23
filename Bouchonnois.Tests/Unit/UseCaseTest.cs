@@ -43,8 +43,8 @@ namespace Bouchonnois.Tests.Unit
 
         private Either<Error, TSuccessResponse> _result;
 
-        protected async Task When(Func<Guid, EitherAsync<Error, TSuccessResponse>>? act) =>
-            _result = await act!(PartieDeChasseId);
+        protected async Task When(Func<Guid, EitherAsync<Error, TSuccessResponse>>? act)
+            => _result = await act!(PartieDeChasseId);
 
         protected void Then(Action<TSuccessResponse, PartieDeChasse?> assert)
         {

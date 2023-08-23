@@ -29,6 +29,12 @@ namespace Bouchonnois.Tests.Builders
             return this;
         }
 
+        public ChasseurBuilder Balles(int nbBalles)
+        {
+            _ballesRestantes = 1;
+            return this;
+        }
+
         public static ChasseurBuilder LeChasseur(string nom) => new(nom);
         public static ChasseurBuilder Dédé() => new(Data.Dédé, 20);
         public static ChasseurBuilder Bernard() => new(Data.Bernard, 8);

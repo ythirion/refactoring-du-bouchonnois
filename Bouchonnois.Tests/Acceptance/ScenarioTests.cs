@@ -3,7 +3,6 @@ using Bouchonnois.Tests.Doubles;
 using Bouchonnois.UseCases;
 using Domain.Core;
 using FluentAssertions.Extensions;
-using LanguageExt;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
 
 namespace Bouchonnois.Tests.Acceptance
@@ -23,10 +22,10 @@ namespace Bouchonnois.Tests.Acceptance
 
         public ScenarioTests()
         {
-            var timeProvider = () => _time;
-            var repository = new PartieDeChasseRepositoryForTests(new InMemoryEventStore(timeProvider));
+            DateTime TimeProvider() => _time;
+            var repository = new PartieDeChasseRepositoryForTests(new InMemoryEventStore(TimeProvider));
 
-            _demarrerPartieDeChasse = new DemarrerPartieDeChasse(repository, timeProvider);
+            _demarrerPartieDeChasse = new DemarrerPartieDeChasse(repository, TimeProvider);
             _tirer = new Tirer(repository);
             _tirerSurUneGalinette = new TirerSurUneGalinette(repository);
             _prendreLapéro = new PrendreLapéro(repository);
@@ -59,7 +58,7 @@ namespace Bouchonnois.Tests.Acceptance
             AfterSync(10.Minutes(), async () => await _prendreLapéro.Handle(new Domain.Apéro.PrendreLapéro(id)));
             AfterSync(170.Minutes(),
                 async () => await _reprendreLaPartie.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
-            AfterSync(11.Minutes(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)).AsTask());
+            AfterSync(11.Minutes(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
             AfterSync(1.Seconds(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
             AfterSync(1.Seconds(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
             AfterSync(1.Seconds(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));

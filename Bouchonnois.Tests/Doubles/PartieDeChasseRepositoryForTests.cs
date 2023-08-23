@@ -13,16 +13,17 @@ namespace Bouchonnois.Tests.Doubles
         public PartieDeChasseRepositoryForTests(IEventStore eventStore)
             => _eventStore = eventStore;
 
-        public Task Save(PartieDeChasse partieDeChasse)
+        public async Task<PartieDeChasse> Save(PartieDeChasse partieDeChasse)
         {
             _emittedEvents = ((IAggregate) partieDeChasse).GetUncommittedEvents().ToSeq();
             _partieDeChasse = partieDeChasse;
+            await _eventStore.Save(partieDeChasse);
 
-            return _eventStore.Save(partieDeChasse);
+            return _partieDeChasse;
         }
 
-        public OptionAsync<PartieDeChasse> GetById(Guid partieDeChasseId) =>
-            _eventStore.GetById<PartieDeChasse>(partieDeChasseId);
+        public OptionAsync<PartieDeChasse> GetById(Guid partieDeChasseId)
+            => _eventStore.GetById<PartieDeChasse>(partieDeChasseId);
 
         public OptionAsync<Seq<IEvent>> EventsFor(Guid partieDeChasseId)
             => _eventStore

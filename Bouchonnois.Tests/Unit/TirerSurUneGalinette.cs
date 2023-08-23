@@ -1,6 +1,7 @@
 using Bouchonnois.Domain.Tirer;
 using Bouchonnois.Tests.Builders;
 using Bouchonnois.UseCases;
+using Domain.Core;
 
 namespace Bouchonnois.Tests.Unit
 {
@@ -69,6 +70,27 @@ namespace Bouchonnois.Tests.Unit
                             new ChasseurSansBallesAVouluTiré(partieDeChasse!.Id, Now, Data.Bernard,
                                 "veut tirer sur une galinette")
                         ));
+            }
+
+            [Fact]
+            public async Task AvecUnChasseurTirantSurToutesLesGalinettesMaisNaPlusDeBalles()
+            {
+                var partieDeChasse = await UnePartieDeChasseExistante(
+                    SurUnTerrainRicheEnGalinettes()
+                        .Avec(Dédé().Balles(1), Bernard().SansBalles(), Robert())
+                );
+
+                AsyncHelper.RunSync(async () =>
+                    await UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(partieDeChasse.Id, Data.Dédé)));
+                AsyncHelper.RunSync(async () =>
+                    await UseCase.Handle(new Domain.Tirer.TirerSurUneGalinette(partieDeChasse.Id, Data.Dédé)));
+
+                partieDeChasse
+                    .Should()
+                    .HaveEmittedEvent(Repository,
+                        new ChasseurSansBallesAVouluTiré(partieDeChasse!.Id, Now, Data.Dédé,
+                            "veut tirer sur une galinette")
+                    );
             }
 
             [Fact]

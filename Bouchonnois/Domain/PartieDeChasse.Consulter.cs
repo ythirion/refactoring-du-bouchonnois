@@ -9,7 +9,7 @@ namespace Bouchonnois.Domain;
 public sealed partial class PartieDeChasse
 {
     public Either<Error, string> Consulter(IPartieDeChasseRepository repository)
-        => RunSync(() => repository.EventsFor(Id)
+        => RunSync(async () => await repository.EventsFor(Id)
             .Map(FormatEvents)
             .ValueUnsafe()
         );

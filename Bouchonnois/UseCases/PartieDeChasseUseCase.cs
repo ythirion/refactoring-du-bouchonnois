@@ -26,8 +26,9 @@ namespace Bouchonnois.UseCases
                 .Bind(p => HandleCommand(p, command));
 
         private EitherAsync<Error, TResponse> HandleCommand(PartieDeChasse partieDeChasse, TRequest command)
-            => _handler(partieDeChasse, command).ToAsync()
-                .Let(_ => _repository.Save(partieDeChasse));
+            => _handler(partieDeChasse, command)
+                .ToAsync()
+                .Let(async _ => await _repository.Save(partieDeChasse));
 
         protected static Either<Error, VoidResponse> ToEmpty(Either<Error, Unit> either)
             => either.Map(_ => VoidResponse.Empty);
