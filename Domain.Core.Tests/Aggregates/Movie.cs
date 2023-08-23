@@ -13,6 +13,7 @@ public class Movie : Aggregate
     public Movie(Guid id, Func<DateTime> timeProvider, string title, DateTime releaseDate) : this(id, timeProvider)
         => RaiseEvent(new MovieCreated(id, Time(), title, releaseDate));
 
+    [EventSourced]
     private void Apply(MovieCreated @event)
     {
         _title = @event.Title;
@@ -21,7 +22,8 @@ public class Movie : Aggregate
 
     public void ChangeCast(Seq<string> casting) => RaiseEvent(new CastingHasChanged(Id, Time(), casting));
 
-    private void Apply(CastingHasChanged @event) => _casting = @event.Casting;
+    [EventSourced]
+    private void ApplyEvent(CastingHasChanged @event) => _casting = @event.Casting;
 
     public void NotWellImplementedBehavior() => RaiseEvent(new NotWellImplementedDomainBehaviorRaised(Id, Time()));
 }

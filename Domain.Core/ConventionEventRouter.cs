@@ -30,7 +30,7 @@ namespace Domain.Core
                             | BindingFlags.Instance
                             | BindingFlags.NonPublic
                             | BindingFlags.Public)
-                .Where(m => m.Name == "Apply"
+                .Where(m => m.GetCustomAttribute<EventSourcedAttribute>() != null
                             && m.GetParameters().Length == 1
                             && m.ReturnParameter.ParameterType == typeof(void))
                 .Map(m => (m, m.GetParameters().Single().ParameterType))

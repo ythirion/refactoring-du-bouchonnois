@@ -9,6 +9,7 @@ public class Cinema : Aggregate
     public Cinema(Guid id, Func<DateTime> timeProvider, string name, string city) : this(id, timeProvider)
         => RaiseEvent(new CinemaCreated(id, Time(), name, city));
 
+    [EventSourced]
     private void Apply(CinemaCreated @event)
     {
         _name = @event.Name;
