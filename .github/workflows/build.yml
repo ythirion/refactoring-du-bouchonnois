@@ -14,6 +14,7 @@ on:
       - steps/09-tell-dont-ask
       - steps/10-commands
       - steps/11-avoid-exceptions
+      - steps/12-event-sourcing
 jobs:
   build:
     name: Build and analyze
