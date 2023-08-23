@@ -3,6 +3,7 @@ using Bouchonnois.Tests.Doubles;
 using Bouchonnois.UseCases;
 using Domain.Core;
 using FluentAssertions.Extensions;
+using LanguageExt;
 using static Bouchonnois.Tests.Builders.CommandBuilder;
 
 namespace Bouchonnois.Tests.Acceptance
@@ -35,7 +36,7 @@ namespace Bouchonnois.Tests.Acceptance
         }
 
         [Fact]
-        public Task DéroulerUnePartie()
+        public async Task DéroulerUnePartie()
         {
             var command = DémarrerUnePartieDeChasse()
                 .Avec((Data.Dédé, 20), (Data.Bernard, 8), (Data.Robert, 12))
@@ -43,46 +44,45 @@ namespace Bouchonnois.Tests.Acceptance
 
             var id = _demarrerPartieDeChasse.Handle(command.Build()).RightUnsafe();
 
-            After(10.Minutes(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Dédé)));
-            After(30.Minutes(),
-                () => _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
-            After(20.Minutes(), () => _prendreLapéro.Handle(new Domain.Apéro.PrendreLapéro(id)));
-            After(1.Hours(), () => _reprendreLaPartie.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
-            After(2.Minutes(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
-            After(1.Minutes(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
-            After(1.Minutes(),
-                () => _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Dédé)));
-            After(26.Minutes(),
-                () => _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
-            After(10.Minutes(), () => _prendreLapéro.Handle(new Domain.Apéro.PrendreLapéro(id)));
-            After(170.Minutes(), () => _reprendreLaPartie.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
-            After(11.Minutes(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
-            After(1.Seconds(), () => _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
-            After(19.Minutes(),
-                () => _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
-            After(30.Minutes(), () => _terminerLaPartie.Handle(new Domain.Terminer.TerminerLaPartie(id)));
+            AfterSync(10.Minutes(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Dédé)));
+            AfterSync(30.Minutes(),
+                async () => await _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
+            AfterSync(20.Minutes(), async () => await _prendreLapéro.Handle(new Domain.Apéro.PrendreLapéro(id)));
+            AfterSync(1.Hours(),
+                async () => await _reprendreLaPartie.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
+            AfterSync(2.Minutes(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            AfterSync(1.Minutes(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            AfterSync(1.Minutes(),
+                async () => await _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Dédé)));
+            AfterSync(26.Minutes(),
+                async () => await _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
+            AfterSync(10.Minutes(), async () => await _prendreLapéro.Handle(new Domain.Apéro.PrendreLapéro(id)));
+            AfterSync(170.Minutes(),
+                async () => await _reprendreLaPartie.Handle(new Domain.Reprendre.ReprendreLaPartie(id)));
+            AfterSync(11.Minutes(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)).AsTask());
+            AfterSync(1.Seconds(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            AfterSync(1.Seconds(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            AfterSync(1.Seconds(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            AfterSync(1.Seconds(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            AfterSync(1.Seconds(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            AfterSync(1.Seconds(), async () => await _tirer.Handle(new Domain.Tirer.Tirer(id, Data.Bernard)));
+            AfterSync(19.Minutes(),
+                async () => await _tirerSurUneGalinette.Handle(new Domain.Tirer.TirerSurUneGalinette(id, Data.Robert)));
+            AfterSync(30.Minutes(),
+                async () => await _terminerLaPartie.Handle(new Domain.Terminer.TerminerLaPartie(id)));
 
-            return Verify(
-                _consulterStatus.Handle(new Domain.Consulter.ConsulterStatus(id)).RightUnsafe()
-            );
+            var status = await _consulterStatus.Handle(new Domain.Consulter.ConsulterStatus(id));
+
+            await Verify(status.RightUnsafe());
         }
 
-        private void After(TimeSpan time, Action act)
+        private void AfterSync(TimeSpan time, Func<Task> act)
+            => AsyncHelper.RunSync(() => After(time, act));
+
+        private async Task After(TimeSpan time, Func<Task> act)
         {
             _time = _time.Add(time);
-            try
-            {
-                act();
-            }
-            catch
-            {
-                // ignored
-            }
+            await act();
         }
     }
 }

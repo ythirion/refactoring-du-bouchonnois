@@ -1,4 +1,8 @@
 ﻿{
+  Terrain: {
+    Nom: Pitibon sur Sauldre,
+    NbGalinettes: 3
+  },
   Chasseurs: [
     {
       Nom: Dédé,
@@ -13,15 +17,7 @@
       BallesRestantes: 12
     }
   ],
-  Terrain: {
-    Nom: Pitibon sur Sauldre,
-    NbGalinettes: 3
-  },
-  Events: [
-    {
-      Date: 2024-06-06 14:50:45,
-      Message: La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)
-    }
-  ],
-  Id: Guid_1
+  Id: Guid_1,
+  Version: 1,
+  Date: 2024-06-06 14:50:45
 }

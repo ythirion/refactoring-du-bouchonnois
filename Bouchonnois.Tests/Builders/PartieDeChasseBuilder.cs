@@ -64,7 +64,7 @@ namespace Bouchonnois.Tests.Builders
             PartieDeChasse partieDeChasse,
             Func<DateTime> timeProvider,
             IEnumerable<string> chasseursSansBalles) =>
-            chasseursSansBalles.ForEach(c => partieDeChasse.Tirer(c, timeProvider));
+            chasseursSansBalles.ForEach(c => partieDeChasse.Tirer(c));
 
         private static void TirerSurLesGalinettes(
             PartieDeChasse partieDeChasse,
@@ -76,7 +76,7 @@ namespace Bouchonnois.Tests.Builders
                 {
                     var built = builtChasseurs.First(x => x.Nom == c.Nom);
                     Repeat(built.NbGalinettes,
-                        () => partieDeChasse.TirerSurUneGalinette(built.Nom, timeProvider));
+                        () => partieDeChasse.TirerSurUneGalinette(built.Nom));
                 });
 
         private void ChangeStatus(PartieDeChasse partieDeChasse, Func<DateTime> timeProvider) =>
@@ -85,7 +85,7 @@ namespace Bouchonnois.Tests.Builders
         private static void ChangeStatus(PartieDeChasse partieDeChasse, PartieStatus status,
             Func<DateTime> timeProvider)
         {
-            if (status == PartieStatus.Terminée) partieDeChasse.Terminer(timeProvider);
+            if (status == PartieStatus.Terminée) partieDeChasse.Terminer();
             else if (status == Apéro) partieDeChasse.PrendreLapéro(timeProvider);
         }
     }

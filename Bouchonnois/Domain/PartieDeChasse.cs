@@ -1,23 +1,28 @@
 ﻿using System.Collections.Immutable;
 using Bouchonnois.Domain.Apéro;
 using Bouchonnois.Domain.Démarrer;
+using Bouchonnois.Domain.Reprendre;
+using Bouchonnois.Domain.Terminer;
+using Bouchonnois.Domain.Tirer;
 using Domain.Core;
 using LanguageExt;
+using LanguageExt.UnsafeValueAccess;
 using static System.String;
 using static Bouchonnois.Domain.Error;
 using static Bouchonnois.Domain.PartieStatus;
+using static Domain.Core.AsyncHelper;
 using static LanguageExt.Unit;
 
 namespace Bouchonnois.Domain
 {
     public sealed class PartieDeChasse : Aggregate
     {
-        private readonly Arr<Chasseur> _chasseurs = Arr<Chasseur>.Empty;
+        private Arr<Chasseur> _chasseurs = Arr<Chasseur>.Empty;
 
         // TODO : à supprimer à terme
         private readonly List<Event> _events = new();
         public IReadOnlyList<Chasseur> Chasseurs => _chasseurs.ToImmutableArray();
-        public Terrain? Terrain { get; }
+        public Terrain? Terrain { get; private set; }
         public PartieStatus Status { get; private set; }
         public IReadOnlyList<Event> Events => _events.ToImmutableArray();
 
@@ -28,19 +33,20 @@ namespace Bouchonnois.Domain
         private PartieDeChasse(Guid id,
             Func<DateTime> timeProvider,
             Terrain terrain,
-            Chasseur[] chasseurs)
-            : this(id, timeProvider)
+            Chasseur[] chasseurs) : this(id, timeProvider)
         {
-            Id = id;
-            _chasseurs = chasseurs.ToArr();
-            Terrain = terrain;
-            Status = EnCours;
-            _events = new List<Event>();
-
+            RaiseEvent((_, time) =>
+                new PartieDeChasseDémarrée(id,
+                    time,
+                    new TerrainCréé(terrain.Nom, terrain.NbGalinettes),
+                    chasseurs.Map(c => new ChasseurCréé(c.Nom, c.BallesRestantes)).ToArray()
+                )
+            );
             EmitPartieDémarrée(timeProvider);
         }
 
-        public static Either<Error, PartieDeChasse> Create(Func<DateTime> timeProvider,
+        public static Either<Error, PartieDeChasse> Create(
+            Func<DateTime> timeProvider,
             DemarrerPartieDeChasse demarrerPartieDeChasse)
         {
             if (!IsTerrainValide(demarrerPartieDeChasse.TerrainDeChasse))
@@ -61,10 +67,20 @@ namespace Bouchonnois.Domain
             return new PartieDeChasse(
                 Guid.NewGuid(),
                 timeProvider,
-                new Terrain(demarrerPartieDeChasse.TerrainDeChasse.Nom,
-                    demarrerPartieDeChasse.TerrainDeChasse.NbGalinettes),
+                new Terrain(
+                    demarrerPartieDeChasse.TerrainDeChasse.Nom,
+                    demarrerPartieDeChasse.TerrainDeChasse.NbGalinettes
+                ),
                 demarrerPartieDeChasse.Chasseurs.Select(c => new Chasseur(c.Nom, c.NbBalles)).ToArray()
             );
+        }
+
+        private void Apply(PartieDeChasseDémarrée @event)
+        {
+            Id = @event.Id;
+            _chasseurs = @event.Chasseurs.Map(c => new Chasseur(c.Nom, c.BallesRestantes)).ToArray();
+            Terrain = new Terrain(@event.Terrain.Nom, @event.Terrain.NbGalinettes);
+            Status = EnCours;
         }
 
         private static bool IsTerrainValide(TerrainDeChasse terrainDeChasse) => terrainDeChasse.NbGalinettes > 0;
@@ -107,7 +123,7 @@ namespace Bouchonnois.Domain
 
         #region Reprendre
 
-        public Either<Error, PartieDeChasse> Reprendre(Func<DateTime> timeProvider)
+        public Either<Error, Unit> Reprendre(Func<DateTime> timeProvider)
         {
             if (DéjàEnCours())
             {
@@ -119,58 +135,52 @@ namespace Bouchonnois.Domain
                 return AnError("La partie de chasse est déjà terminée");
             }
 
-            Status = EnCours;
+            RaiseEvent((id, time) => new PartieReprise(id, time));
             EmitEvent("Reprise de la chasse", timeProvider);
 
-            return this;
+            return Default;
         }
+
+        private void Apply(PartieReprise @event) => Status = EnCours;
 
         #endregion
 
         #region Consulter
 
-        public Either<Error, string> Consulter() =>
-            Join(
-                Environment.NewLine,
-                Events
-                    .OrderByDescending(@event => @event.Date)
-                    .Select(@event => @event.ToString())
+        public Either<Error, string> Consulter(IPartieDeChasseRepository repository)
+            => RunSync(() => repository.EventsFor(Id)
+                .Map(FormatEvents)
+                .ValueUnsafe()
+            );
+
+        private static string FormatEvents(Seq<IEvent> events)
+            => Join(Environment.NewLine,
+                events.Map(@event => $"{@event.Date:HH:mm} - {@event}")
             );
 
         #endregion
 
         #region Terminer
 
-        public Either<Error, string> Terminer(Func<DateTime> timeProvider)
+        public Either<Error, string> Terminer()
         {
             if (DéjàTerminée())
             {
                 return AnError("Quand c'est fini, c'est fini");
             }
 
-            Status = Terminée;
-            string result;
-
             var classement = Classement();
+            var (winners, nbGalinettes) = TousBrocouilles(classement)
+                ? (new List<string> {"Brocouille"}, 0)
+                : (classement[0].Map(c => c.Nom), classement[0].First().NbGalinettes);
 
-            if (TousBrocouilles(classement))
-            {
-                result = "Brocouille";
-                EmitEvent("La partie de chasse est terminée, vainqueur : Brocouille", timeProvider);
-            }
-            else
-            {
-                result = Join(", ", classement[0].Select(c => c.Nom));
-                EmitEvent(
-                    $"La partie de chasse est terminée, vainqueur : {Join(", ", classement[0].Select(c => $"{c.Nom} - {c.NbGalinettes} galinettes"))}",
-                    timeProvider);
-            }
+            RaiseEvent((id, time) => new PartieTerminée(id, time, winners.ToSeq(), nbGalinettes));
 
-            return result;
+            return Join(", ", winners);
         }
 
         private List<IGrouping<int, Chasseur>> Classement()
-            => Chasseurs
+            => _chasseurs
                 .GroupBy(c => c.NbGalinettes)
                 .OrderByDescending(g => g.Key)
                 .ToList();
@@ -178,86 +188,72 @@ namespace Bouchonnois.Domain
         private static bool TousBrocouilles(IEnumerable<IGrouping<int, Chasseur>> classement) =>
             classement.All(group => group.Key == 0);
 
+        private void Apply(PartieTerminée @event) => Status = Terminée;
+
         #endregion
 
         #region Tirer
 
-        public Either<Error, PartieDeChasse> Tirer(
-            string chasseur,
-            Func<DateTime> timeProvider)
+        public Either<Error, Unit> Tirer(
+            string chasseur)
             => Tirer(chasseur,
-                timeProvider,
-                debutMessageSiPlusDeBalles: $"{chasseur} tire",
-                _ => EmitEvent($"{chasseur} tire", timeProvider));
+                intention: "tire",
+                _ => RaiseEvent((id, time) => new ChasseurATiré(id, time, chasseur)));
 
-        private Either<Error, PartieDeChasse> Tirer(
+        private Either<Error, Unit> Tirer(
             string chasseur,
-            Func<DateTime> timeProvider,
-            string debutMessageSiPlusDeBalles,
+            string intention,
             Action<Chasseur>? continueWith = null)
         {
             if (DuringApéro())
             {
-                return EmitAndReturn(
-                    $"{chasseur} veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!",
-                    timeProvider);
+                return RaiseEventAndReturnAnError((id, time) =>
+                    new ChasseurAVouluTiréPendantLApéro(id, time, chasseur));
             }
 
             if (DéjàTerminée())
             {
-                return EmitAndReturn($"{chasseur} veut tirer -> On tire pas quand la partie est terminée",
-                    timeProvider);
+                return RaiseEventAndReturnAnError((id, time) =>
+                    new ChasseurAVouluTiréQuandPartieTerminée(id, time, chasseur));
             }
 
             if (!ChasseurExiste(chasseur))
             {
-                return EmitAndReturn($"Chasseur inconnu {chasseur}", timeProvider);
+                return RaiseEventAndReturnAnError((id, time) => new ChasseurInconnuAVouluTiré(id, time, chasseur));
             }
 
             var chasseurQuiTire = RetrieveChasseur(chasseur);
 
             if (!chasseurQuiTire.AEncoreDesBalles())
             {
-                return EmitAndReturn($"{debutMessageSiPlusDeBalles} -> T'as plus de balles mon vieux, chasse à la main",
-                    timeProvider);
+                return RaiseEventAndReturnAnError((id, time) =>
+                    new ChasseurSansBallesAVouluTiré(id, time, chasseur, intention));
             }
 
-            chasseurQuiTire.ATiré();
             continueWith?.Invoke(chasseurQuiTire);
 
-            return this;
+            return Default;
         }
 
-        private Either<Error, PartieDeChasse> EmitAndReturn(string message, Func<DateTime> timeProvider)
-        {
-            EmitEvent(message, timeProvider);
-            return AnError(message);
-        }
+        private void Apply(ChasseurATiré @event) => RetrieveChasseur(@event.Chasseur).ATiré();
 
         #endregion
 
         #region Tirer sur une Galinette
 
-        public Either<Error, PartieDeChasse> TirerSurUneGalinette(
-            string chasseur,
-            Func<DateTime> timeProvider)
-        {
-            if (Terrain!.NbGalinettes == 0)
-            {
-                return EmitAndReturn(
-                    $"T'as trop picolé mon vieux, t'as rien touché",
-                    timeProvider);
-            }
+        public Either<Error, Unit> TirerSurUneGalinette(string chasseur)
+            => Terrain is {NbGalinettes: 0}
+                ? RaiseEventAndReturnAnError((id, time) => new ChasseurACruTiréSurGalinette(id, time, chasseur))
+                : Tirer(chasseur,
+                    intention: "veut tirer sur une galinette",
+                    c => RaiseEvent((id, time) => new ChasseurATiréSurUneGalinette(id, time, chasseur)));
 
-            return Tirer(chasseur,
-                timeProvider,
-                debutMessageSiPlusDeBalles: $"{chasseur} veut tirer sur une galinette",
-                c =>
-                {
-                    c.ATué();
-                    Terrain.UneGalinetteEnMoins();
-                    EmitEvent($"{chasseur} tire sur une galinette", timeProvider);
-                });
+        private void Apply(ChasseurATiréSurUneGalinette @event)
+        {
+            var chasseur = RetrieveChasseur(@event.Chasseur);
+            chasseur.ATiré();
+            chasseur.ATué();
+            Terrain!.UneGalinetteEnMoins();
         }
 
         #endregion
@@ -270,5 +266,16 @@ namespace Bouchonnois.Domain
 
         private void EmitEvent(string message, Func<DateTime> timeProvider) =>
             _events.Add(new Event(timeProvider(), message));
+
+        private IEvent RaiseEvent(Func<Guid, DateTime, IEvent> eventFactory)
+        {
+            var @event = eventFactory(Id, Time());
+            RaiseEvent(@event);
+
+            return @event;
+        }
+
+        private Error RaiseEventAndReturnAnError(Func<Guid, DateTime, IEvent> eventFactory) =>
+            AnError(RaiseEvent(eventFactory).ToString()!);
     }
 }
