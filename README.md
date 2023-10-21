@@ -29,16 +29,19 @@ Version PDF disponible [ici](example-mapping/example-mapping.pdf)
 
 ## Facilitation
 ### Pré-requis
-Le code est disponible en `.NET 7`.
+Le code est disponible en `C#` (`.NET 7`) et `java`(21).
 
-Voici la liste des packages utilisés :
-- `xUnit`
-- `FluentAssertions`
-- `Verify.xUnit`
-- `FSCheck`
-- `TngTech.ArchUnitNET.xUnit`
-- `LanguageExt.Core`
-- `FluentAssertions.LanguageExt`
+Voici la liste des librairies utilisés / recommandées :
+
+| .NET                                                                                          | Java                                                               |
+|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+| [`xUnit`](https://xunit.net/)                                                                 | [`junit`](https://junit.org/junit5/)                               |
+| [`FluentAssertions`](https://fluentassertions.com/)                                           | [`assertJ`](https://joel-costigliola.github.io/assertj/)           |
+| [`Verify.xUnit`](https://github.com/VerifyTests/Verify)                                       | [`approvalTests`](https://github.com/approvals/approvaltests.java) |
+| [`FSCheck`](https://fscheck.github.io/FsCheck/)                                               | [`vavr-test`](https://github.com/vavr-io/vavr-test)                |
+| [`TngTech.ArchUnitNET.xUnit`](https://archunitnet.readthedocs.io/en/latest/)                  | [`archunit`](https://www.archunit.org/)                            |
+| [`LanguageExt.Core`](https://github.com/louthy/language-ext)                                  | [`vavr`](https://www.vavr.io/)                                     |
+| [`FluentAssertions.LanguageExt`](https://www.nuget.org/packages/FluentAssertions.LanguageExt) | [`assertj-vavr`](https://github.com/assertj/assertj-vavr)          |
 
 Afin d'améliorer le code on te propose de suivre les étapes ci-dessous :
 
@@ -56,7 +59,7 @@ Afin d'améliorer le code on te propose de suivre les étapes ci-dessous :
 - [12. Event Sourcing](facilitation/12.event-sourcing.md)
 
 Pour chaque étape :
-- une proposition de solution "étape par étape" est proposée
+- une proposition de solution "étape par étape" est proposée (en `C#` uniquement)
 - il existe 1 branche / étape
 
 ![Branches](img/branches.webp)
