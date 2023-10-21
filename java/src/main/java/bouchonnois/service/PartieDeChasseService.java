@@ -5,8 +5,8 @@ import bouchonnois.domain.Event;
 import bouchonnois.domain.PartieDeChasse;
 import bouchonnois.domain.PartieStatus;
 import bouchonnois.repository.PartieDeChasseRepository;
-import bouchonnois.service.exceptions.ImpossibleDeDemarrerUnePartieAvecUnChasseurSansBalle;
-import bouchonnois.service.exceptions.ImpossibleDeDemarrerUnePartieSansChasseur;
+import bouchonnois.service.exceptions.ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle;
+import bouchonnois.service.exceptions.ImpossibleDeDémarrerUnePartieSansChasseur;
 import bouchonnois.service.exceptions.ImpossibleDeDémarrerUnePartieSansGalinettes;
 import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
@@ -22,7 +22,7 @@ public class PartieDeChasseService {
     private final PartieDeChasseRepository repository;
     private final Supplier<LocalDate> timeProvider;
 
-    public UUID démarrer(Tuple2<String, Integer> terrainDeChasse, List<Tuple2<String, Integer>> chasseurs) throws ImpossibleDeDémarrerUnePartieSansGalinettes, ImpossibleDeDemarrerUnePartieAvecUnChasseurSansBalle, ImpossibleDeDemarrerUnePartieSansChasseur {
+    public UUID démarrer(Tuple2<String, Integer> terrainDeChasse, List<Tuple2<String, Integer>> chasseurs) throws ImpossibleDeDémarrerUnePartieSansGalinettes, ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle, ImpossibleDeDémarrerUnePartieSansChasseur {
         if (terrainDeChasse._2 <= 0) {
             throw new ImpossibleDeDémarrerUnePartieSansGalinettes();
         }
@@ -39,7 +39,7 @@ public class PartieDeChasseService {
 
         for (var chasseur : chasseurs) {
             if (chasseur._2 == 0) {
-                throw new ImpossibleDeDemarrerUnePartieAvecUnChasseurSansBalle();
+                throw new ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle();
             }
             Chasseur chasseurToAdd = new Chasseur();
             chasseurToAdd.setNom(chasseur._1);
@@ -48,7 +48,7 @@ public class PartieDeChasseService {
         }
 
         if (partieDeChasse.getChasseurs().isEmpty()) {
-            throw new ImpossibleDeDemarrerUnePartieSansChasseur();
+            throw new ImpossibleDeDémarrerUnePartieSansChasseur();
         }
 
         String chasseursToString = String.join(", ",
