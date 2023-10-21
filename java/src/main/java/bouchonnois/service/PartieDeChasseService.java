@@ -74,10 +74,8 @@ public class PartieDeChasseService {
             if (partieDeChasse.getStatus() != PartieStatus.APÉRO) {
                 if (partieDeChasse.getStatus() != PartieStatus.TERMINÉE) {
                     if (partieDeChasse.getChasseurs().stream().anyMatch(c -> c.getNom().equals(chasseur))) {
-                        var chasseurQuiTire = partieDeChasse.getChasseurs()
-                                .stream()
-                                .filter(c -> c.getNom().equals(chasseur))
-                                .findFirst()
+                        var chasseurQuiTire = partieDeChasse.getChasseurs().stream()
+                                .filter(c -> c.getNom().equals(chasseur)).findFirst()
                                 .get();
 
                         if (chasseurQuiTire.getBallesRestantes() == 0) {
@@ -113,6 +111,49 @@ public class PartieDeChasseService {
             throw new TasTropPicoledMonVieuxTasRienTouche();
         }
 
+        repository.save(partieDeChasse);
+    }
+
+    public void tirer(UUID id, String chasseur) throws LaPartieDeChasseNexistePas, TasPlusDeBallesMonVieuxChasseALaMain, ChasseurInconnu, OnTirePasPendantLapéroCestSacré, TasTropPicoledMonVieuxTasRienTouche, OnTirePasQuandLaPartieEstTerminee {
+        PartieDeChasse partieDeChasse = repository.getById(id);
+
+        if (partieDeChasse == null) {
+            throw new LaPartieDeChasseNexistePas();
+        }
+        if (partieDeChasse.getStatus() != PartieStatus.APÉRO) {
+            if (partieDeChasse.getStatus() != PartieStatus.TERMINÉE) {
+                if (partieDeChasse.getChasseurs().stream().anyMatch(c -> c.getNom().equals(chasseur))) {
+                    var chasseurQuiTire = partieDeChasse.getChasseurs()
+                            .stream()
+                            .filter(c -> c.getNom().equals(chasseur))
+                            .findFirst()
+                            .get();
+
+                    if (chasseurQuiTire.getBallesRestantes() == 0) {
+                        partieDeChasse.getEvents().add(new Event(timeProvider.get(),
+                                chasseur + " veut tirer sur une galinette -> T'as plus de balles mon vieux, chasse à la main"));
+                        repository.save(partieDeChasse);
+
+                        throw new TasPlusDeBallesMonVieuxChasseALaMain();
+                    }
+
+                    chasseurQuiTire.setBallesRestantes(chasseurQuiTire.getBallesRestantes() - 1);
+                    partieDeChasse.getEvents().add(new Event(timeProvider.get(), chasseur + " tire"));
+
+                } else {
+                    throw new ChasseurInconnu(chasseur);
+                }
+            } else {
+                partieDeChasse.getEvents().add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas quand la partie est terminée"));
+                repository.save(partieDeChasse);
+
+                throw new OnTirePasQuandLaPartieEstTerminee();
+            }
+        } else {
+            partieDeChasse.getEvents().add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas pendant l'apero, c'est sacré !!!"));
+            repository.save(partieDeChasse);
+            throw new OnTirePasPendantLapéroCestSacré();
+        }
         repository.save(partieDeChasse);
     }
 }
