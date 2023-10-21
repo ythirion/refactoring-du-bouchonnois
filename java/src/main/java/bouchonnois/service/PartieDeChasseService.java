@@ -156,5 +156,44 @@ public class PartieDeChasseService {
         }
         repository.save(partieDeChasse);
     }
+
+    public void prendreLapero(UUID id) throws LaPartieDeChasseNexistePas, OnEstDéjaEnTrainDePrendreLapéro, OnPrendPasLapéroQuandLaPartieEstTerminée {
+        PartieDeChasse partieDeChasse = repository.getById(id);
+
+        if (partieDeChasse == null) {
+            throw new LaPartieDeChasseNexistePas();
+        }
+
+        if (partieDeChasse.getStatus() == PartieStatus.APÉRO) {
+            throw new OnEstDéjaEnTrainDePrendreLapéro();
+        } else if (partieDeChasse.getStatus() == PartieStatus.TERMINÉE) {
+            throw new OnPrendPasLapéroQuandLaPartieEstTerminée();
+        } else {
+            partieDeChasse.setStatus(PartieStatus.APÉRO);
+            partieDeChasse.getEvents().add(new Event(timeProvider.get(), "Petit apero"));
+            repository.save(partieDeChasse);
+        }
+    }
+
+    public void reprendreLaPartie(UUID id) throws LaPartieDeChasseNexistePas, LaChasseEstDéjaEnCours, QuandCestFiniCestFini {
+        PartieDeChasse partieDeChasse = repository.getById(id);
+
+        if (partieDeChasse == null) {
+            throw new LaPartieDeChasseNexistePas();
+        }
+
+        if (partieDeChasse.getStatus() == PartieStatus.EN_COURS) {
+            throw new LaChasseEstDéjaEnCours();
+        }
+
+        if (partieDeChasse.getStatus() == PartieStatus.TERMINÉE) {
+            throw new QuandCestFiniCestFini();
+        }
+
+        partieDeChasse.setStatus(PartieStatus.EN_COURS);
+        partieDeChasse.getEvents().add(new Event(timeProvider.get(), "Reprise de la chasse"));
+        repository.save(partieDeChasse);
+    }
+
 }
 
