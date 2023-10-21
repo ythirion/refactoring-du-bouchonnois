@@ -9,8 +9,9 @@ import bouchonnois.service.exceptions.*;
 import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PartieDeChasseService {
     private final PartieDeChasseRepository repository;
-    private final Supplier<LocalDate> timeProvider;
+    private final Supplier<LocalDateTime> timeProvider;
 
     public UUID démarrer(Tuple2<String, Integer> terrainDeChasse, List<Tuple2<String, Integer>> chasseurs) throws ImpossibleDeDémarrerUnePartieSansGalinettes, ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle, ImpossibleDeDémarrerUnePartieSansChasseur {
         if (terrainDeChasse._2 <= 0) {
@@ -96,8 +97,7 @@ public class PartieDeChasseService {
                         throw new ChasseurInconnu(chasseur);
                     }
                 } else {
-                    partieDeChasse.getEvents()
-                            .add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas quand la partie est terminée"));
+                    partieDeChasse.getEvents().add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas quand la partie est terminée"));
                     repository.save(partieDeChasse);
 
                     throw new OnTirePasQuandLaPartieEstTerminee();
@@ -233,5 +233,19 @@ public class PartieDeChasseService {
 
         return result;
     }
-}
 
+    public String consulterStatus(UUID id) throws LaPartieDeChasseNexistePas {
+        PartieDeChasse partieDeChasse = repository.getById(id);
+
+        if (partieDeChasse == null) {
+            throw new LaPartieDeChasseNexistePas();
+        }
+
+        List<Event> events = partieDeChasse.getEvents();
+        events.sort(Comparator.comparing(Event::date).reversed());
+
+        return events.stream()
+                .map(Event::toString)
+                .collect(Collectors.joining(System.lineSeparator()));
+    }
+}

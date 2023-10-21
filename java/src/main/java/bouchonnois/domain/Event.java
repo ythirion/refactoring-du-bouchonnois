@@ -1,13 +1,11 @@
 package bouchonnois.domain;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-public record Event(LocalDate date, String message) {
+public record Event(LocalDateTime date, String message) {
     @Override
     public String toString() {
-        return "Event{" +
-                "date=" + date +
-                ", message='" + message + '\'' +
-                '}';
+        return date.format(DateTimeFormatter.ofPattern("HH:mm - ")) + message;
     }
 }
