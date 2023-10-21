@@ -104,7 +104,7 @@ public class PartieDeChasseService {
                 }
             } else {
                 partieDeChasse.getEvents()
-                        .add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas pendant l'apero, c'est sacré !!!"));
+                        .add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"));
                 repository.save(partieDeChasse);
                 throw new OnTirePasPendantLapéroCestSacré();
             }
@@ -132,7 +132,7 @@ public class PartieDeChasseService {
 
                     if (chasseurQuiTire.getBallesRestantes() == 0) {
                         partieDeChasse.getEvents().add(new Event(timeProvider.get(),
-                                chasseur + " veut tirer sur une galinette -> T'as plus de balles mon vieux, chasse à la main"));
+                                chasseur + " tire -> T'as plus de balles mon vieux, chasse à la main"));
                         repository.save(partieDeChasse);
 
                         throw new TasPlusDeBallesMonVieuxChasseALaMain();
@@ -151,14 +151,14 @@ public class PartieDeChasseService {
                 throw new OnTirePasQuandLaPartieEstTerminee();
             }
         } else {
-            partieDeChasse.getEvents().add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas pendant l'apero, c'est sacré !!!"));
+            partieDeChasse.getEvents().add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"));
             repository.save(partieDeChasse);
             throw new OnTirePasPendantLapéroCestSacré();
         }
         repository.save(partieDeChasse);
     }
 
-    public void prendreLapero(UUID id) throws LaPartieDeChasseNexistePas, OnEstDéjaEnTrainDePrendreLapéro, OnPrendPasLapéroQuandLaPartieEstTerminée {
+    public void prendreLapéro(UUID id) throws LaPartieDeChasseNexistePas, OnEstDéjaEnTrainDePrendreLapéro, OnPrendPasLapéroQuandLaPartieEstTerminée {
         PartieDeChasse partieDeChasse = repository.getById(id);
 
         if (partieDeChasse == null) {
@@ -171,7 +171,7 @@ public class PartieDeChasseService {
             throw new OnPrendPasLapéroQuandLaPartieEstTerminée();
         } else {
             partieDeChasse.setStatus(PartieStatus.APÉRO);
-            partieDeChasse.getEvents().add(new Event(timeProvider.get(), "Petit apero"));
+            partieDeChasse.getEvents().add(new Event(timeProvider.get(), "Petit apéro"));
             repository.save(partieDeChasse);
         }
     }
@@ -214,7 +214,7 @@ public class PartieDeChasseService {
 
         if (classement.entrySet().stream().allMatch(entry -> entry.getKey() == 0)) {
             result = "Brocouille";
-            partieDeChasse.getEvents().add(new Event(timeProvider.get(), "La partie de chasse est terminee, vainqueur : Brocouille"));
+            partieDeChasse.getEvents().add(new Event(timeProvider.get(), "La partie de chasse est terminée, vainqueur : Brocouille"));
         } else {
             var winners = classement.get(classement.keySet().stream()
                     .max(Integer::compare)
@@ -224,7 +224,7 @@ public class PartieDeChasseService {
                     .map(Chasseur::getNom)
                     .collect(Collectors.joining(", "));
 
-            partieDeChasse.getEvents().add(new Event(timeProvider.get(), "La partie de chasse est terminee, vainqueur : " +
+            partieDeChasse.getEvents().add(new Event(timeProvider.get(), "La partie de chasse est terminée, vainqueur : " +
                     winners.stream()
                             .map(chasseur -> chasseur.getNom() + " - " + chasseur.getNbGalinettes() + " galinettes")
                             .collect(Collectors.joining(", "))));
