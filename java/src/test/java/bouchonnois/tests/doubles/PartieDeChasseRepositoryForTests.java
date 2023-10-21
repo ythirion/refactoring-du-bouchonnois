@@ -16,11 +16,15 @@ public class PartieDeChasseRepositoryForTests implements PartieDeChasseRepositor
     @Override
     public void save(PartieDeChasse partieDeChasse) {
         savedPartieDeChasse = partieDeChasse;
-        partiesDeChasse.put(partieDeChasse.getId(), partieDeChasse);
+        add(partieDeChasse);
     }
 
     @Override
     public PartieDeChasse getById(UUID partieDeChasseId) {
-        return null;
+        return partiesDeChasse.get(partieDeChasseId);
+    }
+
+    public void add(PartieDeChasse partieDeChasse) {
+        partiesDeChasse.put(partieDeChasse.getId(), partieDeChasse);
     }
 }

@@ -5,9 +5,7 @@ import bouchonnois.domain.Event;
 import bouchonnois.domain.PartieDeChasse;
 import bouchonnois.domain.PartieStatus;
 import bouchonnois.repository.PartieDeChasseRepository;
-import bouchonnois.service.exceptions.ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle;
-import bouchonnois.service.exceptions.ImpossibleDeDémarrerUnePartieSansChasseur;
-import bouchonnois.service.exceptions.ImpossibleDeDémarrerUnePartieSansGalinettes;
+import bouchonnois.service.exceptions.*;
 import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
 
@@ -63,4 +61,59 @@ public class PartieDeChasseService {
 
         return partieDeChasse.getId();
     }
+
+    public void tirerSurUneGalinette(UUID id, String chasseur) throws LaPartieDeChasseNexistePas, TasPlusDeBallesMonVieuxChasseALaMain, ChasseurInconnu, OnTirePasPendantLaperoCestSacre, TasTropPicoledMonVieuxTasRienTouche, OnTirePasQuandLaPartieEstTerminee {
+        PartieDeChasse partieDeChasse = repository.getById(id);
+
+        if (partieDeChasse == null) {
+            throw new LaPartieDeChasseNexistePas();
+        }
+
+        if (partieDeChasse.getTerrain().getNbGalinettes() != 0) {
+
+            if (partieDeChasse.getStatus() != PartieStatus.APÉRO) {
+                if (partieDeChasse.getStatus() != PartieStatus.TERMINÉE) {
+                    if (partieDeChasse.getChasseurs().stream().anyMatch(c -> c.getNom().equals(chasseur))) {
+                        var chasseurQuiTire = partieDeChasse.getChasseurs()
+                                .stream()
+                                .filter(c -> c.getNom().equals(chasseur))
+                                .findFirst()
+                                .get();
+
+                        if (chasseurQuiTire.getBallesRestantes() == 0) {
+                            partieDeChasse.getEvents().add(new Event(timeProvider.get(),
+                                    chasseur + " veut tirer sur une galinette -> T'as plus de balles mon vieux, chasse à la main"));
+                            repository.save(partieDeChasse);
+
+                            throw new TasPlusDeBallesMonVieuxChasseALaMain();
+                        }
+
+                        chasseurQuiTire.setBallesRestantes(chasseurQuiTire.getBallesRestantes() - 1);
+                        chasseurQuiTire.setNbGalinettes(chasseurQuiTire.getNbGalinettes() + 1);
+                        partieDeChasse.getTerrain().setNbGalinettes(partieDeChasse.getTerrain().getNbGalinettes() - 1);
+                        partieDeChasse.getEvents().add(new Event(timeProvider.get(), chasseur + " tire sur une galinette"));
+
+                    } else {
+                        throw new ChasseurInconnu(chasseur);
+                    }
+                } else {
+                    partieDeChasse.getEvents()
+                            .add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas quand la partie est terminée"));
+                    repository.save(partieDeChasse);
+
+                    throw new OnTirePasQuandLaPartieEstTerminee();
+                }
+            } else {
+                partieDeChasse.getEvents()
+                        .add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas pendant l'apero, c'est sacré !!!"));
+                repository.save(partieDeChasse);
+                throw new OnTirePasPendantLaperoCestSacre();
+            }
+        } else {
+            throw new TasTropPicoledMonVieuxTasRienTouche();
+        }
+
+        repository.save(partieDeChasse);
+    }
 }
+
