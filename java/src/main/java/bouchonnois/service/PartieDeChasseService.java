@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class PartieDeChasseService {
@@ -195,5 +196,42 @@ public class PartieDeChasseService {
         repository.save(partieDeChasse);
     }
 
+    public String terminerLaPartie(UUID id) throws QuandCestFiniCestFini {
+        PartieDeChasse partieDeChasse = repository.getById(id);
+
+        var classement = partieDeChasse
+                .getChasseurs()
+                .stream()
+                .collect(Collectors.groupingBy(Chasseur::getNbGalinettes));
+
+        if (partieDeChasse.getStatus() == PartieStatus.TERMINÉE) {
+            throw new QuandCestFiniCestFini();
+        }
+
+        partieDeChasse.setStatus(PartieStatus.TERMINÉE);
+
+        String result = "";
+
+        if (classement.entrySet().stream().allMatch(entry -> entry.getKey() == 0)) {
+            result = "Brocouille";
+            partieDeChasse.getEvents().add(new Event(timeProvider.get(), "La partie de chasse est terminee, vainqueur : Brocouille"));
+        } else {
+            var winners = classement.get(classement.keySet().stream()
+                    .max(Integer::compare)
+                    .orElse(0));
+
+            result = winners.stream()
+                    .map(Chasseur::getNom)
+                    .collect(Collectors.joining(", "));
+
+            partieDeChasse.getEvents().add(new Event(timeProvider.get(), "La partie de chasse est terminee, vainqueur : " +
+                    winners.stream()
+                            .map(chasseur -> chasseur.getNom() + " - " + chasseur.getNbGalinettes() + " galinettes")
+                            .collect(Collectors.joining(", "))));
+        }
+        repository.save(partieDeChasse);
+
+        return result;
+    }
 }
 

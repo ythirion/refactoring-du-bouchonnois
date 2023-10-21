@@ -822,4 +822,60 @@ class PartieDeChasseServiceTests {
             assertThat(repository.getSavedPartieDeChasse()).isNull();
         }
     }
+
+    static class TerminerLaPartieDeChasse {
+        @Test
+        void quand_la_partie_est_en_cours_et_1_seul_chasseur_gagne() throws QuandCestFiniCestFini {
+            var id = UUID.randomUUID();
+            var repository = new PartieDeChasseRepositoryForTests();
+
+            repository.add(new PartieDeChasse() {
+                {
+                    setId(id);
+                    setChasseurs(new ArrayList<>() {{
+                        add(new Chasseur() {{
+                            setNom("Dédé");
+                            setBallesRestantes(20);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Bernard");
+                            setBallesRestantes(8);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Robert");
+                            setBallesRestantes(12);
+                            setNbGalinettes(2);
+                        }});
+                    }});
+
+                    setTerrain(new Terrain("Pitibon sur Sauldre") {{
+                        setNbGalinettes(3);
+                    }});
+                    setStatus(PartieStatus.EN_COURS);
+                    setEvents(new ArrayList<>());
+                }
+            });
+            var service = new PartieDeChasseService(repository, LocalDate::now);
+
+            var meilleurChasseur = service.terminerLaPartie(id);
+
+            var savedPartieDeChasse = repository.getSavedPartieDeChasse();
+            assertThat(savedPartieDeChasse.getId()).isEqualTo(id);
+            assertThat(savedPartieDeChasse.getStatus()).isEqualTo(PartieStatus.TERMINÉE);
+            assertThat(savedPartieDeChasse.getTerrain().getNom()).isEqualTo("Pitibon sur Sauldre");
+            assertThat(savedPartieDeChasse.getTerrain().getNbGalinettes()).isEqualTo(3);
+            assertThat(savedPartieDeChasse.getChasseurs()).hasSize(3);
+            assertThat(savedPartieDeChasse.getChasseurs().get(0).getNom()).isEqualTo("Dédé");
+            assertThat(savedPartieDeChasse.getChasseurs().get(0).getBallesRestantes()).isEqualTo(20);
+            assertThat(savedPartieDeChasse.getChasseurs().get(0).getNbGalinettes()).isZero();
+            assertThat(savedPartieDeChasse.getChasseurs().get(1).getNom()).isEqualTo("Bernard");
+            assertThat(savedPartieDeChasse.getChasseurs().get(1).getBallesRestantes()).isEqualTo(8);
+            assertThat(savedPartieDeChasse.getChasseurs().get(1).getNbGalinettes()).isZero();
+            assertThat(savedPartieDeChasse.getChasseurs().get(2).getNom()).isEqualTo("Robert");
+            assertThat(savedPartieDeChasse.getChasseurs().get(2).getBallesRestantes()).isEqualTo(12);
+            assertThat(savedPartieDeChasse.getChasseurs().get(2).getNbGalinettes()).isEqualTo(2);
+
+            assertThat(meilleurChasseur).isEqualTo("Robert");
+        }
+    }
 }
