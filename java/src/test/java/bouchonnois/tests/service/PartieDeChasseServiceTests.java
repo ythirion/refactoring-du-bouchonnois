@@ -94,7 +94,7 @@ class PartieDeChasseServiceTests {
 
     static class TirerSurUneGalinette {
         @Test
-        void avec_un_chasseur_ayant_des_balles_et_assez_de_galinettes_sur_le_terrain() throws ChasseurInconnu, TasTropPicoledMonVieuxTasRienTouche, OnTirePasQuandLaPartieEstTerminee, TasPlusDeBallesMonVieuxChasseALaMain, LaPartieDeChasseNexistePas, OnTirePasPendantLaperoCestSacre {
+        void avec_un_chasseur_ayant_des_balles_et_assez_de_galinettes_sur_le_terrain() throws ChasseurInconnu, TasTropPicoledMonVieuxTasRienTouche, OnTirePasQuandLaPartieEstTerminee, TasPlusDeBallesMonVieuxChasseALaMain, LaPartieDeChasseNexistePas, OnTirePasPendantLapéroCestSacré {
             var id = UUID.randomUUID();
             var repository = new PartieDeChasseRepositoryForTests();
 
@@ -143,26 +143,198 @@ class PartieDeChasseServiceTests {
             assertThat(savedPartieDeChasse.getChasseurs().get(2).getBallesRestantes()).isEqualTo(12);
             assertThat(savedPartieDeChasse.getChasseurs().get(2).getNbGalinettes()).isZero();
         }
+
+        @Test
+        void echoue_car_partie_nexiste_pas() {
+            var id = UUID.randomUUID();
+            var repository = new PartieDeChasseRepositoryForTests();
+            var service = new PartieDeChasseService(repository, LocalDate::now);
+
+            assertThatThrownBy(() -> service.tirerSurUneGalinette(id, "Bernard"))
+                    .isInstanceOf(LaPartieDeChasseNexistePas.class);
+            assertThat(repository.getSavedPartieDeChasse()).isNull();
+        }
+
+        @Test
+        void echoue_avec_un_chasseur_nayant_plus_de_balles() {
+            var id = UUID.randomUUID();
+            var repository = new PartieDeChasseRepositoryForTests();
+
+            repository.add(new PartieDeChasse() {
+                {
+                    setId(id);
+                    setChasseurs(new ArrayList<>() {{
+                        add(new Chasseur() {{
+                            setNom("Dédé");
+                            setBallesRestantes(20);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Bernard");
+                            setBallesRestantes(0);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Robert");
+                            setBallesRestantes(12);
+                        }});
+                    }});
+
+                    setTerrain(new Terrain("Pitibon sur Sauldre") {{
+                        setNbGalinettes(3);
+                    }});
+                    setStatus(PartieStatus.EN_COURS);
+                    setEvents(new ArrayList<>());
+                }
+            });
+            var service = new PartieDeChasseService(repository, LocalDate::now);
+
+            assertThatThrownBy(() -> service.tirerSurUneGalinette(id, "Bernard"))
+                    .isInstanceOf(TasPlusDeBallesMonVieuxChasseALaMain.class);
+        }
+
+        @Test
+        void echoue_car_pas_de_galinettes_sur_le_terrain() {
+            var id = UUID.randomUUID();
+            var repository = new PartieDeChasseRepositoryForTests();
+
+            repository.add(new PartieDeChasse() {
+                {
+                    setId(id);
+                    setChasseurs(new ArrayList<>() {{
+                        add(new Chasseur() {{
+                            setNom("Dédé");
+                            setBallesRestantes(20);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Bernard");
+                            setBallesRestantes(8);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Robert");
+                            setBallesRestantes(12);
+                        }});
+                    }});
+
+                    setTerrain(new Terrain("Pitibon sur Sauldre") {{
+                        setNbGalinettes(0);
+                    }});
+                    setStatus(PartieStatus.EN_COURS);
+                    setEvents(new ArrayList<>());
+                }
+            });
+            var service = new PartieDeChasseService(repository, LocalDate::now);
+
+            assertThatThrownBy(() -> service.tirerSurUneGalinette(id, "Bernard"))
+                    .isInstanceOf(TasTropPicoledMonVieuxTasRienTouche.class);
+            assertThat(repository.getSavedPartieDeChasse()).isNull();
+        }
+
+        @Test
+        void echoue_car_le_chasseur_n_est_pas_dans_la_partie() {
+            var id = UUID.randomUUID();
+            var repository = new PartieDeChasseRepositoryForTests();
+
+            repository.add(new PartieDeChasse() {
+                {
+                    setId(id);
+                    setChasseurs(new ArrayList<>() {{
+                        add(new Chasseur() {{
+                            setNom("Dédé");
+                            setBallesRestantes(20);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Bernard");
+                            setBallesRestantes(8);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Robert");
+                            setBallesRestantes(12);
+                        }});
+                    }});
+
+                    setTerrain(new Terrain("Pitibon sur Sauldre") {{
+                        setNbGalinettes(3);
+                    }});
+                    setStatus(PartieStatus.EN_COURS);
+                    setEvents(new ArrayList<>());
+                }
+            });
+            var service = new PartieDeChasseService(repository, LocalDate::now);
+
+            assertThatThrownBy(() -> service.tirerSurUneGalinette(id, "Chasseur inconnu"))
+                    .isInstanceOf(ChasseurInconnu.class);
+            assertThat(repository.getSavedPartieDeChasse()).isNull();
+        }
+
+        @Test
+        void echoue_si_les_chasseurs_sont_en_apéro() {
+            var id = UUID.randomUUID();
+            var repository = new PartieDeChasseRepositoryForTests();
+
+            repository.add(new PartieDeChasse() {
+                {
+                    setId(id);
+                    setChasseurs(new ArrayList<>() {{
+                        add(new Chasseur() {{
+                            setNom("Dédé");
+                            setBallesRestantes(20);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Bernard");
+                            setBallesRestantes(8);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Robert");
+                            setBallesRestantes(12);
+                        }});
+                    }});
+
+                    setTerrain(new Terrain("Pitibon sur Sauldre") {{
+                        setNbGalinettes(3);
+                    }});
+                    setStatus(PartieStatus.APÉRO);
+                    setEvents(new ArrayList<>());
+                }
+            });
+            var service = new PartieDeChasseService(repository, LocalDate::now);
+
+            assertThatThrownBy(() -> service.tirerSurUneGalinette(id, "Bernard"))
+                    .isInstanceOf(OnTirePasPendantLapéroCestSacré.class);
+        }
+
+        @Test
+        void echoue_si_la_partie_est_terminée() {
+            var id = UUID.randomUUID();
+            var repository = new PartieDeChasseRepositoryForTests();
+
+            repository.add(new PartieDeChasse() {
+                {
+                    setId(id);
+                    setChasseurs(new ArrayList<>() {{
+                        add(new Chasseur() {{
+                            setNom("Dédé");
+                            setBallesRestantes(20);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Bernard");
+                            setBallesRestantes(8);
+                        }});
+                        add(new Chasseur() {{
+                            setNom("Robert");
+                            setBallesRestantes(12);
+                        }});
+                    }});
+
+                    setTerrain(new Terrain("Pitibon sur Sauldre") {{
+                        setNbGalinettes(3);
+                    }});
+                    setStatus(PartieStatus.TERMINÉE);
+                    setEvents(new ArrayList<>());
+                }
+            });
+            var service = new PartieDeChasseService(repository, LocalDate::now);
+
+            assertThatThrownBy(() -> service.tirerSurUneGalinette(id, "Bernard"))
+                    .isInstanceOf(OnTirePasPendantLapéroCestSacré.class);
+        }
     }
-
-    /*
-                var savedPartieDeChasse = repository.SavedPartieDeChasse();
-                savedPartieDeChasse.Id.Should().Be(id);
-                savedPartieDeChasse.Status.Should().Be(PartieStatus.EnCours);
-                savedPartieDeChasse.Terrain.Nom.Should().Be("Pitibon sur Sauldre");
-                savedPartieDeChasse.Terrain.NbGalinettes.Should().Be(2);
-                savedPartieDeChasse.Chasseurs.Should().HaveCount(3);
-                savedPartieDeChasse.Chasseurs[0].Nom.Should().Be("Dédé");
-                savedPartieDeChasse.Chasseurs[0].BallesRestantes.Should().Be(20);
-                savedPartieDeChasse.Chasseurs[0].NbGalinettes.Should().Be(0);
-                savedPartieDeChasse.Chasseurs[1].Nom.Should().Be("Bernard");
-                savedPartieDeChasse.Chasseurs[1].BallesRestantes.Should().Be(7);
-                savedPartieDeChasse.Chasseurs[1].NbGalinettes.Should().Be(1);
-                savedPartieDeChasse.Chasseurs[2].Nom.Should().Be("Robert");
-                savedPartieDeChasse.Chasseurs[2].BallesRestantes.Should().Be(12);
-                savedPartieDeChasse.Chasseurs[2].NbGalinettes.Should().Be(0);
-            }
-     */
-
-
 }
