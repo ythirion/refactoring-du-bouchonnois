@@ -6,13 +6,17 @@ import java.util.*
 
 class PartieDeChasseRepositoryForTests : PartieDeChasseRepository {
     var savedPartieDeChasse: PartieDeChasse? = null
-    private val partiesDeChasse: Map<UUID, PartieDeChasse> = mutableMapOf()
+    private val partiesDeChasse: MutableMap<UUID, PartieDeChasse> = mutableMapOf()
 
     override fun save(partieDeChasse: PartieDeChasse) {
         savedPartieDeChasse = partieDeChasse
-        partiesDeChasse + (partieDeChasse.id to partieDeChasse)
+        add(partieDeChasse)
     }
 
     override fun getById(partieDeChasseId: UUID?): PartieDeChasse? =
-        partiesDeChasse.getOrDefault(partieDeChasseId, null)
+        partiesDeChasse[partieDeChasseId]
+
+    fun add(partieDeChasse: PartieDeChasse) {
+        partiesDeChasse.put(partieDeChasse.id!!, partieDeChasse)
+    }
 }
