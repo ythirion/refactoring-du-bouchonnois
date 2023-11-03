@@ -117,4 +117,64 @@ class PartieDeChasseService(
 
         repository.save(partieDeChasse)
     }
+
+    fun tirer(id: UUID, chasseur: String) {
+        val partieDeChasse = repository.getById(id) ?: throw LaPartieDeChasseNexistePas()
+
+        if (partieDeChasse.status != PartieStatus.APÉRO) {
+            if (partieDeChasse.status != PartieStatus.TERMINÉE) {
+                if (partieDeChasse.chasseurs!!.any { c -> c.nom == chasseur }) {
+                    val chasseurQuiTire = partieDeChasse.chasseurs!!.first { c -> c.nom == chasseur }
+
+                    if (chasseurQuiTire.ballesRestantes == 0) {
+                        partieDeChasse.events!!.add(
+                            Event(
+                                timeProvider(),
+                                "$chasseur tire -> T'as plus de balles mon vieux, chasse à la main"
+                            )
+                        )
+                        repository.save(partieDeChasse)
+                        throw TasPlusDeBallesMonVieuxChasseALaMain()
+                    }
+                    chasseurQuiTire.ballesRestantes = chasseurQuiTire.ballesRestantes - 1
+                    partieDeChasse.events!!.add(Event(timeProvider(), "$chasseur tire"))
+                } else {
+                    throw ChasseurInconnu(chasseur)
+                }
+            } else {
+                partieDeChasse.events!!.add(
+                    Event(
+                        timeProvider(),
+                        "$chasseur veut tirer -> On tire pas quand la partie est terminée"
+                    )
+                )
+                repository.save(partieDeChasse)
+                throw OnTirePasQuandLaPartieEstTerminee()
+            }
+        } else {
+            partieDeChasse.events!!.add(
+                Event(
+                    timeProvider(),
+                    "$chasseur veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"
+                )
+            )
+            repository.save(partieDeChasse)
+            throw OnTirePasPendantLapéroCestSacré()
+        }
+        repository.save(partieDeChasse)
+    }
+
+    fun prendreLapéro(id: UUID) {
+        val partieDeChasse = repository.getById(id) ?: throw LaPartieDeChasseNexistePas()
+
+        if (partieDeChasse.status == PartieStatus.APÉRO) {
+            throw OnEstDéjaEnTrainDePrendreLapéro()
+        } else if (partieDeChasse.status == PartieStatus.TERMINÉE) {
+            throw OnPrendPasLapéroQuandLaPartieEstTerminée()
+        } else {
+            partieDeChasse.status = PartieStatus.APÉRO
+            partieDeChasse.events!!.add(Event(timeProvider(), "Petit apéro"))
+            repository.save(partieDeChasse)
+        }
+    }
 }

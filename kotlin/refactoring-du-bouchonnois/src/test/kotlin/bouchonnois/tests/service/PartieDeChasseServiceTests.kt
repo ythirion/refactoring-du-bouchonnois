@@ -48,7 +48,7 @@ class PartieDeChasseServiceTests : FeatureSpec({
             savedPartieDeChasse.chasseurs!![2].nbGalinettes shouldBe 0
         }
 
-        scenario("echoue sans chasseurs") {
+        scenario("échoue sans chasseurs") {
             val repository = PartieDeChasseRepositoryForTests()
             val service = PartieDeChasseService(repository) { LocalDateTime.now() }
             val chasseurs: Map<String, Int> = mapOf()
@@ -63,7 +63,7 @@ class PartieDeChasseServiceTests : FeatureSpec({
             repository.savedPartieDeChasse shouldBe null
         }
 
-        scenario("echoue avec un terrain sans galinettes") {
+        scenario("échoue avec un terrain sans galinettes") {
             val repository = PartieDeChasseRepositoryForTests()
             val service = PartieDeChasseService(repository) { LocalDateTime.now() }
             val terrainDeChasse = ("Pitibon sur Sauldre" to 0)
@@ -77,7 +77,7 @@ class PartieDeChasseServiceTests : FeatureSpec({
             repository.savedPartieDeChasse shouldBe null
         }
 
-        scenario("echoue si chasseur sans balle") {
+        scenario("échoue si chasseur sans balle") {
             val repository = PartieDeChasseRepositoryForTests()
             val service = PartieDeChasseService(repository) { LocalDateTime.now() }
             val chasseurs = mapOf(
@@ -150,7 +150,7 @@ class PartieDeChasseServiceTests : FeatureSpec({
             savedPartieDeChasse.chasseurs!![2].nbGalinettes shouldBe 0
         }
 
-        scenario("echoue car partie n'existe pas") {
+        scenario("échoue car partie n'existe pas") {
             val id = UUID.randomUUID()
             val repository = PartieDeChasseRepositoryForTests()
             val service = PartieDeChasseService(repository) { LocalDateTime.now() }
@@ -164,7 +164,7 @@ class PartieDeChasseServiceTests : FeatureSpec({
             repository.savedPartieDeChasse shouldBe null
         }
 
-        scenario("echoue avec un chasseur n'ayant plus de balles") {
+        scenario("échoue avec un chasseur n'ayant plus de balles") {
             val id = UUID.randomUUID()
             val repository = PartieDeChasseRepositoryForTests()
             val service = PartieDeChasseService(repository) { LocalDateTime.now() }
@@ -369,6 +369,386 @@ class PartieDeChasseServiceTests : FeatureSpec({
                     "Bernard"
                 )
             }
+        }
+    }
+
+    feature("tirer") {
+        scenario("avec un chasseur ayant des balles et assez de galinettes sur le terrain") {
+            val id = UUID.randomUUID()
+            val repository = PartieDeChasseRepositoryForTests()
+
+            repository.add(
+                PartieDeChasse()
+                    .apply {
+                        this.id = id
+                        chasseurs = mutableListOf(
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Dédé"
+                                    this.ballesRestantes = 20
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Bernard"
+                                    this.ballesRestantes = 8
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Robert"
+                                    this.ballesRestantes = 12
+                                }
+                        )
+                        terrain = Terrain("Pitibon sur Sauldre").apply { this.nbGalinettes = 3 }
+                        status = PartieStatus.EN_COURS
+                        events = mutableListOf()
+                    }
+
+            )
+
+            val service = PartieDeChasseService(repository) { LocalDateTime.now() }
+
+            service.tirer(id, "Bernard")
+
+            val savedPartieDeChasse = repository.savedPartieDeChasse!!
+            savedPartieDeChasse.id shouldBe id
+            savedPartieDeChasse.status shouldBe PartieStatus.EN_COURS
+            savedPartieDeChasse.terrain!!.nom shouldBe "Pitibon sur Sauldre"
+            savedPartieDeChasse.terrain!!.nbGalinettes shouldBe 3
+            savedPartieDeChasse.chasseurs!! shouldHaveSize 3
+            savedPartieDeChasse.chasseurs!![0].nom shouldBe "Dédé"
+            savedPartieDeChasse.chasseurs!![0].ballesRestantes shouldBe 20
+            savedPartieDeChasse.chasseurs!![0].nbGalinettes shouldBe 0
+            savedPartieDeChasse.chasseurs!![1].nom shouldBe "Bernard"
+            savedPartieDeChasse.chasseurs!![1].ballesRestantes shouldBe 7
+            savedPartieDeChasse.chasseurs!![1].nbGalinettes shouldBe 0
+            savedPartieDeChasse.chasseurs!![2].nom shouldBe "Robert"
+            savedPartieDeChasse.chasseurs!![2].ballesRestantes shouldBe 12
+            savedPartieDeChasse.chasseurs!![2].nbGalinettes shouldBe 0
+        }
+
+        scenario("échoue car partie n'existe pas") {
+            val id = UUID.randomUUID()
+            val repository = PartieDeChasseRepositoryForTests()
+            val service = PartieDeChasseService(repository) { LocalDateTime.now() }
+
+            shouldThrow<LaPartieDeChasseNexistePas> {
+                service.tirer(
+                    id,
+                    "Bernard"
+                )
+            }
+            repository.savedPartieDeChasse shouldBe null
+        }
+
+        scenario("échoue avec un chasseur n'ayant plus de balles") {
+            val id = UUID.randomUUID()
+            val repository = PartieDeChasseRepositoryForTests()
+            val service = PartieDeChasseService(repository) { LocalDateTime.now() }
+
+            repository.add(
+                PartieDeChasse()
+                    .apply {
+                        this.id = id
+                        chasseurs = mutableListOf(
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Dédé"
+                                    this.ballesRestantes = 20
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Bernard"
+                                    this.ballesRestantes = 0
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Robert"
+                                    this.ballesRestantes = 12
+                                }
+                        )
+                        terrain = Terrain("Pitibon sur Sauldre").apply { this.nbGalinettes = 3 }
+                        status = PartieStatus.EN_COURS
+                        events = mutableListOf()
+                    }
+
+            )
+
+            shouldThrow<TasPlusDeBallesMonVieuxChasseALaMain> {
+                service.tirer(
+                    id,
+                    "Bernard"
+                )
+            }
+        }
+
+        scenario("échoue car le chasseur n'est pas dans la partie") {
+            val id = UUID.randomUUID()
+            val repository = PartieDeChasseRepositoryForTests()
+
+            repository.add(
+                PartieDeChasse()
+                    .apply {
+                        this.id = id
+                        chasseurs = mutableListOf(
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Dédé"
+                                    this.ballesRestantes = 20
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Bernard"
+                                    this.ballesRestantes = 8
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Robert"
+                                    this.ballesRestantes = 12
+                                }
+                        )
+                        terrain = Terrain("Pitibon sur Sauldre").apply { this.nbGalinettes = 3 }
+                        status = PartieStatus.EN_COURS
+                        events = mutableListOf()
+                    }
+
+            )
+            val service = PartieDeChasseService(repository) { LocalDateTime.now() }
+
+            shouldThrow<ChasseurInconnu> {
+                service.tirer(
+                    id,
+                    "Chasseur inconnu"
+                )
+            }
+            repository.savedPartieDeChasse shouldBe null
+        }
+
+        scenario("échoue si les chasseurs sont en apéro") {
+            val id = UUID.randomUUID()
+            val repository = PartieDeChasseRepositoryForTests()
+
+            repository.add(
+                PartieDeChasse()
+                    .apply {
+                        this.id = id
+                        chasseurs = mutableListOf(
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Dédé"
+                                    this.ballesRestantes = 20
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Bernard"
+                                    this.ballesRestantes = 8
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Robert"
+                                    this.ballesRestantes = 12
+                                }
+                        )
+                        terrain = Terrain("Pitibon sur Sauldre").apply { this.nbGalinettes = 3 }
+                        status = PartieStatus.APÉRO
+                        events = mutableListOf()
+                    }
+
+            )
+            val service = PartieDeChasseService(repository) { LocalDateTime.now() }
+
+            shouldThrow<OnTirePasPendantLapéroCestSacré> {
+                service.tirer(
+                    id,
+                    "Bernard"
+                )
+            }
+        }
+
+        scenario("échoue si la partie est terminée") {
+            val id = UUID.randomUUID()
+            val repository = PartieDeChasseRepositoryForTests()
+
+            repository.add(
+                PartieDeChasse()
+                    .apply {
+                        this.id = id
+                        chasseurs = mutableListOf(
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Dédé"
+                                    this.ballesRestantes = 20
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Bernard"
+                                    this.ballesRestantes = 8
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Robert"
+                                    this.ballesRestantes = 12
+                                }
+                        )
+                        terrain = Terrain("Pitibon sur Sauldre").apply { this.nbGalinettes = 3 }
+                        status = PartieStatus.TERMINÉE
+                        events = mutableListOf()
+                    }
+
+            )
+            val service = PartieDeChasseService(repository) { LocalDateTime.now() }
+
+            shouldThrow<OnTirePasQuandLaPartieEstTerminee> {
+                service.tirer(
+                    id,
+                    "Bernard"
+                )
+            }
+        }
+    }
+
+    feature("prendre l'apéro") {
+        scenario("quand la partie est en cours") {
+            val id = UUID.randomUUID()
+            val repository = PartieDeChasseRepositoryForTests()
+
+            repository.add(
+                PartieDeChasse()
+                    .apply {
+                        this.id = id
+                        chasseurs = mutableListOf(
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Dédé"
+                                    this.ballesRestantes = 20
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Bernard"
+                                    this.ballesRestantes = 8
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Robert"
+                                    this.ballesRestantes = 12
+                                }
+                        )
+                        terrain = Terrain("Pitibon sur Sauldre").apply { this.nbGalinettes = 3 }
+                        status = PartieStatus.EN_COURS
+                        events = mutableListOf()
+                    }
+
+            )
+
+            val service = PartieDeChasseService(repository) { LocalDateTime.now() }
+
+            service.prendreLapéro(id)
+
+            val savedPartieDeChasse = repository.savedPartieDeChasse!!
+            savedPartieDeChasse.id shouldBe id
+            savedPartieDeChasse.status shouldBe PartieStatus.APÉRO
+            savedPartieDeChasse.terrain!!.nom shouldBe "Pitibon sur Sauldre"
+            savedPartieDeChasse.terrain!!.nbGalinettes shouldBe 3
+            savedPartieDeChasse.chasseurs!! shouldHaveSize 3
+            savedPartieDeChasse.chasseurs!![0].nom shouldBe "Dédé"
+            savedPartieDeChasse.chasseurs!![0].ballesRestantes shouldBe 20
+            savedPartieDeChasse.chasseurs!![0].nbGalinettes shouldBe 0
+            savedPartieDeChasse.chasseurs!![1].nom shouldBe "Bernard"
+            savedPartieDeChasse.chasseurs!![1].ballesRestantes shouldBe 8
+            savedPartieDeChasse.chasseurs!![1].nbGalinettes shouldBe 0
+            savedPartieDeChasse.chasseurs!![2].nom shouldBe "Robert"
+            savedPartieDeChasse.chasseurs!![2].ballesRestantes shouldBe 12
+            savedPartieDeChasse.chasseurs!![2].nbGalinettes shouldBe 0
+        }
+
+        scenario("échoue car partie n'existe pas") {
+            val id = UUID.randomUUID()
+            val repository = PartieDeChasseRepositoryForTests()
+            val service = PartieDeChasseService(repository) { LocalDateTime.now() }
+
+            shouldThrow<LaPartieDeChasseNexistePas> {
+                service.prendreLapéro(id)
+            }
+            repository.savedPartieDeChasse shouldBe null
+        }
+
+        scenario("échoue si les chasseurs sont déja en apéro") {
+            val id = UUID.randomUUID()
+            val repository = PartieDeChasseRepositoryForTests()
+
+            repository.add(
+                PartieDeChasse()
+                    .apply {
+                        this.id = id
+                        chasseurs = mutableListOf(
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Dédé"
+                                    this.ballesRestantes = 20
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Bernard"
+                                    this.ballesRestantes = 8
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Robert"
+                                    this.ballesRestantes = 12
+                                }
+                        )
+                        terrain = Terrain("Pitibon sur Sauldre").apply { this.nbGalinettes = 3 }
+                        status = PartieStatus.APÉRO
+                        events = mutableListOf()
+                    }
+
+            )
+
+            val service = PartieDeChasseService(repository) { LocalDateTime.now() }
+
+            shouldThrow<OnEstDéjaEnTrainDePrendreLapéro> {
+                service.prendreLapéro(id)
+            }
+            repository.savedPartieDeChasse shouldBe null
+        }
+
+        scenario("échoue si la partie de chasse est terminée") {
+            val id = UUID.randomUUID()
+            val repository = PartieDeChasseRepositoryForTests()
+
+            repository.add(
+                PartieDeChasse()
+                    .apply {
+                        this.id = id
+                        chasseurs = mutableListOf(
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Dédé"
+                                    this.ballesRestantes = 20
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Bernard"
+                                    this.ballesRestantes = 8
+                                },
+                            Chasseur()
+                                .apply {
+                                    this.nom = "Robert"
+                                    this.ballesRestantes = 12
+                                }
+                        )
+                        terrain = Terrain("Pitibon sur Sauldre").apply { this.nbGalinettes = 3 }
+                        status = PartieStatus.TERMINÉE
+                        events = mutableListOf()
+                    }
+
+            )
+
+            val service = PartieDeChasseService(repository) { LocalDateTime.now() }
+
+            shouldThrow<OnPrendPasLapéroQuandLaPartieEstTerminée> {
+                service.prendreLapéro(id)
+            }
+            repository.savedPartieDeChasse shouldBe null
         }
     }
 })
