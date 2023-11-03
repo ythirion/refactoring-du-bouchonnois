@@ -15,7 +15,7 @@ class PartieDeChasseService(
     private val repository: PartieDeChasseRepository,
     private val timeProvider: () -> LocalDateTime
 ) {
-    fun démarrer(terrainDeChasse: Pair<String, Int>, chasseurs: List<Pair<String, Int>>): UUID {
+    fun démarrer(terrainDeChasse: Pair<String, Int>, chasseurs: Map<String, Int>): UUID {
         if (terrainDeChasse.second <= 0) {
             throw ImpossibleDeDémarrerUnePartieSansGalinettes()
         }
@@ -32,12 +32,12 @@ class PartieDeChasseService(
         partieDeChasse.events = mutableListOf()
 
         for (chasseur in chasseurs) {
-            if (chasseur.second == 0) {
+            if (chasseur.value == 0) {
                 throw ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle()
             }
             val chasseurToAdd = Chasseur()
-            chasseurToAdd.nom = chasseur.first
-            chasseurToAdd.ballesRestantes = chasseur.second
+            chasseurToAdd.nom = chasseur.key
+            chasseurToAdd.ballesRestantes = chasseur.value
 
             partieDeChasse.chasseurs!!.add(chasseurToAdd)
         }
@@ -53,7 +53,7 @@ class PartieDeChasseService(
         partieDeChasse.events!!.add(
             Event(
                 timeProvider(),
-                ("La partie de chasse commence à " + partieDeChasse.terrain!!.nom).toString() + " avec " + chasseursToString
+                "La partie de chasse commence à ${partieDeChasse.terrain!!.nom} avec $chasseursToString"
             )
         )
         repository.save(partieDeChasse)
