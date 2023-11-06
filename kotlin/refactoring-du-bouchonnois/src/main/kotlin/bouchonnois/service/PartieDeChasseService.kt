@@ -229,7 +229,7 @@ class PartieDeChasseService(
                 Event(
                     timeProvider(),
                     "La partie de chasse est terminée, vainqueur : ${
-                        winners.map { chasseur: Chasseur -> chasseur.nom + " - " + chasseur.nbGalinettes + " galinettes" }
+                        winners.joinToString(", ") { chasseur: Chasseur -> chasseur.nom + " - " + chasseur.nbGalinettes + " galinettes" }
                     }"
                 ))
         }
