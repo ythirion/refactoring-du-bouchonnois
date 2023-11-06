@@ -177,4 +177,73 @@ class PartieDeChasseService(
             repository.save(partieDeChasse)
         }
     }
+
+    fun reprendreLaPartie(id: UUID) {
+        val partieDeChasse = repository.getById(id)
+
+        if (partieDeChasse == null) {
+            throw LaPartieDeChasseNexistePas()
+        }
+        if (partieDeChasse.status == PartieStatus.EN_COURS) {
+            throw LaChasseEstDéjaEnCours()
+        }
+        if (partieDeChasse.status == PartieStatus.TERMINÉE) {
+            throw QuandCestFiniCestFini()
+        }
+
+        partieDeChasse.status = PartieStatus.EN_COURS
+        partieDeChasse.events!!.add(Event(timeProvider(), "Reprise de la chasse"))
+        repository.save(partieDeChasse)
+    }
+
+    fun terminerLaPartie(id: UUID): String {
+        val partieDeChasse = repository.getById(id)
+
+        val classement = partieDeChasse
+            ?.chasseurs
+            ?.groupBy { c -> c.nbGalinettes }
+
+        if (partieDeChasse!!.status == PartieStatus.TERMINÉE) {
+            throw QuandCestFiniCestFini()
+        }
+
+        partieDeChasse.status = PartieStatus.TERMINÉE
+
+        val result: String
+
+        if (classement!!.keys.all { it == 0 }) {
+            result = "Brocouille"
+            partieDeChasse.events!!.add(
+                Event(
+                    timeProvider(),
+                    "La partie de chasse est terminée, vainqueur : Brocouille"
+                )
+            )
+        } else {
+            val winners = classement[classement.keys.max()]
+            result = winners!!
+                .map(Chasseur::nom)
+                .joinToString(", ")
+
+            partieDeChasse.events!!.add(
+                Event(
+                    timeProvider(),
+                    "La partie de chasse est terminée, vainqueur : ${
+                        winners.map { chasseur: Chasseur -> chasseur.nom + " - " + chasseur.nbGalinettes + " galinettes" }
+                    }"
+                ))
+        }
+        repository.save(partieDeChasse)
+
+        return result
+    }
+
+    fun consulterStatus(id: UUID): String {
+        val partieDeChasse = repository.getById(id)
+        if (partieDeChasse == null) throw LaPartieDeChasseNexistePas()
+
+        return partieDeChasse.events!!
+            .sortedByDescending { it.date }
+            .joinToString(System.lineSeparator()) { it.toString() }
+    }
 }
