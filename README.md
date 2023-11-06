@@ -29,19 +29,19 @@ Version PDF disponible [ici](example-mapping/example-mapping.pdf)
 
 ## Facilitation
 ### Pré-requis
-Le code est disponible en `C#` (`.NET 7`) et `java`(21).
+Le code est disponible en `C#` (`.NET 7`), `java`(21), `kotlin`.
 
 Voici la liste des librairies utilisés / recommandées :
 
-| .NET                                                                                          | Java                                                               |
-|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
-| [`xUnit`](https://xunit.net/)                                                                 | [`junit`](https://junit.org/junit5/)                               |
-| [`FluentAssertions`](https://fluentassertions.com/)                                           | [`assertJ`](https://joel-costigliola.github.io/assertj/)           |
-| [`Verify.xUnit`](https://github.com/VerifyTests/Verify)                                       | [`approvalTests`](https://github.com/approvals/approvaltests.java) |
-| [`FSCheck`](https://fscheck.github.io/FsCheck/)                                               | [`vavr-test`](https://github.com/vavr-io/vavr-test)                |
-| [`TngTech.ArchUnitNET.xUnit`](https://archunitnet.readthedocs.io/en/latest/)                  | [`archunit`](https://www.archunit.org/)                            |
-| [`LanguageExt.Core`](https://github.com/louthy/language-ext)                                  | [`vavr`](https://www.vavr.io/)                                     |
-| [`FluentAssertions.LanguageExt`](https://www.nuget.org/packages/FluentAssertions.LanguageExt) | [`assertj-vavr`](https://github.com/assertj/assertj-vavr)          |
+| .NET                                                                                          | Java                                                               | Kotlin                                                                                                 |
+|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| [`xUnit`](https://xunit.net/)                                                                 | [`junit`](https://junit.org/junit5/)                               | [`Kotest`](https://kotest.io/)                                                                         |
+| [`FluentAssertions`](https://fluentassertions.com/)                                           | [`assertJ`](https://joel-costigliola.github.io/assertj/)           | Native `kotest` asertions                                                                              |
+| [`Verify.xUnit`](https://github.com/VerifyTests/Verify)                                       | [`approvalTests`](https://github.com/approvals/approvaltests.java) | [`approvalTests`](https://github.com/approvals/approvaltests.java)                                     |
+| [`FSCheck`](https://fscheck.github.io/FsCheck/)                                               | [`vavr-test`](https://github.com/vavr-io/vavr-test)                | [`kotest-property`](https://kotest.io/docs/proptest/property-based-testing.html)                       |
+| [`TngTech.ArchUnitNET.xUnit`](https://archunitnet.readthedocs.io/en/latest/)                  | [`archunit`](https://www.archunit.org/)                            | [`archunit`](https://www.archunit.org/)                                                                |
+| [`LanguageExt.Core`](https://github.com/louthy/language-ext)                                  | [`vavr`](https://www.vavr.io/)                                     | [`arrow-kt`](https://arrow-kt.io/)                                                                     |
+| [`FluentAssertions.LanguageExt`](https://www.nuget.org/packages/FluentAssertions.LanguageExt) | [`assertj-vavr`](https://github.com/assertj/assertj-vavr)          | [`kotest-extensions-arrow`](https://github.com/kotest/kotest-extensions-arrow#kotest-extensions-arrow) |
 
 Afin d'améliorer le code on te propose de suivre les étapes ci-dessous :
 
