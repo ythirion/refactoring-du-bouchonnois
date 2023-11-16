@@ -51,11 +51,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        working-directory: ./c#
         shell: powershell
         run: |
           dotnet tool install --global dotnet-coverage
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"ythirion_refactoring-du-bouchonnois" /o:"ythirion" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
-          dotnet build
-          dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
+          dotnet build c#/
+          dotnet-coverage collect "dotnet test c#/" -f xml -o "coverage.xml"
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
