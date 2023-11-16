@@ -24,7 +24,6 @@ jobs:
         dotnet-version: [ '7.0.x' ]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v3
       - name: Setup dotnet ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v3
         with:
@@ -40,6 +39,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
+          projectBaseDir: ././c#
           args: >
             -Dsonar.organization=ythirion
             -Dsonar.projectKey=ythirion_refactoring-du-bouchonnois
