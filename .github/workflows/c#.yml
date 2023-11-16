@@ -30,7 +30,7 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Build
-        working-directory: /c#
+        working-directory: ./c#
         run: | 
           dotnet tool install --global dotnet-coverage
           dotnet build
@@ -40,7 +40,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          projectBaseDir: /c#
           args: >
             -Dsonar.organization=ythirion
             -Dsonar.projectKey=ythirion_refactoring-du-bouchonnois
