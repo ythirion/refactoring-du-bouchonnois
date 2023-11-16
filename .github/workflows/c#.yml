@@ -1,4 +1,4 @@
-name: SonarCloud
+name: C# CI
 on:
   push:
     branches:

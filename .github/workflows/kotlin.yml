@@ -1,7 +1,20 @@
 name: Kotlin CI
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - steps/01-gather-metrics
+      - steps/02-treat-warnings-as-errors
+      - steps/03-kill-mutants
+      - steps/04-improve-tests-readability 
+      - steps/05-approve-everything
+      - steps/06-properties
+      - steps/07-architecture-tests
+      - steps/08-use-cases
+      - steps/09-tell-dont-ask
+      - steps/10-commands
+      - steps/11-avoid-exceptions
+      - steps/12-event-sourcing
 jobs:
   build:
     name: Build
