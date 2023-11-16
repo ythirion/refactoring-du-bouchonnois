@@ -44,5 +44,6 @@ jobs:
           args: >
             -Dsonar.organization=ythirion
             -Dsonar.projectKey=ythirion_refactoring-du-bouchonnois
-            -Dsonar.cs.vscoveragexml.reportsPaths=coverage.xml
-            -Dsonar.verbose=true
+            -Dsonar.cs.vscoveragexml.reportsPaths=./c#/coverage.xml
+            -Dsonar.sources=Bouchonnois
+            -Dsonar.tests=Bouchonnois.Tests
