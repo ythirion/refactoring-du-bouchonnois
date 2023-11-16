@@ -26,7 +26,11 @@ tasks.test {
 
 kotlin {
     jvmToolchain(8)
+    compilerOptions {
+        allWarningsAsErrors = true
+    }
 }
+
 
 jacoco {
     toolVersion = "0.8.7"
