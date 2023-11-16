@@ -1,4 +1,4 @@
-name: Java
+name: Kotlin CI
 on:
   push:
     branches: [ main ]
@@ -20,4 +20,4 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build
-          build-root-directory: ./java
+          build-root-directory: ./kotlin
