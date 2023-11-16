@@ -18,6 +18,6 @@ jobs:
           distribution: 'zulu'
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-      - name: Execute Gradle build
-        working-directory: ./java
-        run: ./gradlew build
+        with:
+          arguments: build
+          build-root-directory: ./java
