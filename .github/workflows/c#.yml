@@ -40,10 +40,10 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          projectBaseDir: ./c#
+          projectBaseDir: ../../c#
           args: >
             -Dsonar.organization=ythirion
             -Dsonar.projectKey=ythirion_refactoring-du-bouchonnois
-            -Dsonar.cs.vscoveragexml.reportsPaths=./c#/coverage.xml
+            -Dsonar.cs.vscoveragexml.reportsPaths=coverage.xml
             -Dsonar.sources=Bouchonnois
             -Dsonar.tests=Bouchonnois.Tests
