@@ -1,9 +1,15 @@
 package bouchonnois.service;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class Terrain {
     private final String nom;
     private int nbGalinettes;
+
+    public Terrain(String nom) {
+        this.nom = nom;
+    }
 }

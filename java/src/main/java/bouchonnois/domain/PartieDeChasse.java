@@ -1,12 +1,14 @@
 package bouchonnois.domain;
 
 import bouchonnois.service.Terrain;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 public class PartieDeChasse {
     private UUID id;
     private List<Chasseur> chasseurs;

@@ -22,6 +22,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PartieDeChasseServiceTests {
+    private static void assertPartieDeChasseHasBeenSaved(PartieDeChasseRepositoryForTests repository, PartieDeChasse partieDeChasse) {
+        assertThat(repository.getSavedPartieDeChasse())
+                .isEqualTo(partieDeChasse);
+    }
+
     @Nested
     class DemarrerUnePartieDeChasse {
         @Test
@@ -41,7 +46,7 @@ class PartieDeChasseServiceTests {
             );
 
             var savedPartieDeChasse = repository.getSavedPartieDeChasse();
-            assertThat(savedPartieDeChasse.getId()).isEqualTo(id);
+            assertThat(savedPartieDeChasse.getId()).isNotNull().isEqualTo(id);
             assertThat(savedPartieDeChasse.getStatus()).isEqualTo(PartieStatus.EN_COURS);
             assertThat(savedPartieDeChasse.getTerrain().getNom()).isEqualTo("Pitibon sur Sauldre");
             assertThat(savedPartieDeChasse.getTerrain().getNbGalinettes()).isEqualTo(3);
@@ -166,7 +171,7 @@ class PartieDeChasseServiceTests {
             var id = UUID.randomUUID();
             var repository = new PartieDeChasseRepositoryForTests();
 
-            repository.add(new PartieDeChasse() {
+            var partieDeChasse = new PartieDeChasse() {
                 {
                     setId(id);
                     setChasseurs(new ArrayList<>() {{
@@ -190,11 +195,14 @@ class PartieDeChasseServiceTests {
                     setStatus(PartieStatus.EN_COURS);
                     setEvents(new ArrayList<>());
                 }
-            });
+            };
+            repository.add(partieDeChasse);
             var service = new PartieDeChasseService(repository, LocalDateTime::now);
 
             assertThatThrownBy(() -> service.tirerSurUneGalinette(id, "Bernard"))
                     .isInstanceOf(TasPlusDeBallesMonVieuxChasseALaMain.class);
+
+            assertPartieDeChasseHasBeenSaved(repository, partieDeChasse);
         }
 
         @Test
@@ -276,7 +284,7 @@ class PartieDeChasseServiceTests {
             var id = UUID.randomUUID();
             var repository = new PartieDeChasseRepositoryForTests();
 
-            repository.add(new PartieDeChasse() {
+            var partieDeChasse = new PartieDeChasse() {
                 {
                     setId(id);
                     setChasseurs(new ArrayList<>() {{
@@ -300,11 +308,13 @@ class PartieDeChasseServiceTests {
                     setStatus(PartieStatus.APÉRO);
                     setEvents(new ArrayList<>());
                 }
-            });
+            };
+            repository.add(partieDeChasse);
             var service = new PartieDeChasseService(repository, LocalDateTime::now);
 
             assertThatThrownBy(() -> service.tirerSurUneGalinette(id, "Bernard"))
                     .isInstanceOf(OnTirePasPendantLapéroCestSacré.class);
+            assertPartieDeChasseHasBeenSaved(repository, partieDeChasse);
         }
 
         @Test
@@ -312,7 +322,7 @@ class PartieDeChasseServiceTests {
             var id = UUID.randomUUID();
             var repository = new PartieDeChasseRepositoryForTests();
 
-            repository.add(new PartieDeChasse() {
+            PartieDeChasse partieDeChasse = new PartieDeChasse() {
                 {
                     setId(id);
                     setChasseurs(new ArrayList<>() {{
@@ -336,11 +346,13 @@ class PartieDeChasseServiceTests {
                     setStatus(PartieStatus.TERMINÉE);
                     setEvents(new ArrayList<>());
                 }
-            });
+            };
+            repository.add(partieDeChasse);
             var service = new PartieDeChasseService(repository, LocalDateTime::now);
 
             assertThatThrownBy(() -> service.tirerSurUneGalinette(id, "Bernard"))
                     .isInstanceOf(OnTirePasQuandLaPartieEstTerminee.class);
+            assertPartieDeChasseHasBeenSaved(repository, partieDeChasse);
         }
     }
 
@@ -413,7 +425,7 @@ class PartieDeChasseServiceTests {
             var id = UUID.randomUUID();
             var repository = new PartieDeChasseRepositoryForTests();
 
-            repository.add(new PartieDeChasse() {
+            var partieDeChasse = new PartieDeChasse() {
                 {
                     setId(id);
                     setChasseurs(new ArrayList<>() {{
@@ -437,11 +449,13 @@ class PartieDeChasseServiceTests {
                     setStatus(PartieStatus.EN_COURS);
                     setEvents(new ArrayList<>());
                 }
-            });
+            };
+            repository.add(partieDeChasse);
             var service = new PartieDeChasseService(repository, LocalDateTime::now);
 
             assertThatThrownBy(() -> service.tirer(id, "Bernard"))
                     .isInstanceOf(TasPlusDeBallesMonVieuxChasseALaMain.class);
+            assertPartieDeChasseHasBeenSaved(repository, partieDeChasse);
         }
 
         @Test
@@ -486,7 +500,7 @@ class PartieDeChasseServiceTests {
             var id = UUID.randomUUID();
             var repository = new PartieDeChasseRepositoryForTests();
 
-            repository.add(new PartieDeChasse() {
+            var partieDeChasse = new PartieDeChasse() {
                 {
                     setId(id);
                     setChasseurs(new ArrayList<>() {{
@@ -510,11 +524,13 @@ class PartieDeChasseServiceTests {
                     setStatus(PartieStatus.APÉRO);
                     setEvents(new ArrayList<>());
                 }
-            });
+            };
+            repository.add(partieDeChasse);
             var service = new PartieDeChasseService(repository, LocalDateTime::now);
 
             assertThatThrownBy(() -> service.tirer(id, "Bernard"))
                     .isInstanceOf(OnTirePasPendantLapéroCestSacré.class);
+            assertPartieDeChasseHasBeenSaved(repository, partieDeChasse);
         }
 
         @Test
@@ -522,7 +538,7 @@ class PartieDeChasseServiceTests {
             var id = UUID.randomUUID();
             var repository = new PartieDeChasseRepositoryForTests();
 
-            repository.add(new PartieDeChasse() {
+            PartieDeChasse partieDeChasse = new PartieDeChasse() {
                 {
                     setId(id);
                     setChasseurs(new ArrayList<>() {{
@@ -546,11 +562,13 @@ class PartieDeChasseServiceTests {
                     setStatus(PartieStatus.TERMINÉE);
                     setEvents(new ArrayList<>());
                 }
-            });
+            };
+            repository.add(partieDeChasse);
             var service = new PartieDeChasseService(repository, LocalDateTime::now);
 
             assertThatThrownBy(() -> service.tirer(id, "Bernard"))
                     .isInstanceOf(OnTirePasQuandLaPartieEstTerminee.class);
+            assertPartieDeChasseHasBeenSaved(repository, partieDeChasse);
         }
     }
 
@@ -1133,7 +1151,7 @@ class PartieDeChasseServiceTests {
     @Nested
     class ConsulterStatus {
         @Test
-        void quand_la_partie_vient_de_démarrer() throws LaPartieDeChasseNexistePas, LaChasseEstDéjaEnCours, QuandCestFiniCestFini {
+        void quand_la_partie_vient_de_démarrer() throws LaPartieDeChasseNexistePas {
             var id = UUID.randomUUID();
             var repository = new PartieDeChasseRepositoryForTests();
 
@@ -1174,7 +1192,7 @@ class PartieDeChasseServiceTests {
         }
 
         @Test
-        void quand_la_partie_est_terminée() throws LaPartieDeChasseNexistePas, LaChasseEstDéjaEnCours, QuandCestFiniCestFini {
+        void quand_la_partie_est_terminée() throws LaPartieDeChasseNexistePas {
             var id = UUID.randomUUID();
             var repository = new PartieDeChasseRepositoryForTests();
 
@@ -1252,6 +1270,17 @@ class PartieDeChasseServiceTests {
                             "09:10 - Dédé tire" + lineSeparator() +
                             "09:00 - La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)"
                     );
+        }
+
+        @Test
+        void echoue_car_partie_nexiste_pas() {
+            var id = UUID.randomUUID();
+            var repository = new PartieDeChasseRepositoryForTests();
+            var service = new PartieDeChasseService(repository, LocalDateTime::now);
+
+            assertThatThrownBy(() -> service.consulterStatus(id))
+                    .isInstanceOf(LaPartieDeChasseNexistePas.class);
+            assertThat(repository.getSavedPartieDeChasse()).isNull();
         }
     }
 }
