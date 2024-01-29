@@ -1,4 +1,4 @@
 package bouchonnois.service.exceptions;
 
-public class LaPartieDeChasseNexistePas extends Exception {
+public class LaPartieDeChasseNexistePas extends RuntimeException {
 }

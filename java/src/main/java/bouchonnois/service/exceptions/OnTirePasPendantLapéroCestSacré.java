@@ -1,4 +1,4 @@
 package bouchonnois.service.exceptions;
 
-public class OnTirePasPendantLapéroCestSacré extends Exception {
+public class OnTirePasPendantLapéroCestSacré extends RuntimeException {
 }

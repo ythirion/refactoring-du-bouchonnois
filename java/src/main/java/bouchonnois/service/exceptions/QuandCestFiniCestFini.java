@@ -1,4 +1,4 @@
 package bouchonnois.service.exceptions;
 
-public class QuandCestFiniCestFini extends Exception {
+public class QuandCestFiniCestFini extends RuntimeException {
 }

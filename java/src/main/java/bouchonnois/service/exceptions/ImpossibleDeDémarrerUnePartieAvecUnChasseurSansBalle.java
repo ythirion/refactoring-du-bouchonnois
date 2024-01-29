@@ -1,4 +1,4 @@
 package bouchonnois.service.exceptions;
 
-public class ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle extends Exception {
+public class ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle extends RuntimeException {
 }

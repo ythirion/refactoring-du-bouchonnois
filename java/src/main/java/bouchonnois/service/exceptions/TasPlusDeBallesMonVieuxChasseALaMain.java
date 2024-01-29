@@ -1,4 +1,4 @@
 package bouchonnois.service.exceptions;
 
-public class TasPlusDeBallesMonVieuxChasseALaMain extends Exception {
+public class TasPlusDeBallesMonVieuxChasseALaMain extends RuntimeException {
 }

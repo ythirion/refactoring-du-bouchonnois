@@ -1,35 +1,29 @@
 package bouchonnois.tests.unit;
 
 import bouchonnois.domain.PartieStatus;
-import bouchonnois.service.PartieDeChasseService;
 import bouchonnois.service.exceptions.ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle;
 import bouchonnois.service.exceptions.ImpossibleDeDémarrerUnePartieSansChasseur;
 import bouchonnois.service.exceptions.ImpossibleDeDémarrerUnePartieSansGalinettes;
-import bouchonnois.tests.doubles.PartieDeChasseRepositoryForTests;
-import io.vavr.Tuple2;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import static bouchonnois.tests.assertions.PartieDeChasseAssert.assertPartieDeChasse;
+import static bouchonnois.tests.builders.CommandBuilder.demarrerUnePartieDeChasse;
+import static io.vavr.Tuple.of;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class DemarrerUnePartieDeChasse {
+class DemarrerUnePartieDeChasse extends PartieDeChasseServiceTests {
     @Test
-    void avec_plusieurs_chasseurs() throws ImpossibleDeDémarrerUnePartieSansGalinettes, ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle, ImpossibleDeDémarrerUnePartieSansChasseur {
-        var repository = new PartieDeChasseRepositoryForTests();
-        var service = new PartieDeChasseService(repository, LocalDateTime::now);
-        var chasseurs = new ArrayList<Tuple2<String, Integer>>() {{
-            add(new Tuple2<>("Dédé", 20));
-            add(new Tuple2<>("Bernard", 8));
-            add(new Tuple2<>("Robert", 12));
-        }};
-        var terrainDeChasse = new Tuple2<>("Pitibon sur Sauldre", 3);
+    void avec_plusieurs_chasseurs() {
+        var command = demarrerUnePartieDeChasse()
+                .avec(of(DÉDÉ, 20), of(BERNARD, 8), of(ROBERT, 12))
+                .surUnTerrainRicheEnGalinettes();
 
-        var id = service.démarrer(
-                terrainDeChasse,
-                chasseurs
+        var id = partieDeChasseService.démarrer(
+                command.getTerrain(),
+                command.getChasseurs()
         );
 
         var savedPartieDeChasse = repository.getSavedPartieDeChasse();
@@ -47,44 +41,38 @@ class DemarrerUnePartieDeChasse {
         assertThat(savedPartieDeChasse.getChasseurs().get(2).getNom()).isEqualTo("Robert");
         assertThat(savedPartieDeChasse.getChasseurs().get(2).getBallesRestantes()).isEqualTo(12);
         assertThat(savedPartieDeChasse.getChasseurs().get(2).getNbGalinettes()).isZero();
+
+        assertPartieDeChasse(savedPartieDeChasse)
+                .hasEmittedEvent(now,
+                        "La partie de chasse commence à Pitibon sur Sauldre avec Dédé (20 balles), Bernard (8 balles), Robert (12 balles)"
+                );
     }
 
-    @Test
-    void echoue_sans_chasseurs() {
-        var repository = new PartieDeChasseRepositoryForTests();
-        var service = new PartieDeChasseService(repository, LocalDateTime::now);
-        var chasseurs = new ArrayList<Tuple2<String, Integer>>();
-        var terrainDeChasse = new Tuple2<>("Pitibon sur Sauldre", 3);
+    @Nested
+    class Echoue {
+        @Test
+        void sans_chasseurs() {
+            executeAndAssertThrow(ImpossibleDeDémarrerUnePartieSansChasseur.class,
+                    service -> service.démarrer(of("Pitibon sur Sauldre", 3), new ArrayList<>()),
+                    partieDeChasse -> assertThat(partieDeChasse).isNull());
+        }
 
-        assertThatThrownBy(() -> service.démarrer(terrainDeChasse, chasseurs))
-                .isInstanceOf(ImpossibleDeDémarrerUnePartieSansChasseur.class);
-        assertThat(repository.getSavedPartieDeChasse()).isNull();
-    }
+        @Test
+        void avec_un_terrain_sans_galinettes() {
+            executeAndAssertThrow(ImpossibleDeDémarrerUnePartieSansGalinettes.class,
+                    service -> service.démarrer(of("Pitibon sur Sauldre", 0), new ArrayList<>()),
+                    partieDeChasse -> assertThat(partieDeChasse).isNull());
+        }
 
-    @Test
-    void echoue_avec_un_terrain_sans_galinettes() {
-        var repository = new PartieDeChasseRepositoryForTests();
-        var service = new PartieDeChasseService(repository, LocalDateTime::now);
-        var chasseurs = new ArrayList<Tuple2<String, Integer>>();
-        var terrainDeChasse = new Tuple2<>("Pitibon sur Sauldre", 0);
+        @Test
+        void si_un_chasseur_sans_balle() {
+            var command = demarrerUnePartieDeChasse()
+                    .avec(of(DÉDÉ, 20), of(BERNARD, 0))
+                    .surUnTerrainRicheEnGalinettes();
 
-        assertThatThrownBy(() -> service.démarrer(terrainDeChasse, chasseurs))
-                .isInstanceOf(ImpossibleDeDémarrerUnePartieSansGalinettes.class);
-        assertThat(repository.getSavedPartieDeChasse()).isNull();
-    }
-
-    @Test
-    void echoue_si_un_chasseur_sans_balle() {
-        var repository = new PartieDeChasseRepositoryForTests();
-        var service = new PartieDeChasseService(repository, LocalDateTime::now);
-        var chasseurs = new ArrayList<Tuple2<String, Integer>>() {{
-            add(new Tuple2<>("Dédé", 20));
-            add(new Tuple2<>("Bernard", 0));
-        }};
-        var terrainDeChasse = new Tuple2<>("Pitibon sur Sauldre", 3);
-
-        assertThatThrownBy(() -> service.démarrer(terrainDeChasse, chasseurs))
-                .isInstanceOf(ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle.class);
-        assertThat(repository.getSavedPartieDeChasse()).isNull();
+            executeAndAssertThrow(ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle.class,
+                    service -> service.démarrer(command.getTerrain(), command.getChasseurs()),
+                    partieDeChasse -> assertThat(partieDeChasse).isNull());
+        }
     }
 }

@@ -1,4 +1,4 @@
 package bouchonnois.service.exceptions;
 
-public class OnEstDéjaEnTrainDePrendreLapéro extends Exception {
+public class OnEstDéjaEnTrainDePrendreLapéro extends RuntimeException {
 }

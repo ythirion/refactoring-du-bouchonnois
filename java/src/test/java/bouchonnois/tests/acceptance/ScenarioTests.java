@@ -17,7 +17,7 @@ class ScenarioTests {
     private LocalDateTime time = LocalDateTime.of(2024, APRIL, 25, 9, 0, 0);
 
     @Test
-    void dérouler_une_partie() throws ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle, ImpossibleDeDémarrerUnePartieSansChasseur, ImpossibleDeDémarrerUnePartieSansGalinettes, OnTirePasPendantLapéroCestSacré, ChasseurInconnu, TasTropPicoledMonVieuxTasRienTouche, OnTirePasQuandLaPartieEstTerminee, TasPlusDeBallesMonVieuxChasseALaMain, LaPartieDeChasseNexistePas, OnPrendPasLapéroQuandLaPartieEstTerminée, OnEstDéjaEnTrainDePrendreLapéro, LaChasseEstDéjaEnCours, QuandCestFiniCestFini {
+    void dérouler_une_partie() throws ImpossibleDeDémarrerUnePartieAvecUnChasseurSansBalle, ImpossibleDeDémarrerUnePartieSansChasseur, ImpossibleDeDémarrerUnePartieSansGalinettes, OnTirePasPendantLapéroCestSacré, ChasseurInconnu, TasTropPicoléMonVieuxTasRienTouché, OnTirePasQuandLaPartieEstTerminée, TasPlusDeBallesMonVieuxChasseALaMain, LaPartieDeChasseNexistePas, OnPrendPasLapéroQuandLaPartieEstTerminée, OnEstDéjaEnTrainDePrendreLapéro, LaChasseEstDéjaEnCours, QuandCestFiniCestFini {
 
         var repository = new PartieDeChasseRepositoryForTests();
         var service = new PartieDeChasseService(repository, () -> time);

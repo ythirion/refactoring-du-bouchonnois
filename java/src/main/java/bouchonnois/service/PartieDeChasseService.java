@@ -64,7 +64,7 @@ public class PartieDeChasseService {
         return partieDeChasse.getId();
     }
 
-    public void tirerSurUneGalinette(UUID id, String chasseur) throws LaPartieDeChasseNexistePas, TasPlusDeBallesMonVieuxChasseALaMain, ChasseurInconnu, OnTirePasPendantLapéroCestSacré, TasTropPicoledMonVieuxTasRienTouche, OnTirePasQuandLaPartieEstTerminee {
+    public void tirerSurUneGalinette(UUID id, String chasseur) throws LaPartieDeChasseNexistePas, TasPlusDeBallesMonVieuxChasseALaMain, ChasseurInconnu, OnTirePasPendantLapéroCestSacré, TasTropPicoléMonVieuxTasRienTouché, OnTirePasQuandLaPartieEstTerminée {
         PartieDeChasse partieDeChasse = repository.getById(id);
 
         if (partieDeChasse == null) {
@@ -100,7 +100,7 @@ public class PartieDeChasseService {
                     partieDeChasse.getEvents().add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas quand la partie est terminée"));
                     repository.save(partieDeChasse);
 
-                    throw new OnTirePasQuandLaPartieEstTerminee();
+                    throw new OnTirePasQuandLaPartieEstTerminée();
                 }
             } else {
                 partieDeChasse.getEvents()
@@ -109,13 +109,13 @@ public class PartieDeChasseService {
                 throw new OnTirePasPendantLapéroCestSacré();
             }
         } else {
-            throw new TasTropPicoledMonVieuxTasRienTouche();
+            throw new TasTropPicoléMonVieuxTasRienTouché();
         }
 
         repository.save(partieDeChasse);
     }
 
-    public void tirer(UUID id, String chasseur) throws LaPartieDeChasseNexistePas, TasPlusDeBallesMonVieuxChasseALaMain, ChasseurInconnu, OnTirePasPendantLapéroCestSacré, TasTropPicoledMonVieuxTasRienTouche, OnTirePasQuandLaPartieEstTerminee {
+    public void tirer(UUID id, String chasseur) throws LaPartieDeChasseNexistePas, TasPlusDeBallesMonVieuxChasseALaMain, ChasseurInconnu, OnTirePasPendantLapéroCestSacré, TasTropPicoléMonVieuxTasRienTouché, OnTirePasQuandLaPartieEstTerminée {
         PartieDeChasse partieDeChasse = repository.getById(id);
 
         if (partieDeChasse == null) {
@@ -148,7 +148,7 @@ public class PartieDeChasseService {
                 partieDeChasse.getEvents().add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas quand la partie est terminée"));
                 repository.save(partieDeChasse);
 
-                throw new OnTirePasQuandLaPartieEstTerminee();
+                throw new OnTirePasQuandLaPartieEstTerminée();
             }
         } else {
             partieDeChasse.getEvents().add(new Event(timeProvider.get(), chasseur + " veut tirer -> On tire pas pendant l'apéro, c'est sacré !!!"));
