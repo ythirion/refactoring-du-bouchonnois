@@ -1,4 +1,4 @@
-package bouchonnois.tests.service;
+package bouchonnois.tests.acceptance;
 
 import bouchonnois.service.PartieDeChasseService;
 import bouchonnois.service.exceptions.*;
