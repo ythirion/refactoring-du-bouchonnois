@@ -8,7 +8,7 @@ Ce kata a pour objectif de s'exercer au refactoring sur un code existant afin de
 
 ## Le contexte
 Nos vaillants chasseurs du Bouchonnois ont besoin de pouvoir gérer leurs parties de chasse.  
-Ils ont commencé à faire développer 1 système de gestion par une l'entreprise `Toshiba` mais ne sont pas satisfaits.  
+Ils ont commencé à faire développer 1 système de gestion par l'entreprise `Toshiba` mais ne sont pas satisfaits.  
 
 L'entreprise leur parle d'une soit-disante `dette technique` qui les ralentit dans le développement de nouvelles features...
 
