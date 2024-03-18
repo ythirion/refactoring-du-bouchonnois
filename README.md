@@ -19,7 +19,7 @@ Les chasseurs comptent sur nous pour améliorer la situation.
 ### Example Mapping
 Ils ont fait quelques ateliers avec `Toshiba` et ont réussi à clarifier ce qui est attendu du système.
 
-Pour ce faire, ils ont utilisé le format `Example Mapping` à découvrir [ici](https://xtrem-tdd.netlify.app/Flavours/example-mapping).
+Pour ce faire, ils ont utilisé le format `Example Mapping` à découvrir [ici](https://xtrem-tdd.netlify.app/Flavours/Practices/example-mapping).
 
 Voici l'Example Mapping qui a servi d'alignement pour développer ce système.
 
