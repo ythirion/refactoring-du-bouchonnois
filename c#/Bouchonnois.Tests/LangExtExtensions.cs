@@ -1,6 +1,6 @@
 using LanguageExt;
 
-namespace Bouchonnois.Tests.Unit;
+namespace Bouchonnois.Tests;
 
 public static class LangExtExtensions
 {
