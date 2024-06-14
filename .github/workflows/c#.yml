@@ -1,4 +1,4 @@
-name: SonarCloud
+name: C# CI
 on:
   push:
     branches:
@@ -20,11 +20,11 @@ jobs:
     name: Build and analyze
     runs-on: windows-latest
     steps:
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: 11
-          distribution: 'zulu' # Alternative distribution options are available.
+          java-version: 17
+          distribution: 'zulu'
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
@@ -55,6 +55,6 @@ jobs:
         run: |
           dotnet tool install --global dotnet-coverage
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"ythirion_refactoring-du-bouchonnois" /o:"ythirion" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
-          dotnet build
-          dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
+          dotnet build c#/
+          dotnet-coverage collect "dotnet test c#/" -f xml -o "coverage.xml"
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
